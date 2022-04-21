@@ -1,9 +1,13 @@
 # Truffle output
 build/
 migrations/
+public/
 
 # node modules
 node_modules/
 
 # Visual Studio code
 .vscode/
+
+# MacOS remainings
+.DS_Store

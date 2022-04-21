@@ -1,5 +1,8 @@
 # Simple Voting system
-Simple voting system written in `Solidity`.
+This repo contains source code for very simple online voting system.
+It is based on smart-contracts written in `Solidity` and a frontent side written with `SvelteKit`.
+  
+_ENJOY !!_
 
 ## Contract features
 Following features are supported:
@@ -15,6 +18,7 @@ Following features are supported:
   - [ ] report/flag poll (_aka **Reporting Process**_)
 
 ### Voting
+_Describe voting procedure here_
 
 ### Reporting a poll
 
