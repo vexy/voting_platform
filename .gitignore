@@ -1,3 +1,9 @@
 # Truffle output
 build/
 migrations/
+
+# node modules
+node_modules/
+
+# Visual Studio code
+.vscode/

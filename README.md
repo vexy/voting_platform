@@ -9,7 +9,7 @@ Following features are supported:
     - poll options
         - up to 5 options (_string based_)
     - expiry date
-  - [ ] preview poll details (_aka **Voting**_)
+  - [ ] preview poll details (_aka **Browsing**_)
   - [ ] selecting poll answer (_aka **Voting**_)
   - [ ] listing all polls
   - [ ] report/flag poll (_aka **Reporting Process**_)
@@ -19,7 +19,7 @@ Following features are supported:
 ### Reporting a poll
 
 ## Structure
-> Contracts structure: _TBD_
+> Contracts structure: _WIP_
 ```mermaid
 flowchart LR
     subgraph wallet
@@ -43,8 +43,9 @@ flowchart LR
 ```
 
 ## Deployment info
+Deployment is performed with [Truffle](https://trufflesuite.com/) CLI.
+
 > _Currently, **only** test-nets are supported._  
-Deployment will be performed with `Truffle CLI`.
 _TBD_
 
 ---
