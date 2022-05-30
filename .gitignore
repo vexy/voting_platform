@@ -1,7 +1,7 @@
-# Truffle output
+# Hardhat output
 build/
-migrations/
-public/
+cache/
+artifacts/
 
 # node modules
 node_modules/
