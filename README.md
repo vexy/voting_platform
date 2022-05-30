@@ -16,27 +16,23 @@ Voting platform supports following features:
   - Posting new poll (_aka **Creating Poll**_)
 
 ### Prerequisities
-In order to run this contract, make sure you have some digital wallet installed and properly configured. At this point, only [MetaMask](https://metamask.io/) wallets are supported. 
-
 In order to fully run this platform, following is a list of pre-requisities:
-1. Node/NPM
-2. Hardhat NPM library
-3. Metamask wallet (and browser extension)
+1. node/npm (node `v16.15` / npm `v8.5.5`)
+2. [hardhat](https://hardhat.org/getting-started/#installation) `v2.9.7`
+3. [MetaMask](https://metamask.io/) wallet or (browser extension [chrome extension](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en))
+(_right now only Metamask is supported, more wallets comming soon_)
 
-Easiest way to install `Hardhat` (assuming NPM installed) would be:
-```
-npm install --save-dev hardhat
-```
-
-If not specifically noted, make sure the following libraries are installed:
+After installing hardhat, make sure the following libraries are installed:
 ```
 npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle chai @nomiclabs/hardhat-ethers ethers
 ```
 
-Quick check to make sure contracts could be compiled and that everything works well:
+Finally, you can check if everything works well by typing:
 ```
 npx hardhat compile
 ```
+
+Checkout open [issues](https://github.com/vexy/simple_voting/issues) or open another one if you run into trouble.
 
 ## Deployment info
 > _Currently, **only** test-nets are supported. TBD_
@@ -88,7 +84,7 @@ PRs and any sort of contribution is **more than welcome**. Just check the [proje
 **!! THANK YOU IN ADVANCE !!**
 
 ---
-Created by [Vexy](https://github.com/vexy) | Copyright (C) 2022  
+Copyright (C) 2022 [Vexy](https://github.com/vexy)  
 <a href="https://stackexchange.com/users/215166">
   <img src="https://stackexchange.com/users/flair/215166.png?theme=clean" width="208" height="58" alt="profile for Vexy on Stack Exchange, a network of free, community-driven Q&amp;A sites" title="profile for Vexy on Stack Exchange, a network of free, community-driven Q&amp;A sites">
 </a><br>

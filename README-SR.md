@@ -80,7 +80,7 @@ flowchart LR
 ```
 
 ---
-Направио: [Vexy](https://github.com/vexy) | Направљено у Србији, априла 2022 🇷🇸  | Copyright (c) 2022  
+Направљено у Србији, априла 2022 🇷🇸  | Copyright (C) 2022 [Vexy](https://github.com/vexy)  
 <a href="https://stackexchange.com/users/215166">
   <img src="https://stackexchange.com/users/flair/215166.png?theme=clean" width="208" height="58" alt="profile for Vexy on Stack Exchange, a network of free, community-driven Q&amp;A sites" title="profile for Vexy on Stack Exchange, a network of free, community-driven Q&amp;A sites">
 </a><br>
