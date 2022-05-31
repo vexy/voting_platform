@@ -4,7 +4,6 @@
 
 <script>
     import MetaMaskOnboarding from '@metamask/onboarding';
-    // const MetaMaskOnboarding = require('@metamask/onboarding');
 
     function startConnecting() {
         const brd = new MetaMaskOnboarding();
