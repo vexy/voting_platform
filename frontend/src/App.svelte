@@ -3,6 +3,7 @@
 	import Footer from "./Footer.svelte";
 	import MainPanel from "./MainPanel.svelte";
 	import WalletConnect from "./WalletConnect.svelte";
+	import AllPolls from "./AllPolls.svelte";
 	import MetaMaskOnboarding from '@metamask/onboarding';
 
 	function hasMetamaskInstalled() {
@@ -22,6 +23,7 @@
 		{:else}
 			<MainPanel />
 			<WalletConnect />
+			<AllPolls />
 		{/if}
 	</div>
 	<Footer/>
@@ -46,15 +48,6 @@
 		align-self: auto;
 		order: 0;
 		height: 100%;
-	}
-
-	.flex-items:nth-child(2) {
-		display: block;
-		flex-grow: 0;
-		flex-shrink: 1;
-		flex-basis: auto;
-		align-self: auto;
-		order: 0;
 	}
 
 	@media (min-width: 640px) {
