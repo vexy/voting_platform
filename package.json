@@ -1,5 +1,6 @@
 {
   "name": "simple-voting",
+  "version": "0.0.1",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
