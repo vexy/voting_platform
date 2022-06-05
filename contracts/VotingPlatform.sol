@@ -36,8 +36,10 @@ contract VotingPlatform {
     function addQuestion(
         string memory title,
         string memory description,
-        string[] memory options
-    ) public {
+        string[] memory options)
+    public
+    returns (bool)
+    {
         // try to make new PlatformQuestion object
         PlatformQuestion newQuestion = new PlatformQuestion(title, description, options, msg.sender);
         totalQuestions += 1; //increase number of total questions
@@ -46,10 +48,13 @@ contract VotingPlatform {
         allQuestions[totalQuestions] = newQuestion;
 
         emit NewQuestionAdded(title, msg.sender);  // rework later
+        return true;   //as the indicator that everything went well
     }
 
     // make payable later...
     function voteQuestionOption(uint questionID, uint answerID) public {
+        //TODO: adjust call to this function
         allQuestions[questionID].voteFor(answerID);
+        totalVoters += 1;
     }
 }

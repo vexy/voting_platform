@@ -32,7 +32,7 @@ contract PlatformQuestion {
         address owner)
     {
         // guard against faulty inputs:
-        require(bytes(title).length > 0);
+        require(bytes(questionTitle).length > 0);
         require(allOptions.length <= 5);
 
         // copy basic question parameters
@@ -51,7 +51,7 @@ contract PlatformQuestion {
 
     function voteFor(uint optionId) public {
         // basic bounds check
-        require(optionId > 0 && optionId < 5);
+        require(optionId > 0 && optionId < 5, "Voting option must be between 0 and 4");
 
         options[optionId].voteCount += 1;
         totalVotesCount += 1;
