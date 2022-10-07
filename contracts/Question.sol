@@ -1,61 +1,54 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BSD-2
 pragma solidity ^0.8.4;
 
-contract PlatformQuestion {
-    string public title;
-    string _description;
-    address _owner;     // will be used as general question identifier
+contract Question {
+    // contains mapping of [1..7] question elements to xy score
+    mapping(uint => uint) elements;
+    // Array question labels  //TODO: turn into bytes later
+    string[] labels;
 
-    // Add later:
-    // uint _createdAt;
-    // uint _closesAt;
+    // mapping of already voted addresses
+    mapping(address => bool) hasVoted;
 
-    struct QuestionOption {
-        string title;
-        uint voteCount;
-    }
+    constructor(string[] memory questionLabels) {
+        // TODO: make sure to guard against faulty inputs
+        require(questionLabels.length <= 10, "Not more than 10 question elements are allowed at this point.");
 
-    // public mapping of uint:QuestionOption pair
-    mapping(uint => QuestionOption) public options;
-
-    // total voters count
-    uint public totalVotesCount;
-
-    // basic events
-    event QuestionVoted(uint indexed optionIndex);
-    // event QuestionClosed;   // add later
-
-    constructor(
-        string memory questionTitle,
-        string memory description,
-        string[] memory allOptions,
-        address owner)
-    {
-        // guard against faulty inputs:
-        require(bytes(questionTitle).length > 0);
-        require(allOptions.length <= 5);
-
-        // copy basic question parameters
-        title = questionTitle;
-        _description = description;
-        _owner = owner;
-
-        // initially:
-        totalVotesCount = 0;
-
-        // cycle through all passed options and create new question options struct
-        for(uint8 idx = 0; idx < allOptions.length; idx++) {
-            options[idx] = QuestionOption(allOptions[idx], 0);
+        // set all question elements to 0 score
+        // and populate question labels
+        for(uint8 idx = 0; idx < questionLabels.length; idx++) {
+            elements[idx] = 0;
+            labels.push(questionLabels[idx]);
         }
+
+        // add 3 more options
+        elements[6] = 0;    // inappopriate
+        elements[7] = 0;    // non_of_above
+        elements[8] = 0;    // report
     }
 
-    function voteFor(uint optionId) public {
+    function accept(uint element) public {
         // basic bounds check
-        require(optionId > 0 && optionId < 5, "Voting option must be between 0 and 4");
+        require(element < labels.length, "Voting element outside of the questions bound");
+        elements[element] += 1; // increase score of this element
+    }
 
-        options[optionId].voteCount += 1;
-        totalVotesCount += 1;
+    function score(uint element) public view returns (uint) {
+        // basic bounds check
+        require(element < labels.length, "Voting element outside of the questions bound");
+        return elements[element];
+    }
 
-        emit QuestionVoted(optionId);   //rework later
+
+    /**
+        TODO: Add labels update and other stuff
+    */
+    function getLabels() public view returns(string[] memory) {
+        return labels;
+    }
+
+    function editLabel(uint element, string calldata newLabel) public {
+        require(element < labels.length, "Illegal question label index");
+        labels[element] = newLabel;
     }
 }

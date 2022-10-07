@@ -1,13 +1,15 @@
 # Simple Voting platform
-This repo represents basic blockchain based voting platform, based on smart-contracts written in `Solidity` and client side written in `JavaScript`. Simple companion website was made using `SvelteKit`.
+This is an example of blockchain based voting platform consisting of following components:
+  - `Solidity` based smart-contracts
+  - user facing client side, written in `JavaScript` and `SvelteKit`
 
 Check the current progress of the [project](https://github.com/vexy/simple_voting/projects/1) or report and [issue](https://github.com/vexy/simple_voting/issues) if you run into trouble.
 
-_PLEASE NOTE: **PROJECT IS STILL IN HEAVY DEVELOPMENT**_
+_PLEASE NOTE: **PROJECT IS IN ACTIVE DEVELOPMENT**_
 
 ## Main feature-set
 Voting platform supports following features:
-  - Obtaining voting token from the platform (_aka Minting_)
+  - Obtaining voting points from token platform (_aka Minting_)
   - Browsing the list of available polls
     - preview poll details (_aka **Browsing**_)
     - preview closed/expired polls (_TBD_)
@@ -86,6 +88,6 @@ PRs and any sort of contribution is **more than welcome**. Just check the [proje
 ---
 Copyright (C) 2022 [Vexy](https://github.com/vexy)  
 <a href="https://stackexchange.com/users/215166">
-  <img src="https://stackexchange.com/users/flair/215166.png?theme=clean" width="208" height="58" alt="profile for Vexy on Stack Exchange, a network of free, community-driven Q&amp;A sites" title="profile for Vexy on Stack Exchange, a network of free, community-driven Q&amp;A sites">
+  <img src="https://stackexchange.com/users/flair/215166.png?theme=clean" width="208" height="58" alt="Profile for Vexy on Stack Exchange" title="profile for Vexy on Stack Exchange, a network of free, community-driven Q&amp;A sites">
 </a><br>
 **PGP**: `6302D860 B74CBD34 6482DBA2 518766D0 8213DBC0`
