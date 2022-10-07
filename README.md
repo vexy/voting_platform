@@ -3,9 +3,10 @@ This is an example of blockchain based voting platform consisting of following c
   - `Solidity` based smart-contracts
   - user facing client side, written in `JavaScript` and `SvelteKit`
 
-Check the current progress of the [project](https://github.com/vexy/simple_voting/projects/1) or report and [issue](https://github.com/vexy/simple_voting/issues) if you run into trouble.
+_Check the current progress of the [project](https://github.com/vexy/simple_voting/projects/1) or report an [issue](https://github.com/vexy/simple_voting/issues) if you run into trouble_
 
-_PLEASE NOTE: **PROJECT IS IN ACTIVE DEVELOPMENT**_
+_PLEASE NOTE: **PROJECT IS IN ACTIVE DEVELOPMENT**_  
+[![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
 
 ## Main feature-set
 Voting platform supports following features:
@@ -83,7 +84,7 @@ flowchart LR
 # Contributing guide
 PRs and any sort of contribution is **more than welcome**. Just check the [project board](https://github.com/vexy/simple_voting/projects/1) and help yourself with a nice little task suited to your needs :)  
 
-**!! THANK YOU IN ADVANCE !!**
+> **!! THANK YOU IN ADVANCE !!**
 
 ---
 Copyright (C) 2022 [Vexy](https://github.com/vexy)  
