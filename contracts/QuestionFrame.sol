@@ -29,6 +29,7 @@ contract QuestionFrame {
     mapping(address => bool) voters;
 
     bool internal locked; // used as modifier flag
+    uint internal votersCount;
 
     constructor(string memory title, string[] memory labels) {
         questionFrame.owner = msg.sender;
@@ -37,6 +38,7 @@ contract QuestionFrame {
         questionFrame.none = 0;
         questionFrame.malformed = 0;
         questionFrame.ju_gospode_boze = 0;
+        votersCount = 0;
     }
 
     modifier protectedExecution() {
@@ -45,6 +47,7 @@ contract QuestionFrame {
         locked = true;
         _;
         voters[msg.sender] = true;
+        votersCount += 1;
         locked = false;
     }
 
@@ -66,6 +69,10 @@ contract QuestionFrame {
 
 
     /*      ---- Question points getters ----      */
+    function score(uint element) public view returns (uint) {
+        return questionFrame.questions.score(element);
+    }
+
     function noneCount() public view returns (uint) {
         return questionFrame.none;
     }
@@ -78,6 +85,9 @@ contract QuestionFrame {
         return questionFrame.ju_gospode_boze;
     }
 
+    function totalVoters() public view returns (uint) {
+        return votersCount;
+    }
 
 
 //@--       BASIC CRUDs
