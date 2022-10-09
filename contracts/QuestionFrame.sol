@@ -10,7 +10,7 @@ struct ExpandedQuestion {
     string description;
 
     // reference to a Question contract
-    Question questions;
+    Question question;
 
     // additional, system-defined options, attached to each question
     uint none;
@@ -28,13 +28,13 @@ contract QuestionFrame {
     ExpandedQuestion questionFrame;
     mapping(address => bool) voters;
 
-    bool internal locked; // used as modifier flag
-    uint internal votersCount;
+    bool internal locked; // used to guard against re-entrancy
+    uint internal votersCount;  // number of user that have voted on this question
 
     constructor(string memory title, string[] memory labels) {
         questionFrame.owner = msg.sender;
         questionFrame.title = title;
-        questionFrame.questions = new Question(labels);
+        questionFrame.question = new Question(labels);
         questionFrame.none = 0;
         questionFrame.malformed = 0;
         questionFrame.ju_gospode_boze = 0;
@@ -52,7 +52,7 @@ contract QuestionFrame {
     }
 
     function accept(uint element) public protectedExecution {
-        questionFrame.questions.accept(element);
+        questionFrame.question.accept(element);
     }
 
     function none() public protectedExecution {
@@ -70,7 +70,7 @@ contract QuestionFrame {
 
     /*      ---- Question points getters ----      */
     function score(uint element) public view returns (uint) {
-        return questionFrame.questions.score(element);
+        return questionFrame.question.score(element);
     }
 
     function noneCount() public view returns (uint) {
@@ -85,10 +85,17 @@ contract QuestionFrame {
         return questionFrame.ju_gospode_boze;
     }
 
+    ///@dev Tuple of string and uint arrays representing labels and scores
+    ///@notice Returns a map of question labels and corresponding vote points
+    function formattedOutput() public view returns (string[] memory, uint[] memory) {
+        return (questionFrame.question.getLabels(), questionFrame.question.getScores());
+    }
+
+    ///@dev `uint` variable representing total number of users that have interacted with contract (used contract features)
+    ///@notice Total amount of users who have expressed their opinion on this question.
     function totalVoters() public view returns (uint) {
         return votersCount;
     }
-
 
 //@--       BASIC CRUDs
 

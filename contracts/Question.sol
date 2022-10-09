@@ -29,14 +29,19 @@ contract Question {
         return scores[element];
     }
 
+    function getScores() public view returns(uint[] memory) {
+        return scores;
+    }
+
     /**
-        Question label getters and setters
-     */
+        Label getters and setters
+    */
+    function editLabel(uint element, string calldata newLabel) public boundsExtendable(element) {
+        labels[element] = newLabel;
+    }
+
     function getLabels() public view returns(string[] memory) {
         return labels;
     }
 
-    function editLabel(uint element, string calldata newLabel) public boundsExtendable(element) {
-        labels[element] = newLabel;
-    }
 }
