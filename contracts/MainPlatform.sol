@@ -28,9 +28,13 @@ contract MainPlatform {
         _;
     }
 
-    // this will also assume positive balance
-    modifier registeredAndWithinBalance() {
-        require(userPoints[msg.sender] > 0, "Registered users only.");
+    modifier registeredUsersOnly() {
+        require(userPoints[msg.sender] != 0, "Registered users only.");
+        _;
+    }
+
+    modifier positiveBalance() {
+        require(userPoints[msg.sender] > 0, "Insuficcient platform points.");
         _;
     }
 
@@ -42,12 +46,12 @@ contract MainPlatform {
     }
 
     modifier validQuestionIndex(uint id) {
-        require(id > 0 && id < currentIndex, "Invalid question ID.");
+        require(id >= 0 && id < currentIndex, "Invalid question ID.");
         _;
     }
 
-    constructor(address owner) validAddress ownerOnly(owner) {
-        platformOwner = owner;  // set owner of the platform
+    constructor(address _owner) validAddress ownerOnly(_owner) {
+        platformOwner = _owner;  // set owner of the platform
         currentIndex = 0;
         register();    // register first user, wooohoo !! :))
     }
@@ -61,7 +65,8 @@ contract MainPlatform {
     }
 
     function addQuestion(string calldata title, string[] calldata labels) 
-    validAddress registeredAndWithinBalance pointsDeducible(questionPostCost)
+    validAddress registeredUsersOnly
+    positiveBalance pointsDeducible(questionPostCost)
     public
     returns (uint)
     {
@@ -82,8 +87,8 @@ contract MainPlatform {
 //@ -- Scoring and scoring intel
 
     function vote(uint questionID, uint voteOption)
-    validQuestionIndex(questionID) validAddress
-    registeredAndWithinBalance pointsDeducible(voteCost)
+    validAddress validQuestionIndex(questionID)
+    registeredUsersOnly positiveBalance pointsDeducible(voteCost)
     public {
         // perform voting for a given question
         allQuestions[questionID].accept(voteOption);
@@ -93,9 +98,8 @@ contract MainPlatform {
     validAddress validQuestionIndex(questionID)
     public view
     returns(string[] memory, uint[] memory) {
-        return allQuestions[questionID].formattedOutput();
+        return allQuestions[questionID].scoreTable();
     }
-
 
 //@ -- Stats (add more later)
 
@@ -105,5 +109,13 @@ contract MainPlatform {
 
     function totalUsers() public view returns (uint) {
         return _totalUsers;
+    }
+
+    function userBalance(address _address) validAddress registeredUsersOnly public view returns(uint) {
+        return userPoints[_address];
+    }
+
+    function owner() public view returns (address) {
+        return platformOwner;
     }
 }

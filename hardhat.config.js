@@ -6,6 +6,7 @@ module.exports = {
 };
 
 require("@nomiclabs/hardhat-waffle");
+
 task("accounts", "Prints the list of available accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
 

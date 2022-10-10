@@ -87,7 +87,7 @@ contract QuestionFrame {
 
     ///@dev Tuple of string and uint arrays representing labels and scores
     ///@notice Returns a map of question labels and corresponding vote points
-    function formattedOutput() public view returns (string[] memory, uint[] memory) {
+    function scoreTable() public view returns (string[] memory, uint[] memory) {
         return (questionFrame.question.getLabels(), questionFrame.question.getScores());
     }
 

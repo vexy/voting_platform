@@ -1,10 +1,11 @@
 {
-  "name": "simple-voting",
-  "version": "0.0.1",
+  "name": "simple-voting-platform",
+  "version": "0.5",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "chai": "^4.3.6",
+    "chai-bignumber": "^3.1.0",
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.6.8",
     "hardhat": "^2.9.7"
