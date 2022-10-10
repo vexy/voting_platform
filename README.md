@@ -1,33 +1,34 @@
 # Simple Voting platform
 This is an example of blockchain based voting platform consisting of following components:
   - `Solidity` based smart-contracts
-  - user facing client side, written in `JavaScript` and `SvelteKit`
+  - user facing side, written in `TypeScript/JavaScript` and `SvelteKit`
 
-_Check the current progress of the [project](https://github.com/vexy/simple_voting/projects/1) or report an [issue](https://github.com/vexy/simple_voting/issues) if you run into trouble_
-
-_PLEASE NOTE: **PROJECT IS IN ACTIVE DEVELOPMENT**_  
 [![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
 
-## Main feature-set
-Voting platform supports following features:
-  - Obtaining voting points from token platform (_aka Minting_)
-  - Browsing the list of available polls
-    - preview poll details (_aka **Browsing**_)
-    - preview closed/expired polls (_TBD_)
+_PLEASE NOTE: **PROJECT IS IN ACTIVE DEVELOPMENT**_  
+> _Follow the progress on [project board](https://github.com/vexy/simple_voting/projects/1) or report an [issue](https://github.com/vexy/simple_voting/issues) if you run into trouble_  
+> _Version: 0.6_
+
+## Feature set
+Following is the set of supported features:
+  - easy setup and self hosting
+  - free user registration
+  - free question posting
+  - browsing the list of registered questions
+    - preview poll details
     - report inapropriate polls (_aka **Reporting**_)
-  - Selecting poll answer (_aka **Voting**_)
-  - Posting new poll (_aka **Creating Poll**_)
+  - vote for specific options
 
 ### Prerequisities
 In order to fully run this platform, following is a list of pre-requisities:
 1. node/npm (node `v16.15` / npm `v8.5.5`)
-2. [hardhat](https://hardhat.org/getting-started/#installation) `v2.9.7`
+2. [hardhat](https://hardhat.org/getting-started/#installation) `v2.11.2`
 3. [MetaMask](https://metamask.io/) wallet or (browser extension [chrome extension](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en))
 (_right now only Metamask is supported, more wallets comming soon_)
 
 After installing hardhat, make sure the following libraries are installed:
 ```
-npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle chai @nomiclabs/hardhat-ethers ethers
+npm install --save-dev @nomicfoundation/hardhat-toolbox
 ```
 
 Finally, you can check if everything works well by typing:
@@ -42,7 +43,7 @@ Checkout open [issues](https://github.com/vexy/simple_voting/issues) or open ano
 
 Deployment is performed using [Hardhat CLI](https://hardhat.org/).  
 
-In order to run local test, first setup local development network of your choice (_will work with Truffle suite soon_).
+In order to run local test, first setup local development network of your choice.
 
 ```
 npx hardhat compile
@@ -56,7 +57,7 @@ Check the [`/scripts`](/scripts/) folder for more information.
 
 > _Main-net **deployment comming soon**_
 
-# Platform structure
+## Platform structure
 > Contracts is _WIP_. Following structure may change in future.
 
 ```mermaid
@@ -82,7 +83,8 @@ flowchart LR
 ```
 
 # Contributing guide
-PRs and any sort of contribution is **more than welcome**. Just check the [project board](https://github.com/vexy/simple_voting/projects/1) and help yourself with a nice little task suited to your needs :)  
+PRs and any sort of contribution is **more than welcome**. 🙌  
+Just check the [project board](https://github.com/vexy/simple_voting/projects/1) and help yourself with a nice little task suited to your needs :)  
 
 > **!! THANK YOU IN ADVANCE !!**
 

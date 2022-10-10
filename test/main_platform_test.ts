@@ -1,9 +1,11 @@
-const { expect, assert } = require("chai");
-const { ethers } = require("hardhat");
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { ethers } from "hardhat";
+import { Contract } from "ethers";
+import { expect } from "chai";
 
 describe("Testing Suite :: [MainPlatform contract]", async function () {
-    let platformContract = null;   // shared contract object
-    let owner, signer1, signer2 = null; //3 signers
+    let platformContract: Contract;   // shared contract object
+    let owner: SignerWithAddress, signer1: SignerWithAddress, signer2: SignerWithAddress; //3 signers
 
     const startingPoints = ethers.BigNumber.from(1000000);   //1 mil
     const testTitle = "New Question";
@@ -22,7 +24,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
       await platformContract.deployed();
     });
 
-    async function registerUsers(user) {
+    async function registerUsers(user: SignerWithAddress) {
       await platformContract.connect(user).register();
     }
 

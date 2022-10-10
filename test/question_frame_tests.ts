@@ -1,18 +1,20 @@
-const { expect, assert } = require("chai");
-const { ethers } = require("hardhat");
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { expect, assert } from "chai";
+import { Contract } from "ethers";
+import { ethers } from "hardhat";
 
 describe("Testing Suite :: [QuestionFrame contract]", async function() {
-    let questionFrameContract = null; //initially
-    let signer1 = null;    //initially
-    let signer2 = null;    //initially
-    let signer3 = null;    //initially
+    let questionFrameContract: Contract;
+    let signer1: SignerWithAddress;    //initially
+    let signer2: SignerWithAddress;
+    let signer3: SignerWithAddress;
 
     // adjust at will...
     let questionLabels = [ "Yes", "No", "Maybe" ];
 
     beforeEach(async function() {
         //get signers
-        allSigners = await ethers.getSigners();
+        const allSigners = await ethers.getSigners();
         signer1 = allSigners[0];
         signer2 = allSigners[1];
         signer3 = allSigners[2];

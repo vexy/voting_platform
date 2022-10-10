@@ -1,17 +1,17 @@
-const { expect, assert, should } = require("chai");
-const { ethers } = require("hardhat");
+import { expect, assert } from "chai";
+import { Contract } from "ethers";
+import { ethers } from "hardhat";
 
 describe("Testing Suite :: [Question contract]", async function() {
-    let questionContract = null; //initially
+    let questionContract: Contract; //initially
 
     // adjust at will...
     let questionLabels = [ "Yes", "No", "Maybe" ];
 
     beforeEach(async function() {
-        const baseSigner = (await ethers.getSigners())[0].address;
-        const provider = await ethers.getContractFactory("Question");
+        const factory = await ethers.getContractFactory("Question");
 
-        questionContract = await provider.deploy(questionLabels);
+        questionContract = await factory.deploy(questionLabels);
         await questionContract.deployed();
     });
 
