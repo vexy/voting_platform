@@ -1,0 +1,13 @@
+# Mac leftovers
+.DS_Store
+
+# NPM lefrovers
+node_modules
+/build
+/.svelte-kit
+/package
+
+# Env configuration files
+.env
+.env.*
+!.env.example
