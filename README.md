@@ -8,7 +8,7 @@ This is an example of blockchain based voting platform consisting of following c
 |Component|Version|
 |-|-|
 |`contracts`|`0.6 test-net`|
-|`frontend`|`0.0.2`|
+|`frontend`|`0.0.3`|
 
 [![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
 
