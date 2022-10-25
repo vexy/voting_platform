@@ -1,4 +1,4 @@
-_PLEASE NOTE: **PROJECT IS IN ACTIVE DEVELOPMENT**_  
+<div align="center"><i>PLEASE NOTE: <b>PROJECT IS IN ACTIVE DEVELOPMENT</b></i><br></div>
 
 # Simple Voting platform
 This is an example of blockchain based voting platform consisting of following components:
@@ -24,31 +24,14 @@ Following is the set of supported features:
     - report inapropriate content
   - vote for specific options
 
-### Prerequisities
-In order to fully run this platform, following is a list of pre-requisities:
-1. node/npm (node `v16.15` / npm `v8.5.5`)
-2. `Solidity 0.8.*` (_check configs for exact versioning... may change in future_)
-3. [hardhat](https://hardhat.org/getting-started/#installation) `v2.11.2`
-4. [MetaMask](https://metamask.io/) wallet (or [Chrome extension](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en)) (_right now only `MetaMask` wallets are supported_)
-5. `MATIC` test token obtained from [Polygon faucet](https://faucet.polygon.technology/)
-6. MetaMask configured to `Mumbai` test-net
-
-After installing hardhat, make sure the following libraries are installed:
-```
-npm install --save-dev @nomicfoundation/hardhat-toolbox
-```
-
-Finally, you can check if everything works well by typing:
-```
-npx hardhat compile
-```
-
-Checkout open [issues](https://github.com/vexy/simple_voting/issues) or open another one if you run into trouble.
-
-## Deployment info
+### Deployment info
 Checkout [deployment details](DEPLOYMENTS.md) for more instructions.
 
 # Contributing guide
+Button styles from the `frontend` part are taken from: https://markodenic.com/tools/buttons-generator/.
+
+Checkout more cool stuff from [Marko Denic](https://github.com/markodenic).
+
 PRs and any sort of contribution is **more than welcome**. 🙌  
 Just check the [project board](https://github.com/vexy/simple_voting/projects/1) and help yourself with a nice little task suited to your needs :)  
 
