@@ -8,15 +8,16 @@ This is an example of blockchain based voting platform consisting of following c
 |Component|Version|
 |-|-|
 |`contracts`|`0.6 test-net`|
-|`frontend`|`0.0.3`|
+|`frontend`|`0.0.4`|
 
 [![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
 
 > _Follow the progress on [project board](https://github.com/vexy/simple_voting/projects/1) or report an [issue](https://github.com/vexy/simple_voting/issues) if you run into trouble_  
 
-## Feature set
+## 📦 Feature set
 Following is the set of supported features:
   - easy setup and self hosting
+  - `Ethereum` wallets compatible
   - free user registration
   - free content posting
   - browsing the list of platform content
@@ -27,14 +28,14 @@ Following is the set of supported features:
 ### Deployment info
 Checkout [deployment details](DEPLOYMENTS.md) for more instructions.
 
-# Contributing guide
+# Contributing guide 🙌
 Button styles from the `frontend` part are taken from: https://markodenic.com/tools/buttons-generator/.
 
 Checkout more cool stuff from [Marko Denic](https://github.com/markodenic).
 
-PRs and any sort of contribution is **more than welcome**. 🙌  
 Just check the [project board](https://github.com/vexy/simple_voting/projects/1) and help yourself with a nice little task suited to your needs :)  
 
+> PRs and any sort of contribution is **more than welcome**.  
 > **!! THANK YOU IN ADVANCE !!**
 
 ---  

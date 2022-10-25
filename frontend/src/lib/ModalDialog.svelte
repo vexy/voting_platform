@@ -51,6 +51,33 @@
     }
 </script>
 
+<slot name="trigger" {open}>
+    <!-- fallback trigger to open the modal -->
+    <!-- <button on:click={open}>Open</button> -->
+</slot>
+
+{#if $isOpen}
+<div class="modal" use:modalAction tabindex="0">
+    <div class="backdrop" on:click={close} />
+
+    <div class="content-wrapper">
+        <slot name="header" {store} />
+
+        <div class="content">
+            <slot name="content" {store} />
+        </div>
+
+        <slot name="footer" {store}>
+            <!-- fallback -->
+            <div>
+                <h1>Your Modal Footer Goes Here...</h1>
+                <button on:click={close}>Close</button>
+            </div>
+        </slot>
+    </div>
+</div>
+{/if}
+
 <style>
     div.modal {
       position: fixed;
@@ -70,17 +97,17 @@
     }
     div.backdrop {
       background-color: rgba(0, 0, 0, 0.4);
-      position: absolute;
+      position: fixed;
       width: 100%;
       height: 100%;
     }
     div.content-wrapper {
-      z-index: 10;
-      max-width: 70vw;
-      border-radius: 0.3rem;
-      background-color: white;
-      overflow: hidden;
-          padding: 1rem;
+        z-index: 10;
+        max-width: 70vw;
+        border-radius: 0.3rem;
+        background-color: white;
+        overflow: hidden;
+        padding: 1rem;
     }
   /*   @media (max-width: 767px) {
       div.content-wrapper {
@@ -88,42 +115,7 @@
       }
     } */
     div.content {
-      max-height: 50vh;
-      overflow: auto;
-    }
-    h1 {
-      opacity: 0.5;
+        max-height: 50vh;
+        overflow: auto;
     }
 </style>
-
-<slot name="trigger" {open}>
-    <!-- fallback trigger to open the modal -->
-    <button on:click={open}>Open</button>
-</slot>
-
-{#if $isOpen}
-<div class="modal" use:modalAction tabindex="0">
-    <div class="backdrop" on:click={close} />
-
-        <div class="content-wrapper">
-        <slot name="header" {store}>
-            <!-- fallback -->
-            <div>
-            <h1>Question title goes here</h1>
-            </div>
-        </slot>
-
-        <div class="content">
-            <slot name="content" {store} />
-        </div>
-
-        <slot name="footer" {store}>
-            <!-- fallback -->
-            <div>
-                <h1>Your Modal Footer Goes Here...</h1>
-                <button on:click={close}>Close</button>
-            </div>
-        </slot>
-    </div>
-</div>
-{/if}
