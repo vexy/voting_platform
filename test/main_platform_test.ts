@@ -131,7 +131,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
           // register signer1 and vote first option
           registerUsers(signer1);
-          await platformContract.connect(signer1).vote(qID.value, 0);
+          await platformContract.vote(qID.value, 0); //.connect(signer1)
           // get scores for first option
           option1Score = (await platformContract.connect(signer1).scoresFor(qID.value))[1][0];
           expect(option1Score).to.equal(expectedScore);
