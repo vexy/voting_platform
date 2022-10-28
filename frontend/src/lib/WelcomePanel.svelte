@@ -1,6 +1,35 @@
+<script lang="ts">
+    import { Utilities } from "./Utilities";
+    const util = new Utilities();
+
+    async function registerUser() {
+        // await util.registerNewUser();
+        await util.totalUsers().then( (totalUsers) => {
+            console.log(totalUsers);
+        });
+
+        await util.getUserBalance().then( (value) => {
+            console.log(value);
+        });
+        
+        // await util.addNewQuestion().then( (response) => {
+        //     console.log(response);
+        // });
+
+        // await util.getAllQuestions();
+
+        await util.vote(1, 1).then( (scoreResult) => {
+            console.log("Front side. Score is now: ", scoreResult);
+            console.log(scoreResult);
+        });
+
+        alert("All tests successeful !!");
+    }
+</script>
+
 <center-container>
     <h1>100 људи 100 ћуди</h1>
-    <button class="gradient_button">
+    <button class="gradient_button" on:click={registerUser}>
         Хоћу и ја
     </button>
     <p>Broj korisinka: 104</p>
