@@ -84,6 +84,11 @@ contract MainPlatform {
         return allQuestions;
     }
 
+    ///@notice Used to check if caller (address) is registered at the platform
+    function isRegisteredUser() public view returns (bool) {
+        return userPoints[msg.sender] != 0;
+    }
+
 //@ -- Scoring and scoring intel
 
     function vote(uint questionID, uint voteOption)

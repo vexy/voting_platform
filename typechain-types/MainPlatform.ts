@@ -27,6 +27,7 @@ export interface MainPlatformInterface extends utils.Interface {
   functions: {
     "addQuestion(string,string[])": FunctionFragment;
     "getAllQuestions()": FunctionFragment;
+    "isRegisteredUser()": FunctionFragment;
     "owner()": FunctionFragment;
     "register()": FunctionFragment;
     "scoresFor(uint256)": FunctionFragment;
@@ -40,6 +41,7 @@ export interface MainPlatformInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addQuestion"
       | "getAllQuestions"
+      | "isRegisteredUser"
       | "owner"
       | "register"
       | "scoresFor"
@@ -55,6 +57,10 @@ export interface MainPlatformInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAllQuestions",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRegisteredUser",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -86,6 +92,10 @@ export interface MainPlatformInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAllQuestions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRegisteredUser",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -140,6 +150,8 @@ export interface MainPlatform extends BaseContract {
 
     getAllQuestions(overrides?: CallOverrides): Promise<[string[]]>;
 
+    isRegisteredUser(overrides?: CallOverrides): Promise<[boolean]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     register(
@@ -175,6 +187,8 @@ export interface MainPlatform extends BaseContract {
 
   getAllQuestions(overrides?: CallOverrides): Promise<string[]>;
 
+  isRegisteredUser(overrides?: CallOverrides): Promise<boolean>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   register(
@@ -209,6 +223,8 @@ export interface MainPlatform extends BaseContract {
     ): Promise<BigNumber>;
 
     getAllQuestions(overrides?: CallOverrides): Promise<string[]>;
+
+    isRegisteredUser(overrides?: CallOverrides): Promise<boolean>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -246,6 +262,8 @@ export interface MainPlatform extends BaseContract {
 
     getAllQuestions(overrides?: CallOverrides): Promise<BigNumber>;
 
+    isRegisteredUser(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     register(
@@ -281,6 +299,8 @@ export interface MainPlatform extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getAllQuestions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isRegisteredUser(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
