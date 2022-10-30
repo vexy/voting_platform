@@ -2,6 +2,7 @@
 build/
 cache/
 artifacts/
+typechain-types/
 
 # node modules
 node_modules/

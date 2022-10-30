@@ -31,7 +31,7 @@ npm install --save-dev @nomicfoundation/hardhat-toolbox
 Finally, you can check if everything works well by typing:
 ```
 npx hardhat compile
-npx hardhat deploy --network polygon    # may change in future
+npx hardhat run scripts/deploy.ts --network polygon    # may change in future
 ```
 
 > **NOTE**: Final deployment is in progress. Expect changes to this procedure.
@@ -59,18 +59,23 @@ Test-net configuration parameters
 
 ## Deployment testing
 (_ADD HARDHAT test-deploy task_)
-Execute the following to perform entire contract testing suite.
+Before deploying to the main-net, make sure you've `compiled` and `tested` entire contract suite.
 ```
 npx hardhat compile
 npx hardhat test
+
+# wait to complete...
 ```
 
-Then, perform deployment to local network (spawn a node)
+Then, perform deployment to local network by spawning a local node, like this:
 ```
-# deploy to local network to perform testing
-npx hardhat node   #check docs
-npx hardhat --network localhost scripts/migration.js
+npx hardhat node
+
+# from another CLI
+npx hardhat run scripts/deploy.js --network localhost
 npx hardhat test --network localhost
 ```
+
+After the test suite completes without errors, you can proceed with `main-net` deployment.
 
 (_ADD FRONTEND tests - or local deployment procedure_)

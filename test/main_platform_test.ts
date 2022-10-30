@@ -24,8 +24,14 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
       await platformContract.deployed();
     });
 
+    // GENERAL HELPERS:
     async function registerUsers(user: SignerWithAddress) {
       await platformContract.connect(user).register();
+    }
+
+    async function createTestQuestion() {
+      // add test question
+      return await platformContract.addQuestion(testTitle, testLabels);
     }
 
     context("Initial setup", async function() {
@@ -37,6 +43,20 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
       it("Has proper voting points after initialization", async function() {
           expect(await platformContract.userBalance(owner.address)).to.equal(startingPoints);
+      });
+
+      it("Can recognize registered users" , async function() {
+        // check if platform recognizes owner as a user
+        expect(await platformContract.isRegisteredUser()).to.equal(true);
+
+        // perform signer1 registration and perform check
+        await registerUsers(signer1);
+        expect(await platformContract.connect(signer1).isRegisteredUser()).to.equal(true);
+      });
+
+      it("Can recognize non-registered users", async function() {
+        expect(await platformContract.connect(signer1).isRegisteredUser()).to.equal(false);
+        expect(await platformContract.connect(signer2).isRegisteredUser()).to.equal(false);
       });
     });
 
@@ -66,12 +86,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
       });
     });
 
-    context("Questions posting and answering", async function(){
-      async function createTestQuestion() {
-        // add test question
-        return await platformContract.addQuestion(testTitle, testLabels);
-      }
-
+    context("Questions posting", async function() {
       it("Owner can add question", async function() {
         const expectedID = ethers.BigNumber.from(0);
         const expectedTotalQuestions = 1;
@@ -99,7 +114,9 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
         expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
       });
+    });
 
+    context("Questions answering/voting", async function() {
       it("Owner can vote", async function() {
         await createTestQuestion();
         expect(await platformContract.totalQuestions()).to.equal(1);
@@ -124,7 +141,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         expect(option1Score).to.equal(expectedScore);
       });
     
-      it("Registered users can vote for a question", async function(){
+      it("Registered users can vote", async function(){
           let option1Score = 0;
           let expectedScore = ethers.BigNumber.from(1);
           const qID = await createTestQuestion(); //as an owner
