@@ -1,50 +1,32 @@
 <script lang="ts">
     import { Utilities } from "./Utilities";
+    import { goto } from "$app/navigation";
     const util = new Utilities();
 
-    async function registerUser() {
-        // await util.registerNewUser();
-        await util.totalUsers().then( (totalUsers) => {
-            console.log(totalUsers);
-        });
-
-        await util.getUserBalance().then( (value) => {
-            console.log(value);
-        });
-        
-        // await util.addNewQuestion().then( (response) => {
-        //     console.log(response);
-        // });
-
-        // await util.getAllQuestions();
-
-        await util.vote(1, 1).then( (scoreResult) => {
-            console.log("Front side. Score is now: ", scoreResult);
-            console.log(scoreResult);
-        });
-
-        alert("All tests successeful !!");
+    async function enterPlatform() {
+        //then check if user has been registered
+        util.registerNewUser()
+            .then( (succes) => {
+                console.log("User registered !");
+            });
+        goto("list");
     }
 </script>
 
-<center-container>
+<container>
     <h1>100 људи 100 ћуди</h1>
-    <button class="gradient_button" on:click={registerUser}>
-        Хоћу и ја
+    <button class="gradient_button" on:click={enterPlatform}>
+        Хоћу и ја ✌️
     </button>
-    <p>Broj korisinka: 104</p>
-</center-container>
+</container>
+
 
 <style>
-    center-container {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        margin: auto;
-        -webkit-transform: translateY(-50%);
-        -ms-transform: translateY(-50%);
-        transform: translateY(-50%);
+    container {
+        text-align: center;
+        align-self: center;
+        /* height: 200pt; */
+        /* background-color: #6f8ac3; */
     }
 
     h1, p {

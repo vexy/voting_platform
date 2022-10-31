@@ -22,7 +22,6 @@
         display: flex;
         flex-flow: row wrap;
         justify-content: flex-end;
-        margin: auto; 
         padding: 5px;
         background-image: linear-gradient(to top, #c79081 0%, #dfa579 100%);
         /* background-image: linear-gradient(to top, #a3bded 0%, #6991c7 100%); */
@@ -31,7 +30,7 @@
 
     button {
         min-width: 130px;
-        height: 40px;
+        height: 35px;
         color: #fff;
         font-weight: bold;
         cursor: pointer;

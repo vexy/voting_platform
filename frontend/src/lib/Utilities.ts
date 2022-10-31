@@ -1,5 +1,5 @@
 import MetamaskOnboarding from '@metamask/onboarding';
-import { BigNumber, Contract, ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import  MainPlatform from "../MainPlatform.json";
 
 export class Utilities {
@@ -60,9 +60,17 @@ export class Utilities {
         return Promise.resolve(this.extractNumber(totalQ));
     }
 
-    async registerNewUser() {
-        ethers.logger.info("Registering...");
-        await this.platformContract.register();
+    /// Returns true if user successfully registrers
+    async registerNewUser(): Promise<boolean> {
+        try {
+            ethers.logger.info("Registering...");
+            await this.platformContract.register();
+            return Promise.resolve(true);
+        } catch (err) {
+            ethers.logger.info("Error during registration. Reason: \n");
+            ethers.logger.info(err);
+            return Promise.reject(err);
+        }
     }
 
     async getUserBalance(): Promise<number> {
@@ -72,11 +80,9 @@ export class Utilities {
         return Promise.resolve(this.extractNumber(balanceBN));
     }
 
-    async addNewQuestion(): Promise<boolean> {
-        const labels = ["Answer 1", "Answer 2", "Answer 3", "Answer 4"];
-        const qTitle = "Question title goes here";
+    async addNewQuestion(questionTitle: string, labels: string[]): Promise<boolean> {
         try {
-            const response = await this.platformContract.addQuestion(qTitle, labels);
+            const response = await this.platformContract.addQuestion(questionTitle, labels);
             console.log("*BCResponse*");
             console.log(response);
             return Promise.resolve(true);
@@ -90,7 +96,7 @@ export class Utilities {
     async getAllQuestions() {
         const qFrameArray = await this.platformContract.getAllQuestions();
         ethers.logger.info("All questions: ");        
-        for(let question of qFrameArray) {
+        for(const question of qFrameArray) {
             // const _title = await question.getTitle();
             ethers.logger.info(question);
             // ethers.logger.info(_title);
