@@ -29,12 +29,12 @@
         /* background-color: #6f8ac3; */
     }
 
-    h1, p {
+    h1 {
         font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
         color: #185a9d;
     }
 
-    p:hover {
+    h1:hover {
         font-weight: bolder;
         color: #ffdd;
         transition: all 0.2s ease-out;

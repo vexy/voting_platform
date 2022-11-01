@@ -53,39 +53,39 @@
   }
 
   .votebutton {
-        min-width: 130px;
-        height: 40px;
-        color: #fff;
-        padding: 5px 10px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        display: inline-block;
-        outline: none;
-        overflow: hidden;
-        border-radius: 5px;
-        border: none;
-        background-color: #3a86ff
-    }
+    min-width: 130px;
+    height: 40px;
+    color: #fff;
+    padding: 5px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    outline: none;
+    overflow: hidden;
+    border-radius: 5px;
+    border: none;
+    background-color: #3a86ff
+  }
 
-    .votebutton:hover {
-        border-radius: 5px;
-        padding-right: 24px;
-        padding-left:8px;
-    }
-    .votebutton:hover:after {
-        opacity: 1;
-        right: 10px;
-    }
-    .votebutton:after {
-        content: "\00BB";
-        position: absolute;
-        opacity: 0;
-        font-size: 20px;
-        line-height: 40px;
-        top: 0;
-        right: -20px;
-        transition: 0.4s;
-    } 
+  .votebutton:hover {
+    border-radius: 5px;
+    padding-right: 24px;
+    padding-left:8px;
+  }
+  .votebutton:hover:after {
+    opacity: 1;
+    right: 10px;
+  }
+  .votebutton:after {
+    content: "\00BB";
+    position: absolute;
+    opacity: 0;
+    font-size: 20px;
+    line-height: 40px;
+    top: 0;
+    right: -20px;
+    transition: 0.4s;
+  } 
 </style>

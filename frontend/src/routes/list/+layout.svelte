@@ -16,8 +16,12 @@
         { id: 23, name: "Pitanje 13", votes: 13 }
     ];
 
-    function gotoNextQuestion() {
+    function addNewQuestion() {
         goto("/newquestion");
+    }
+
+    function openVotePage() {
+        goto("/questions/12345");
     }
 </script>
 
@@ -26,7 +30,7 @@
         <h2>Укупан број питања: <code>15</code></h2>
         <!-- <NewQuestionModal /> -->
         <!-- <a href="/newquestion">New  Q</a> -->
-        <button class="addquestion" on:click={gotoNextQuestion} >+ Додај ново питање</button>
+        <button class="addquestion" on:click={addNewQuestion} >+ Додај ново питање</button>
     </header-container>
         
     <questions_container>
@@ -34,8 +38,8 @@
             <questionbody>
                 <code><u>#{question.id}</u></code>
                 <question-title>{question.name}</question-title>
-
-                <QuestionPanel />
+                <button class="votebutton" on:click={openVotePage} >Vote</button>
+                <!-- <QuestionPanel /> -->
             </questionbody> 
         {/each}
     </questions_container>
@@ -122,4 +126,40 @@
         box-shadow: 0 0 #57cc99;
         top: 5px;
     }
+
+    .votebutton {
+        min-width: 130px;
+        height: 40px;
+        color: #fff;
+        padding: 5px 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        display: inline-block;
+        outline: none;
+        overflow: hidden;
+        border-radius: 5px;
+        border: none;
+        background-color: #3a86ff
+    }
+    .votebutton:hover {
+        border-radius: 5px;
+        padding-right: 24px;
+        padding-left:8px;
+    }
+    .votebutton:hover:after {
+        opacity: 1;
+        right: 10px;
+    }
+    .votebutton:after {
+        content: "\00BB";
+        position: absolute;
+        opacity: 0;
+        font-size: 20px;
+        line-height: 40px;
+        top: 0;
+        right: -20px;
+        transition: 0.4s;
+    } 
 </style>

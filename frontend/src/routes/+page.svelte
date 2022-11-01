@@ -8,4 +8,5 @@
     });
 </script>
 
+<!-- if provider isnt detected, show different component -->
 <WelcomePanel />
