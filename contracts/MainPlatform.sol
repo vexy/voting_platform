@@ -79,9 +79,17 @@ contract MainPlatform {
         return currentIndex;    // this is sort of question ID for the front
     }
 
-    ///@notice Lists all the questions on the platform
-    function getAllQuestions() public view returns(QuestionFrame[] memory) {
-        return allQuestions;
+    ///@notice Lists all the question IDs and their titles
+    function getAllQuestions() public view returns(uint[] memory, string[] memory) {
+        uint[] memory ids = new uint[](currentIndex);
+        string[] memory titles = new string[](currentIndex);
+
+        // cycle through all questions and form a response tuple
+        for(uint i = 0; i < allQuestions.length; i++) {
+            ids[i] = i;
+            titles[i] = allQuestions[i].getTitle();
+        }
+        return (ids, titles);
     }
 
     ///@notice Used to check if caller (address) is registered at the platform

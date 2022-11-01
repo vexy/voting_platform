@@ -148,7 +148,9 @@ export interface MainPlatform extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getAllQuestions(overrides?: CallOverrides): Promise<[string[]]>;
+    getAllQuestions(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[], string[]]>;
 
     isRegisteredUser(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -185,7 +187,7 @@ export interface MainPlatform extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getAllQuestions(overrides?: CallOverrides): Promise<string[]>;
+  getAllQuestions(overrides?: CallOverrides): Promise<[BigNumber[], string[]]>;
 
   isRegisteredUser(overrides?: CallOverrides): Promise<boolean>;
 
@@ -222,7 +224,9 @@ export interface MainPlatform extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getAllQuestions(overrides?: CallOverrides): Promise<string[]>;
+    getAllQuestions(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[], string[]]>;
 
     isRegisteredUser(overrides?: CallOverrides): Promise<boolean>;
 
