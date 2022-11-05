@@ -85,16 +85,16 @@ contract QuestionFrame {
         return questionFrame.ju_gospode_boze;
     }
 
-    ///@dev Tuple of string and uint arrays representing labels and scores
-    ///@notice Returns a map of question labels and corresponding vote points
-    function scoreTable() public view returns (string[] memory, uint[] memory) {
-        return (questionFrame.question.getLabels(), questionFrame.question.getScores());
-    }
-
     ///@dev `uint` variable representing total number of users that have interacted with contract (used contract features)
     ///@notice Total amount of users who have expressed their opinion on this question.
     function totalVoters() public view returns (uint) {
         return votersCount;
+    }
+
+    ///@dev Tuple of string and uint arrays representing labels and scores
+    ///@notice Returns a map of question labels and corresponding vote points
+    function scoreTable() public view returns (string[] memory, uint[] memory) {
+        return (questionFrame.question.getLabels(), questionFrame.question.getScores());
     }
 
 //@--       BASIC CRUDs

@@ -114,20 +114,6 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
         expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
       });
-
-      it("Questions can be seen/listed", async function () {
-        // register user and add question
-        registerUsers(signer1);
-        await createTestQuestion();
-        expect(await platformContract.totalQuestions()).to.equal(1); // check quesiton number integrity
-
-        const allQuestions = await platformContract.getAllQuestions();
-        const idArray = allQuestions[0];
-        const titles = allQuestions[1];
-
-        expect(idArray[0]).to.equal(0);
-        expect(titles[0]).to.equal("New Question");
-      });
     });
 
     context("Questions answering/voting", async function() {
@@ -162,7 +148,8 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
           // register signer1 and vote first option
           registerUsers(signer1);
-          await platformContract.vote(qID.value, 0); //.connect(signer1)
+          await platformContract.connect(signer1).vote(qID.value, 0);
+
           // get scores for first option
           option1Score = (await platformContract.connect(signer1).scoresFor(qID.value))[1][0];
           expect(option1Score).to.equal(expectedScore);
@@ -170,6 +157,49 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
     });
 
     context("Questions visibility and correctness", async function() {
-      
+      it("Questions can be seen/listed", async function () {
+        // register user and add question
+        registerUsers(signer1);
+        await createTestQuestion();
+        expect(await platformContract.totalQuestions()).to.equal(1); // check quesiton number integrity
+
+        const allQuestions = await platformContract.getAllQuestions();
+        const idArray = allQuestions[0];
+        const titles = allQuestions[1];
+
+        expect(idArray[0]).to.equal(0);
+        expect(titles[0]).to.equal("New Question");
+      });
+
+      it("Users can see question info", async function(){
+        registerUsers(signer1);
+        await createTestQuestion();
+        expect(await platformContract.totalQuestions()).to.equal(1);
+
+        // perform voting
+        await platformContract.connect(signer1).vote(0, 0);
+
+        const responseInfo = await platformContract.getQuestionDetails(0);
+
+        //start decomposing question info
+        const title = responseInfo[0];
+        const labels = responseInfo[1];     //array of labels
+        const scores = responseInfo[2];     //array of scores
+        const extras = responseInfo[3];     //array of extras (int[3])
+        //
+        expect(title).to.equal("New Question");
+        //
+        expect(labels[0]).to.equal('one');
+        expect(labels[1]).to.equal('two');
+        expect(labels[2]).to.equal('three');
+        //
+        expect(scores[0]).to.equal(1);
+        expect(scores[1]).to.equal(0);
+        expect(scores[2]).to.equal(0);
+        //
+        expect(extras[0]).to.equal(0);
+        expect(extras[1]).to.equal(0);  
+        expect(extras[2]).to.equal(0);
+      });
     });
 });

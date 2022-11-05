@@ -4,6 +4,13 @@ pragma solidity ^0.8.4;
 import "./Question.sol";
 import "./QuestionFrame.sol";
 
+struct QuestionInfo {
+    string title;
+    string[] labels;
+    uint[] scores;
+    uint[] extras;
+}
+
 contract MainPlatform {
     address platformOwner;
     
@@ -95,6 +102,28 @@ contract MainPlatform {
     ///@notice Used to check if caller (address) is registered at the platform
     function isRegisteredUser() public view returns (bool) {
         return userPoints[msg.sender] != 0;
+    }
+
+    function getQuestionDetails(uint id)
+    validAddress validQuestionIndex(id) registeredUsersOnly
+    public view returns(QuestionInfo memory) {
+        uint[] memory extras = new uint[](3);
+
+        // get all the metadata
+        (string[] memory labels, uint[] memory scores) = allQuestions[id].scoreTable();
+        extras[0] = allQuestions[id].noneCount();
+        extras[1] = allQuestions[id].malformedCount();
+        extras[2] = allQuestions[id].reportCount();
+
+        // create new QuestionInfo object and return to the user
+        QuestionInfo memory returnValue = QuestionInfo(
+            allQuestions[id].getTitle(),
+            labels,
+            scores,
+            extras
+        );
+
+        return returnValue;
     }
 
 //@ -- Scoring and scoring intel

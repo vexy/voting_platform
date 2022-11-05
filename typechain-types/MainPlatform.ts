@@ -23,10 +23,30 @@ import type {
   PromiseOrValue,
 } from "./common";
 
+export type QuestionInfoStruct = {
+  title: PromiseOrValue<string>;
+  labels: PromiseOrValue<string>[];
+  scores: PromiseOrValue<BigNumberish>[];
+  extras: PromiseOrValue<BigNumberish>[];
+};
+
+export type QuestionInfoStructOutput = [
+  string,
+  string[],
+  BigNumber[],
+  BigNumber[]
+] & {
+  title: string;
+  labels: string[];
+  scores: BigNumber[];
+  extras: BigNumber[];
+};
+
 export interface MainPlatformInterface extends utils.Interface {
   functions: {
     "addQuestion(string,string[])": FunctionFragment;
     "getAllQuestions()": FunctionFragment;
+    "getQuestionDetails(uint256)": FunctionFragment;
     "isRegisteredUser()": FunctionFragment;
     "owner()": FunctionFragment;
     "register()": FunctionFragment;
@@ -41,6 +61,7 @@ export interface MainPlatformInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addQuestion"
       | "getAllQuestions"
+      | "getQuestionDetails"
       | "isRegisteredUser"
       | "owner"
       | "register"
@@ -58,6 +79,10 @@ export interface MainPlatformInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getAllQuestions",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getQuestionDetails",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "isRegisteredUser",
@@ -92,6 +117,10 @@ export interface MainPlatformInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAllQuestions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getQuestionDetails",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -152,6 +181,11 @@ export interface MainPlatform extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber[], string[]]>;
 
+    getQuestionDetails(
+      id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[QuestionInfoStructOutput]>;
+
     isRegisteredUser(overrides?: CallOverrides): Promise<[boolean]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -188,6 +222,11 @@ export interface MainPlatform extends BaseContract {
   ): Promise<ContractTransaction>;
 
   getAllQuestions(overrides?: CallOverrides): Promise<[BigNumber[], string[]]>;
+
+  getQuestionDetails(
+    id: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<QuestionInfoStructOutput>;
 
   isRegisteredUser(overrides?: CallOverrides): Promise<boolean>;
 
@@ -228,6 +267,11 @@ export interface MainPlatform extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber[], string[]]>;
 
+    getQuestionDetails(
+      id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<QuestionInfoStructOutput>;
+
     isRegisteredUser(overrides?: CallOverrides): Promise<boolean>;
 
     owner(overrides?: CallOverrides): Promise<string>;
@@ -266,6 +310,11 @@ export interface MainPlatform extends BaseContract {
 
     getAllQuestions(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getQuestionDetails(
+      id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isRegisteredUser(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -303,6 +352,11 @@ export interface MainPlatform extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getAllQuestions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getQuestionDetails(
+      id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     isRegisteredUser(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
