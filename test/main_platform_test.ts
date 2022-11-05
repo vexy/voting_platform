@@ -114,6 +114,20 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
         expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
       });
+
+      it("Questions can be seen/listed", async function () {
+        // register user and add question
+        registerUsers(signer1);
+        await createTestQuestion();
+        expect(await platformContract.totalQuestions()).to.equal(1); // check quesiton number integrity
+
+        const allQuestions = await platformContract.getAllQuestions();
+        const idArray = allQuestions[0];
+        const titles = allQuestions[1];
+
+        expect(idArray[0]).to.equal(0);
+        expect(titles[0]).to.equal("New Question");
+      });
     });
 
     context("Questions answering/voting", async function() {
@@ -153,5 +167,9 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
           option1Score = (await platformContract.connect(signer1).scoresFor(qID.value))[1][0];
           expect(option1Score).to.equal(expectedScore);
       });
+    });
+
+    context("Questions visibility and correctness", async function() {
+      
     });
 });
