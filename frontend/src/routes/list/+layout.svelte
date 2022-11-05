@@ -1,33 +1,32 @@
 <script lang="ts">
-    import NewQuestionModal from "$lib/Questions/NewQuestionModal.svelte";
-    import QuestionPanel from "$lib/Questions/QuestionPanel.svelte";
     import { goto } from "$app/navigation";
+    import { onMount } from "svelte";
+    import { Utilities } from "$lib/Utilities";
+    import { Question } from "$lib/Question";
 
-    let allQuestions = [
-        { id: 345, name: "Name", votes: 9 },
-        { id: 771, name: "Howdy ??", votes: 0 },
-        { id: 231, name: "Pick blueberry or pinapple ?", votes: 11 },
-        { id: 259, name: "Name 3", votes: 45 },
-        { id: 353, name: 'Nekada davno bejase ovako...', votes: 56 },
-        { id: 810, name: "Изаберите опцију реновирања parkova", votes: 11 },
-        { id: 94, name: "Da li bi ste ?", votes: 1 },
-        { id: 200, name: "Да ли сте за реновирање Градске Скупштине", votes: 3 },
-        { id: 4, name: "Name 4", votes: 0 },
-        { id: 23, name: "Pitanje 13", votes: 13 }
-    ];
+    const util = new Utilities();
+    
+    let totalQuestions: number = 0;
+    let allQuestions: Question[] = [];
+
+    onMount(async () => {
+        // get all questions and total count
+        allQuestions = await util.getAllQuestions();
+        totalQuestions = await util.questionsCount();
+    });
 
     function addNewQuestion() {
         goto("/newquestion");
     }
 
-    function openVotePage() {
-        goto("/questions/12345");
+    function openVotePage(questionID: number) {
+        goto(`/questions/${questionID}`);
     }
 </script>
 
 <center-container>
     <header-container>
-        <h2>Укупан број питања: <code>15</code></h2>
+        <h2>Укупан број питања: <code>{totalQuestions}</code></h2>
         <!-- <NewQuestionModal /> -->
         <!-- <a href="/newquestion">New  Q</a> -->
         <button class="addquestion" on:click={addNewQuestion} >+ Додај ново питање</button>
@@ -37,8 +36,8 @@
         {#each allQuestions as question }
             <questionbody>
                 <code><u>#{question.id}</u></code>
-                <question-title>{question.name}</question-title>
-                <button class="votebutton" on:click={openVotePage} >Vote</button>
+                <question-title>{question.title}</question-title>
+                <button class="votebutton" on:click={() => openVotePage(question.id)}>Vote</button>
                 <!-- <QuestionPanel /> -->
             </questionbody> 
         {/each}

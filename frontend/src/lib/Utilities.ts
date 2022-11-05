@@ -1,6 +1,7 @@
 import MetamaskOnboarding from '@metamask/onboarding';
 import { BigNumber, ethers } from "ethers";
 import  MainPlatform from "../MainPlatform.json";
+import { Question } from './Question';
 
 export class Utilities {
     private mmOnboarder!: MetamaskOnboarding;
@@ -8,10 +9,10 @@ export class Utilities {
     private signer?: ethers.providers.JsonRpcSigner;
     //
     private readonly contractAddress: string;
-    //TODO: Exchange with main-net addr
-    //TODO: READ from env or smlr
 
     constructor() {
+        //TODO: Exchange with main-net addr
+        //TODO: READ from env or smlr
         this.contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
         //
         this.connectLocally();
@@ -83,8 +84,7 @@ export class Utilities {
     async addNewQuestion(questionTitle: string, labels: string[]): Promise<boolean> {
         try {
             const response = await this.platformContract.addQuestion(questionTitle, labels);
-            console.log("*BCResponse*");
-            console.log(response);
+            console.log("New question added, raw ID: ", response.value);
             return Promise.resolve(true);
         } catch(err) {
             console.log("AddQuestion: Error happened.");
@@ -93,14 +93,24 @@ export class Utilities {
         }
     }
 
-    async getAllQuestions() {
-        const qFrameArray = await this.platformContract.getAllQuestions();
-        ethers.logger.info("All questions: ");        
-        for(const question of qFrameArray) {
-            // const _title = await question.getTitle();
-            ethers.logger.info(question);
-            // ethers.logger.info(_title);
+    async getAllQuestions(): Promise<(Question[])> {
+        console.log("Getting all questions...");
+        const returnSet: Question[] = [];
+        const allQuestions = await this.platformContract.getAllQuestions();
+        // console.log(allQuestions[0]);
+        // console.log(allQuestions[1]);
+        for(let i = 0; i < allQuestions[0].length; i++ ) {
+            //capture each tuple item and construct new Question model
+            const id = this.extractNumber(allQuestions[0][i]);
+            const title = allQuestions[1][i];
+            //
+            console.log(`Extracted: [${id}] - ${title}`);
+            const newQuestion = new Question(id, title);
+            // finally, add to resulting array
+            returnSet.push(newQuestion);
         }
+
+        return Promise.resolve(returnSet);
     }
 
     async vote(questionID: number, score: number): Promise<number> {
@@ -111,5 +121,10 @@ export class Utilities {
         const questionScore = await this.platformContract.scoresFor(questionID);
         ethers.logger.info(questionScore);
         return Promise.resolve(questionScore);
+    }
+
+    async questionsCount(): Promise<number> {
+        const response = await this.platformContract.totalQuestions();
+        return Promise.resolve(this.extractNumber(response));
     }
 }

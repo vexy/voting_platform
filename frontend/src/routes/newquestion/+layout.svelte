@@ -9,6 +9,8 @@
       u.addNewQuestion(title, labels).then( (result: boolean) => {
         if (result) {
           alert("Question successfully added !");
+          title = "";
+          labels = [];
         } else {
           alert("There has been an error saving this question.");
         }
@@ -20,16 +22,16 @@
     <!-- <div>What if we wanted to do this as a background div itself ?</div> -->
     <h1>Postavite vaše pitanje</h1>
     <title-inputs>
-      <label for="title">Naslov pitanja</label>
+      <!-- <label for="title">Naslov pitanja</label> -->
       <input 
         bind:value={title}
         type="text"
         id="title"
-        placeholder="Naslov pitanja ?"
+        placeholder="Naslov pitanja..."
         class="title-input" />
 
+        <div>Lista mogućih odgovora</div>
         <div>
-          <label for="label1">Odgovor 1</label>
           <input
             bind:value={labels[0]}
             id="label1"
@@ -38,11 +40,11 @@
             minlength="8"
             maxlength="60"
             class="label-input"
+            placeholder="Odgovor 1"
             required
           >
         </div>
         <div>
-          <label for="label2">Odgovor 2</label>
           <input
             bind:value={labels[1]}
             id="label2"
@@ -51,11 +53,11 @@
             minlength="8"
             maxlength="60"
             class="label-input"
+            placeholder="Odgovor 2"
             required
           >
         </div>
         <div>
-          <label for="label3">Odgovor 3</label>
           <input
             bind:value={labels[2]}
             id="label3"
@@ -64,11 +66,11 @@
             minlength="8"
             maxlength="60"
             class="label-input"
+            placeholder="Odgovor 3"
             required
           >
         </div>
         <div>
-          <label for="label4">Odgovor 4</label>
           <input
             bind:value={labels[3]}
             id="label4"
@@ -77,11 +79,11 @@
             minlength="8"
             maxlength="60"
             class="label-input"
+            placeholder="Odgovor 4"
             required
           >
         </div>
         <div>
-          <label for="label5">Odgovor 5</label>
           <input
             bind:value={labels[4]}
             id="label5"
@@ -90,6 +92,7 @@
             minlength="8"
             maxlength="60"
             class="label-input"
+            placeholder="Odgovor 5"
             required
           >
         </div>
@@ -105,7 +108,7 @@
     title-inputs {
         display: flex;
         flex-direction:  column;
-        gap: 5px;
+        gap: 12.5px;
         justify-content: space-around;
     }
 
@@ -132,6 +135,7 @@
     }
 
     .sky-button {
+      margin-top: 15px;
       min-width: 130px;
       height: 40px;
       color: #fff;
