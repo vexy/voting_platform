@@ -1,7 +1,7 @@
 import MetamaskOnboarding from '@metamask/onboarding';
 import { BigNumber, ethers } from "ethers";
-import  MainPlatform from "../MainPlatform.json";
-import { Question } from './Question';
+import  MainPlatform from '../MainPlatform.json';
+import { Question, QuestionInfo } from './Models'
 
 export class Utilities {
     private mmOnboarder!: MetamaskOnboarding;
@@ -104,13 +104,25 @@ export class Utilities {
             const id = this.extractNumber(allQuestions[0][i]);
             const title = allQuestions[1][i];
             //
-            console.log(`Extracted: [${id}] - ${title}`);
             const newQuestion = new Question(id, title);
             // finally, add to resulting array
             returnSet.push(newQuestion);
         }
 
         return Promise.resolve(returnSet);
+    }
+
+    async getQuestionInfo(id: number): Promise<QuestionInfo> {
+        console.log("Getting question info, ID:", id);
+        const qInfo = await this.platformContract.getQuestionDetails(id);
+
+        //start decomposing question info
+        const title = qInfo[0];
+        const labels = qInfo[1];     //array of labels
+        const scores = qInfo[2];     //array of scores
+        const extras = qInfo[3];     //array of extras (int[3])
+
+        return Promise.resolve(new QuestionInfo(title, labels, scores, extras));
     }
 
     async vote(questionID: number, score: number): Promise<number> {

@@ -1,40 +1,46 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { page } from "$app/stores";
+    import { Utilities } from '$lib/Utilities';
+    import { QuestionInfo } from '$lib/Models';
 
     let questionTitle: string;
     let questionLabels: string[] = ["Label 1", "Label 2", "Label 3", "Label 4", "Label 5"];
+    let questionInfo: QuestionInfo = new QuestionInfo("", [], [], []);
 
     onMount(async () => {
-        //perform loadup procedure here
+        const util = new Utilities();
+
+        const questionID = Number($page.params.slug);
+        questionInfo = await util.getQuestionInfo(questionID);
     });
 </script>
 
 <container>
-    <!-- <h1>{$page.params.slug}</h1> -->
-    <h1>Da li ste za ukidanje profesionalne politike ?</h1>
+    <h1>{questionInfo.title}</h1>
 
     <vote-panel>
         <vstack>
-            {#each questionLabels as caption }
+            {#each questionInfo.labels as caption }
             <hstack>
-                <input type="radio" id="vote-option" />
+                <input type="radio" id="vote-option" name="voting-options"/>
                 {caption}
             </hstack>
             {/each}
         </vstack>
         <vstack>
             <hstack>
-                <input type="radio" />Ништа од наведеног
+                <input type="radio" name="extras"/>Ништа од наведеног
             </hstack>
             <hstack>
-                <input type="radio" />Питање није довољно јасно
+                <input type="radio" name="extras"/>Питање није довољно јасно
             </hstack>
             <hstack>
-                <input type="radio" />"Ју, господе боже !"
+                <input type="radio" name="extras"/>"Ју, господе боже !"
             </hstack>
         </vstack>
     </vote-panel>
+    <button>Vote</button>
 </container>
 
 <style>

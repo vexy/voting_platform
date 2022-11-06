@@ -2,7 +2,7 @@
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { Utilities } from "$lib/Utilities";
-    import { Question } from "$lib/Question";
+    import type { Question } from "$lib/Question";
 
     const util = new Utilities();
     
