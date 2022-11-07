@@ -4,27 +4,33 @@ pragma solidity ^0.8.4;
 import "./Question.sol";
 import "./QuestionFrame.sol";
 
+/// To be used for easier external comunication
 struct QuestionInfo {
+    uint id;
+    address owner;
     string title;
     string[] labels;
     uint[] scores;
-    uint[] extras;
+    uint[3] extras;
+    uint totalVoters;
+    bool hasVoted;
 }
 
 contract MainPlatform {
     address platformOwner;
     
+    //TODO: Move to PlatformConfig
     uint constant totalPoints = 1_000_000;
     uint constant questionPostCost = 100;
     uint constant voteCost = 1;
 
     uint currentIndex;
-    QuestionFrame[] allQuestions;
+    QuestionFrame[] platformQuestions;
 
     uint _totalUsers;
     mapping(address  => uint) userPoints;
 
-    // Modifiers
+//@ -- Modifiers
     modifier ownerOnly(address _address) {
         require(msg.sender == _address, "Method execution allowed to owner only.");
         _;
@@ -57,18 +63,25 @@ contract MainPlatform {
         _;
     }
 
+//@ -- CONSTRUCTOR
     constructor(address _owner) validAddress ownerOnly(_owner) {
         platformOwner = _owner;  // set owner of the platform
         currentIndex = 0;
         register();    // register first user, wooohoo !! :))
     }
 
+//@ -- PUBLIC API
     function register() public {
         require(userPoints[msg.sender] == 0, "Already registered.");
 
         // accomodate new user with vote points
         userPoints[msg.sender] = totalPoints;
         _totalUsers += 1;
+    }
+
+    ///@notice Used to check if caller (address) is registered at the platform
+    function isRegisteredUser() validAddress public view returns (bool) {
+        return userPoints[msg.sender] != 0;
     }
 
     function addQuestion(string calldata title, string[] calldata labels) 
@@ -78,52 +91,33 @@ contract MainPlatform {
     returns (uint)
     {
         // setup new question frame
-        QuestionFrame newQuestion = new QuestionFrame(title, labels);
+        QuestionFrame newQuestion = new QuestionFrame(msg.sender, title, labels);
 
         // add to all available questions
-        allQuestions.push(newQuestion);
+        platformQuestions.push(newQuestion);
         currentIndex += 1;
         return currentIndex;    // this is sort of question ID for the front
     }
 
-    ///@notice Lists all the question IDs and their titles
-    function getAllQuestions() public view returns(uint[] memory, string[] memory) {
-        uint[] memory ids = new uint[](currentIndex);
-        string[] memory titles = new string[](currentIndex);
+    ///@notice Lists all the question of the platform (output: QuestionInfo[])
+    function getPlatformQuestions() public view returns (QuestionInfo[] memory){
+        QuestionInfo[] memory output = new QuestionInfo[](platformQuestions.length);
 
-        // cycle through all questions and form a response tuple
-        for(uint i = 0; i < allQuestions.length; i++) {
-            ids[i] = i;
-            titles[i] = allQuestions[i].getTitle();
+        //cycle through all questions and format output
+        for(uint i = 0; i < platformQuestions.length; i++ ) {
+            output[i] = QuestionInfo(
+                i,  //as ID of the question
+                platformQuestions[i].getOwner(),
+                platformQuestions[i].getTitle(),
+                platformQuestions[i].getLabels(),
+                platformQuestions[i].getScores(),
+                platformQuestions[i].getExtras(),
+                platformQuestions[i].totalVoters(),
+                platformQuestions[i].hasVoted()
+            );
         }
-        return (ids, titles);
-    }
 
-    ///@notice Used to check if caller (address) is registered at the platform
-    function isRegisteredUser() public view returns (bool) {
-        return userPoints[msg.sender] != 0;
-    }
-
-    function getQuestionDetails(uint id)
-    validAddress validQuestionIndex(id) registeredUsersOnly
-    public view returns(QuestionInfo memory) {
-        uint[] memory extras = new uint[](3);
-
-        // get all the metadata
-        (string[] memory labels, uint[] memory scores) = allQuestions[id].scoreTable();
-        extras[0] = allQuestions[id].noneCount();
-        extras[1] = allQuestions[id].malformedCount();
-        extras[2] = allQuestions[id].reportCount();
-
-        // create new QuestionInfo object and return to the user
-        QuestionInfo memory returnValue = QuestionInfo(
-            allQuestions[id].getTitle(),
-            labels,
-            scores,
-            extras
-        );
-
-        return returnValue;
+        return output;
     }
 
 //@ -- Scoring and scoring intel
@@ -133,14 +127,23 @@ contract MainPlatform {
     registeredUsersOnly positiveBalance pointsDeducible(voteCost)
     public {
         // perform voting for a given question
-        allQuestions[questionID].accept(voteOption);
+        platformQuestions[questionID].accept(voteOption);
     }
 
-    function scoresFor(uint questionID)
-    validAddress validQuestionIndex(questionID)
+    function getQuestionInfo(uint questionID)
+    validAddress validQuestionIndex(questionID) registeredUsersOnly
     public view
-    returns(string[] memory, uint[] memory) {
-        return allQuestions[questionID].scoreTable();
+    returns(QuestionInfo memory) {
+        return QuestionInfo(
+            questionID,  //as ID of the question
+            platformQuestions[questionID].getOwner(),
+            platformQuestions[questionID].getTitle(),
+            platformQuestions[questionID].getLabels(),
+            platformQuestions[questionID].getScores(),
+            platformQuestions[questionID].getExtras(),
+            platformQuestions[questionID].totalVoters(),
+            platformQuestions[questionID].hasVoted()
+        );
     }
 
 //@ -- Stats (add more later)

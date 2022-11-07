@@ -8,36 +8,38 @@ struct ExpandedQuestion {
     address owner;
     string title;
     string description;
-
-    // reference to a Question contract
-    Question question;
-
-    // additional, system-defined options, attached to each question
-    uint none;
-    uint malformed;
-    uint ju_gospode_boze;
-    /**
-        Name of this variable represents a famous replica
-        of the Serbian actress 🙌
-        
-        🇷🇸 Svetlana (Ceca) Bojkovic 🇷🇸
-     */
+    Question question;  // reference to a Question contract
+    uint[3] extras;     // additional, system-defined options, attached to each question
 }
 
 contract QuestionFrame {
+    // wrapper around base question
     ExpandedQuestion questionFrame;
-    mapping(address => bool) voters;
 
-    bool internal locked; // used to guard against re-entrancy
+    mapping(address => bool) voters;
     uint internal votersCount;  // number of user that have voted on this question
 
-    constructor(string memory title, string[] memory labels) {
-        questionFrame.owner = msg.sender;
+    bool internal locked; // used to guard against re-entrancy
+
+    enum EXTRAS {
+        none,
+        malformed,
+        ju_gospode_boze
+        /**
+        Name of last variable represents a famous replica
+        of the Serbian actress 🙌
+        
+        🇷🇸 Svetlana (Ceca) Bojkovic 🇷🇸
+        */
+    }
+
+    constructor(address owner, string memory title, string[] memory labels) {
+        questionFrame.owner = owner;
         questionFrame.title = title;
         questionFrame.question = new Question(labels);
-        questionFrame.none = 0;
-        questionFrame.malformed = 0;
-        questionFrame.ju_gospode_boze = 0;
+        questionFrame.extras[uint(EXTRAS.none)] = 0;
+        questionFrame.extras[uint(EXTRAS.malformed)] = 0;
+        questionFrame.extras[uint(EXTRAS.ju_gospode_boze)] = 0;
         votersCount = 0;
     }
 
@@ -51,53 +53,51 @@ contract QuestionFrame {
         locked = false;
     }
 
+/*      ---- SCORES AND EXTRAS SETTERS ----      */
     function accept(uint element) public protectedExecution {
         questionFrame.question.accept(element);
     }
 
     function none() public protectedExecution {
-        questionFrame.none += 1;
+        questionFrame.extras[uint(EXTRAS.none)] += 1;
     }
 
     function malformed() public protectedExecution {
-        questionFrame.malformed += 1;
+        questionFrame.extras[uint(EXTRAS.malformed)] += 1;
     }
 
     function report() public protectedExecution {
-        questionFrame.ju_gospode_boze += 1;
+        questionFrame.extras[uint(EXTRAS.ju_gospode_boze)] += 1;
     }
 
-
-    /*      ---- Question points getters ----      */
+    /*      ---- SCORES AND EXTRAS GETTERS ----      */
     function score(uint element) public view returns (uint) {
         return questionFrame.question.score(element);
     }
 
     function noneCount() public view returns (uint) {
-        return questionFrame.none;
+        return questionFrame.extras[uint(EXTRAS.none)];
     }
 
     function malformedCount() public view returns (uint) {
-        return questionFrame.malformed;
+        return questionFrame.extras[uint(EXTRAS.malformed)];
     }
 
     function reportCount() public view returns (uint) {
-        return questionFrame.ju_gospode_boze;
+        return questionFrame.extras[uint(EXTRAS.ju_gospode_boze)];
     }
 
-    ///@dev `uint` variable representing total number of users that have interacted with contract (used contract features)
-    ///@notice Total amount of users who have expressed their opinion on this question.
-    function totalVoters() public view returns (uint) {
-        return votersCount;
+    // AGGREGATES
+
+    function getScores() public view returns (uint[] memory) {
+        return questionFrame.question.getScores();
     }
 
-    ///@dev Tuple of string and uint arrays representing labels and scores
-    ///@notice Returns a map of question labels and corresponding vote points
-    function scoreTable() public view returns (string[] memory, uint[] memory) {
-        return (questionFrame.question.getLabels(), questionFrame.question.getScores());
+    function getExtras() public view returns (uint[3] memory) {
+        return questionFrame.extras;
     }
 
-//@--       BASIC CRUDs
+//@--       OTHER CRUD
 
     /*      ---- Title ----      */
     function editTitle(string calldata newTitle) public {
@@ -106,6 +106,11 @@ contract QuestionFrame {
 
     function getTitle() public view returns (string memory) {
         return questionFrame.title;
+    }
+
+    /*      ---- Labels ----      */
+    function getLabels() public view returns (string[] memory) {
+        return questionFrame.question.getLabels();
     }
 
     /*      ---- Owner ----      */
@@ -120,5 +125,15 @@ contract QuestionFrame {
 
     function getDescription() public view returns (string memory) {
         return questionFrame.description;
+    }
+
+    ///@dev `uint` variable representing total number of users that have interacted with contract (used contract features)
+    ///@notice Total amount of users who have expressed their opinion on this question.
+    function totalVoters() public view returns (uint) {
+        return votersCount;
+    }
+
+    function hasVoted() public view returns (bool) {
+        return voters[msg.sender];
     }
 }

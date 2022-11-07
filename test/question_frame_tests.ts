@@ -21,7 +21,7 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
 
         // wait for contract deployment
         const provider = await ethers.getContractFactory("QuestionFrame");
-        questionFrameContract = await provider.deploy("Question title", questionLabels);
+        questionFrameContract = await provider.deploy(signer1.address, "Question title", questionLabels);
         await questionFrameContract.deployed();
     });
 

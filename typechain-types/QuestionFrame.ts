@@ -29,8 +29,12 @@ export interface QuestionFrameInterface extends utils.Interface {
     "editDescription(string)": FunctionFragment;
     "editTitle(string)": FunctionFragment;
     "getDescription()": FunctionFragment;
+    "getExtras()": FunctionFragment;
+    "getLabels()": FunctionFragment;
     "getOwner()": FunctionFragment;
+    "getScores()": FunctionFragment;
     "getTitle()": FunctionFragment;
+    "hasVoted()": FunctionFragment;
     "malformed()": FunctionFragment;
     "malformedCount()": FunctionFragment;
     "none()": FunctionFragment;
@@ -38,7 +42,6 @@ export interface QuestionFrameInterface extends utils.Interface {
     "report()": FunctionFragment;
     "reportCount()": FunctionFragment;
     "score(uint256)": FunctionFragment;
-    "scoreTable()": FunctionFragment;
     "totalVoters()": FunctionFragment;
   };
 
@@ -48,8 +51,12 @@ export interface QuestionFrameInterface extends utils.Interface {
       | "editDescription"
       | "editTitle"
       | "getDescription"
+      | "getExtras"
+      | "getLabels"
       | "getOwner"
+      | "getScores"
       | "getTitle"
+      | "hasVoted"
       | "malformed"
       | "malformedCount"
       | "none"
@@ -57,7 +64,6 @@ export interface QuestionFrameInterface extends utils.Interface {
       | "report"
       | "reportCount"
       | "score"
-      | "scoreTable"
       | "totalVoters"
   ): FunctionFragment;
 
@@ -77,8 +83,12 @@ export interface QuestionFrameInterface extends utils.Interface {
     functionFragment: "getDescription",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "getExtras", values?: undefined): string;
+  encodeFunctionData(functionFragment: "getLabels", values?: undefined): string;
   encodeFunctionData(functionFragment: "getOwner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "getScores", values?: undefined): string;
   encodeFunctionData(functionFragment: "getTitle", values?: undefined): string;
+  encodeFunctionData(functionFragment: "hasVoted", values?: undefined): string;
   encodeFunctionData(functionFragment: "malformed", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "malformedCount",
@@ -96,10 +106,6 @@ export interface QuestionFrameInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "scoreTable",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "totalVoters",
     values?: undefined
   ): string;
@@ -114,8 +120,12 @@ export interface QuestionFrameInterface extends utils.Interface {
     functionFragment: "getDescription",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getExtras", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getLabels", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getOwner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getScores", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getTitle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasVoted", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "malformed", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "malformedCount",
@@ -129,7 +139,6 @@ export interface QuestionFrameInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "score", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "scoreTable", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalVoters",
     data: BytesLike
@@ -182,9 +191,19 @@ export interface QuestionFrame extends BaseContract {
 
     getDescription(overrides?: CallOverrides): Promise<[string]>;
 
+    getExtras(
+      overrides?: CallOverrides
+    ): Promise<[[BigNumber, BigNumber, BigNumber]]>;
+
+    getLabels(overrides?: CallOverrides): Promise<[string[]]>;
+
     getOwner(overrides?: CallOverrides): Promise<[string]>;
 
+    getScores(overrides?: CallOverrides): Promise<[BigNumber[]]>;
+
     getTitle(overrides?: CallOverrides): Promise<[string]>;
+
+    hasVoted(overrides?: CallOverrides): Promise<[boolean]>;
 
     malformed(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -209,8 +228,6 @@ export interface QuestionFrame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    scoreTable(overrides?: CallOverrides): Promise<[string[], BigNumber[]]>;
-
     totalVoters(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
@@ -231,9 +248,19 @@ export interface QuestionFrame extends BaseContract {
 
   getDescription(overrides?: CallOverrides): Promise<string>;
 
+  getExtras(
+    overrides?: CallOverrides
+  ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+  getLabels(overrides?: CallOverrides): Promise<string[]>;
+
   getOwner(overrides?: CallOverrides): Promise<string>;
 
+  getScores(overrides?: CallOverrides): Promise<BigNumber[]>;
+
   getTitle(overrides?: CallOverrides): Promise<string>;
+
+  hasVoted(overrides?: CallOverrides): Promise<boolean>;
 
   malformed(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -258,8 +285,6 @@ export interface QuestionFrame extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  scoreTable(overrides?: CallOverrides): Promise<[string[], BigNumber[]]>;
-
   totalVoters(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
@@ -280,9 +305,19 @@ export interface QuestionFrame extends BaseContract {
 
     getDescription(overrides?: CallOverrides): Promise<string>;
 
+    getExtras(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+    getLabels(overrides?: CallOverrides): Promise<string[]>;
+
     getOwner(overrides?: CallOverrides): Promise<string>;
 
+    getScores(overrides?: CallOverrides): Promise<BigNumber[]>;
+
     getTitle(overrides?: CallOverrides): Promise<string>;
+
+    hasVoted(overrides?: CallOverrides): Promise<boolean>;
 
     malformed(overrides?: CallOverrides): Promise<void>;
 
@@ -300,8 +335,6 @@ export interface QuestionFrame extends BaseContract {
       element: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    scoreTable(overrides?: CallOverrides): Promise<[string[], BigNumber[]]>;
 
     totalVoters(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -326,9 +359,17 @@ export interface QuestionFrame extends BaseContract {
 
     getDescription(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getExtras(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLabels(overrides?: CallOverrides): Promise<BigNumber>;
+
     getOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getScores(overrides?: CallOverrides): Promise<BigNumber>;
+
     getTitle(overrides?: CallOverrides): Promise<BigNumber>;
+
+    hasVoted(overrides?: CallOverrides): Promise<BigNumber>;
 
     malformed(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -353,8 +394,6 @@ export interface QuestionFrame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    scoreTable(overrides?: CallOverrides): Promise<BigNumber>;
-
     totalVoters(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
@@ -376,9 +415,17 @@ export interface QuestionFrame extends BaseContract {
 
     getDescription(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getExtras(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getLabels(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     getOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getScores(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     getTitle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    hasVoted(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     malformed(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -402,8 +449,6 @@ export interface QuestionFrame extends BaseContract {
       element: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    scoreTable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalVoters(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
