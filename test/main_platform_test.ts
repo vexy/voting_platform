@@ -12,9 +12,9 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
     const testLabels = ['one', 'two', 'three'];
 
     beforeEach(async function () {
-      // get some signers
+      // assign basic signers
       const allSigners = await ethers.getSigners();
-      owner = allSigners[0]; //console.log("Owner: ", owner);
+      owner = allSigners[0];
       signer1 = allSigners[1];
       signer2 = allSigners[2];
       
@@ -27,20 +27,23 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
     // GENERAL HELPERS:
     async function registerUsers(user: SignerWithAddress) {
       await platformContract.connect(user).register();
-      console.log("Registered user: ", user.address);
+      // console.log("\t-- User registered: ", user.address);
     }
 
-    async function createTestQuestion(as?: SignerWithAddress) {
-      let questionID = ethers.BigNumber.from(0);
+    async function createTestQuestion(as?: SignerWithAddress): Promise<number> {
+      let platformResponse;
       if(as) {
-        questionID = await platformContract.connect(as).addQuestion(testTitle, testLabels);
-        console.log("Question created, owner:\t", as.address);
+        platformResponse = await platformContract.connect(as).addQuestion(testTitle, testLabels);
       } else {
-        questionID = await platformContract.addQuestion(testTitle, testLabels);
-        console.log("Question created by owner, address:\t", owner.address);
+        platformResponse = await platformContract.addQuestion(testTitle, testLabels);
       }
 
-      return questionID;
+      // console.log("\t-- New Question created:");
+      // console.log("\t-- Owner: ", platformResponse.from);
+      // console.log("\t-- ID value: ", platformResponse.value.toNumber());
+      
+      const newQuestionID = platformResponse.value.toNumber();  //this is attached method by NigNumber
+      return Promise.resolve(newQuestionID);
     }
 
     context("Initial setup", async function() {
@@ -93,27 +96,24 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
     context("Questions posting", async function() {
       it("Owner can add question", async function() {
-        const expectedID = ethers.BigNumber.from(0);
+        const expectedID = 0;
         const expectedTotalQuestions = 1;
 
-        const id = await createTestQuestion(); // this returns BigNumber
+        const id = await createTestQuestion(); // this returns number
         
-        expect(id.value).to.equal(expectedID);
+        expect(id).to.equal(expectedID);
         expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
       });
 
       it("Registered users can add question", async function() {
-        let expectedTotalQuestions = 0;
-
-        // signer 1
-        registerUsers(signer1);
+        await registerUsers(signer1);
         await createTestQuestion(signer1);
-        expectedTotalQuestions += 1;
+        let expectedTotalQuestions = 1;
         //
         expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
 
         // signer 2
-        registerUsers(signer2);
+        await registerUsers(signer2);
         await createTestQuestion(signer2);
         expectedTotalQuestions += 1;
 
@@ -123,55 +123,76 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
     context("Questions answering/voting", async function() {
       it("Owner can vote", async function() {
-        await createTestQuestion();
+        const qID = await createTestQuestion();
         expect(await platformContract.totalQuestions()).to.equal(1);
 
         // perform voting
-        await platformContract.vote(0,0);
-
-        // check score result
-        const qInfoResponse = (await platformContract.getQuestionInfo(0));
+        await platformContract.vote(qID,0);
         const expectedScore = ethers.BigNumber.from(1);
-        expect(qInfoResponse.id).to.equal(ethers.BigNumber.from(0));
+
+        // get question info
+        const qInfoResponse = (await platformContract.getQuestionInfo(qID));
+        
+        expect(qInfoResponse.id).to.equal(qID);
+        expect(qInfoResponse.owner).to.equal(owner.address);
         expect(qInfoResponse.scores[0]).to.equal(expectedScore);
-        // expect(qInfoResponse.owner).to.equal(owner.address);
-        console.log("Question ower (RESPONSE): ", qInfoResponse.owner);
         expect(qInfoResponse.totalVoters).to.equal(ethers.BigNumber.from(1));
         expect(qInfoResponse.hasVoted).to.equal(true);
       });
     
-      it("Registered users can vote", async function(){
-          await createTestQuestion();
+      it("Registered users can vote owner's questions", async function(){
+          const qID = await createTestQuestion();
           expect(await platformContract.totalQuestions()).to.equal(1);
 
           // register signer1, vote for first option
-          registerUsers(signer1);
-          await platformContract.connect(signer1).vote(0, 0);
+          await registerUsers(signer1);
+          await platformContract.connect(signer1).vote(qID, 0);
 
           // get scores for first option
           let expectedScore = ethers.BigNumber.from(1);
           const qInfoResponse = (await platformContract.connect(signer1).getQuestionInfo(0));
           //
+          expect(qInfoResponse.id).to.equal(qID);
+          expect(qInfoResponse.owner).to.equal(owner.address);
           expect(qInfoResponse.scores[0]).to.equal(expectedScore);
-          expect(qInfoResponse.totalVoters).to.equal(1);
+          expect(qInfoResponse.totalVoters).to.equal(ethers.BigNumber.from(1));
           expect(qInfoResponse.hasVoted).to.equal(true);
+      });
+
+      it("Registered users can vote their own questions", async function(){
+        // register signer1 and create a question
+        await registerUsers(signer1);
+        const qID = await createTestQuestion(signer1);
+        expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
+
+        // perform voting for own question
+        await platformContract.connect(signer1).vote(qID, 0);
+
+        // get scores for first option
+        const expectedScore = ethers.BigNumber.from(1);
+        const qInfoResponse = (await platformContract.connect(signer1).getQuestionInfo(qID));
+        //
+        expect(qInfoResponse.id).to.equal(qID);
+        expect(qInfoResponse.owner).to.equal(signer1.address);
+        expect(qInfoResponse.scores[0]).to.equal(expectedScore);
+        expect(qInfoResponse.totalVoters).to.equal(ethers.BigNumber.from(1));
+        expect(qInfoResponse.hasVoted).to.equal(true);
       });
     });
 
     context("Questions visibility and correctness", async function() {
       it("Questions can be seen/listed", async function () {
         // register user and add question
-        registerUsers(signer1);
-        expect(await platformContract.totalUsers()).to.equal(1); // check users number integrity
-
+        await registerUsers(signer1);
         await createTestQuestion(signer1);
+
+        expect(await platformContract.totalUsers()).to.equal(2); // check users number integrity
         expect(await platformContract.totalQuestions()).to.equal(1); // check quesiton number integrity
 
         const qInfoResponse = (await platformContract.connect(signer1).getQuestionInfo(0));
         //
         expect(qInfoResponse.id).to.equal(0);
-        // expect(qInfoResponse.owner).to.equal(owner.address);
-        // expect(qInfoResponse.owner).to.equal(owner.address);
+        expect(qInfoResponse.owner).to.equal(signer1.address);
         expect(qInfoResponse.title).to.equal("New Question");
         expect(qInfoResponse.labels[0]).to.equal('one');
         expect(qInfoResponse.labels[1]).to.equal('two');
