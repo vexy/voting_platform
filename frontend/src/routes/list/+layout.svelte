@@ -2,22 +2,21 @@
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { Utilities } from "$lib/Utilities";
-    import type { Question } from "$lib/Question";
-
-    const util = new Utilities();
+    import type { QuestionInfo } from "$lib/Question";
     
     let totalQuestions: number = 0;
-    let allQuestions: Question[] = [];
+    let allQuestions: QuestionInfo[] = [];
 
+    // get all questions and total count
     onMount(async () => {
-        // get all questions and total count
-        allQuestions = await util.getAllQuestions();
+        const util = new Utilities();
         totalQuestions = await util.questionsCount();
+        allQuestions = await util.getAllQuestions();
     });
 
-    function addNewQuestion() {
-        goto("/newquestion");
-    }
+    // function addNewQuestion() {
+    //     goto("/newquestion");
+    // }
 
     function openVotePage(questionID: number) {
         goto(`/questions/${questionID}`);
@@ -28,8 +27,7 @@
     <header-container>
         <h2>Укупан број питања: <code>{totalQuestions}</code></h2>
         <!-- <NewQuestionModal /> -->
-        <!-- <a href="/newquestion">New  Q</a> -->
-        <button class="addquestion" on:click={addNewQuestion} >+ Додај ново питање</button>
+        <button class="addquestion" on:click={() => goto("/newquestion")} >+ Додај ново питање</button>
     </header-container>
         
     <questions_container>
@@ -37,9 +35,15 @@
             <questionbody>
                 <code><u>#{question.id}</u></code>
                 <question-title>{question.title}</question-title>
-                <button class="votebutton" on:click={() => openVotePage(question.id)}>Vote</button>
+                <button class="votebutton" on:click={() => openVotePage(question.id)}>
+                    {#if question.hasVoted }
+                        Detalji ({question.totalVoters})
+                    {:else}
+                        Pogledaj ({question.totalVoters})
+                    {/if}
+                </button>
                 <!-- <QuestionPanel /> -->
-            </questionbody> 
+            </questionbody>
         {/each}
     </questions_container>
 </center-container>

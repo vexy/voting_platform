@@ -55,16 +55,16 @@ export class Utilities {
     // PLATFORM API IMP
 
     async totalUsers(): Promise<number> {
-        ethers.logger.info("Executing totalUsers()...");
+        console.log("Executing totalUsers()...");
         const totalQ = await this.platformContract.totalUsers();
-        ethers.logger.debug(totalQ);
+        ethers.logger.info(totalQ);
         return Promise.resolve(this.extractNumber(totalQ));
     }
 
     /// Returns true if user successfully registrers
     async registerNewUser(): Promise<boolean> {
+        console.log("Registering new user...");
         try {
-            ethers.logger.info("Registering...");
             await this.platformContract.register();
             return Promise.resolve(true);
         } catch (err) {
@@ -93,20 +93,22 @@ export class Utilities {
         }
     }
 
-    async getAllQuestions(): Promise<(Question[])> {
-        console.log("Getting all questions...");
-        const returnSet: Question[] = [];
-        const allQuestions = await this.platformContract.getAllQuestions();
-        // console.log(allQuestions[0]);
-        // console.log(allQuestions[1]);
-        for(let i = 0; i < allQuestions[0].length; i++ ) {
-            //capture each tuple item and construct new Question model
-            const id = this.extractNumber(allQuestions[0][i]);
-            const title = allQuestions[1][i];
-            //
-            const newQuestion = new Question(id, title);
-            // finally, add to resulting array
-            returnSet.push(newQuestion);
+    async getAllQuestions(): Promise<(QuestionInfo[])> {
+        const returnSet: QuestionInfo[] = [];
+        const qInfoSet = await this.platformContract.getPlatformQuestions();
+        // console.log(qInfoSet);
+        // const questionInfoArray = response[0];
+        for(let qInfo of qInfoSet) {
+            returnSet.push(new QuestionInfo(
+                this.extractNumber(qInfo.id),
+                qInfo.owner,
+                qInfo.title,
+                qInfo.labels,
+                qInfo.scores,
+                qInfo.extras,
+                this.extractNumber(qInfo.totalVoters),
+                qInfo.hasVoted
+            ));
         }
 
         return Promise.resolve(returnSet);
@@ -114,25 +116,25 @@ export class Utilities {
 
     async getQuestionInfo(id: number): Promise<QuestionInfo> {
         console.log("Getting question info, ID:", id);
-        const qInfo = await this.platformContract.getQuestionDetails(id);
-
-        //start decomposing question info
-        const title = qInfo[0];
-        const labels = qInfo[1];     //array of labels
-        const scores = qInfo[2];     //array of scores
-        const extras = qInfo[3];     //array of extras (int[3])
-
-        return Promise.resolve(new QuestionInfo(title, labels, scores, extras));
+        const qInfo = await this.platformContract.getQuestionInfo(id);
+        return Promise.resolve(qInfo);
     }
 
-    async vote(questionID: number, score: number): Promise<number> {
-        const response = await this.platformContract.vote(questionID, score);
-        ethers.logger.info(`Voted for qID = ${questionID}`);
-        ethers.logger.info(response);
-        //
-        const questionScore = await this.platformContract.scoresFor(questionID);
-        ethers.logger.info(questionScore);
-        return Promise.resolve(questionScore);
+    async vote(questionID: number, score: number): Promise<boolean> {
+        console.log(`Voting for ${questionID}, score: ${score}`);
+        try {
+            await this.platformContract.vote(questionID, score);
+            return Promise.resolve(true);
+        } catch (e) {
+            // console.log("Error occured: ", e.reason);
+            return Promise.reject(false);
+        }
+    }
+
+    async provideExtra(questionID: number, extraScore: number) {
+        // const response = await this.platformContract.TODO
+        // complete this
+        console.log("Will arive soon !");
     }
 
     async questionsCount(): Promise<number> {

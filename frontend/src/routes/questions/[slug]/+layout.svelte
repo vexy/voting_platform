@@ -4,16 +4,44 @@
     import { Utilities } from '$lib/Utilities';
     import { QuestionInfo } from '$lib/Models';
 
-    let questionTitle: string;
-    let questionLabels: string[] = ["Label 1", "Label 2", "Label 3", "Label 4", "Label 5"];
-    let questionInfo: QuestionInfo = new QuestionInfo("", [], [], []);
+    const util = new Utilities();
+
+    let questionInfo: QuestionInfo = new QuestionInfo(0,"","",[],[],[],0,false);
+    let voteOptions: number[] = [0,1,2];
 
     onMount(async () => {
-        const util = new Utilities();
-
         const questionID = Number($page.params.slug);
         questionInfo = await util.getQuestionInfo(questionID);
     });
+
+    async function performVote() {
+        // check which user option is selected
+        const optionButtons = document.getElementsByName('voting-options');
+        for(let i = 0; i < optionButtons.length; i++) {
+            if(optionButtons[i].checked) {
+                const optionValue = optionButtons[i].value;
+
+                // check the meta of option button selected
+                if (optionValue >= 0) {
+                    // contains voting option
+                    console.log("Voting...");
+                    await util.vote(questionInfo.id, i)
+                        .then(() => {
+                            alert("Sucessfully voted !");
+                        })
+                        .catch(() => {
+                            console.log("Error...");
+                            alert("There has been an error during vote !");
+                        });
+                } else {
+                    // contains extras option
+                    await util.provideExtra(questionInfo.id, optionValue);
+                }
+
+                break;  //no need to cycle further
+            }
+        }
+    }
 </script>
 
 <container>
@@ -21,26 +49,29 @@
 
     <vote-panel>
         <vstack>
-            {#each questionInfo.labels as caption }
+            {#each voteOptions as option }
             <hstack>
-                <input type="radio" id="vote-option" name="voting-options"/>
-                {caption}
+                <input type="radio" name="voting-options" value={option}/>
+                {questionInfo.labels[option]}
             </hstack>
             {/each}
         </vstack>
         <vstack>
             <hstack>
-                <input type="radio" name="extras"/>Ништа од наведеног
+                <input type="radio" name="voting-options" value=-1/>Ништа од наведеног
             </hstack>
             <hstack>
-                <input type="radio" name="extras"/>Питање није довољно јасно
+                <input type="radio" name="voting-options" value=-2/>Питање није довољно јасно
             </hstack>
             <hstack>
-                <input type="radio" name="extras"/>"Ју, господе боже !"
+                <input type="radio" name="voting-options" value=-3/>Ne adekvatno pitanje
             </hstack>
         </vstack>
     </vote-panel>
-    <button>Vote</button>
+
+    <vstack style="width: 40%;">
+        <button class="sky-button" on:click={performVote}>Vote</button>    
+    </vstack>
 </container>
 
 <style>
@@ -57,7 +88,7 @@
         display: flex;
         flex-direction: row;
         justify-content: space-around;
-        background-color: blueviolet;
+        /* background-color: blueviolet; */
 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
@@ -78,6 +109,34 @@
         font-size: 35pt;
         text-align: center;
         word-wrap: break-word;
-        background-color: aqua;
+        /* background-color: aqua; */
+    }
+
+    .sky-button {
+      margin-top: 15px;
+      min-width: 130px;
+      height: 40px;
+      color: #fff;
+      padding: 5px 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      display: inline-block;
+      outline: none;
+      border-radius: 5px;
+      border: none;
+      background: #3a86ff;
+      box-shadow: 0 5px #4433ff;
+    }
+
+    .sky-button:hover {
+      box-shadow: 0 3px #4433ff;
+      top: 1px;
+    }
+    
+    .sky-button:active {
+      box-shadow: 0 0 #4433ff;
+      top: 5px;
     }
 </style>
