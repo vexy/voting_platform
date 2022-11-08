@@ -2,7 +2,7 @@
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { Utilities } from "$lib/Utilities";
-    import type { QuestionInfo } from "$lib/Question";
+    import type { QuestionInfo } from "$lib/Models";
     
     let totalQuestions: number = 0;
     let allQuestions: QuestionInfo[] = [];
@@ -13,10 +13,6 @@
         totalQuestions = await util.questionsCount();
         allQuestions = await util.getAllQuestions();
     });
-
-    // function addNewQuestion() {
-    //     goto("/newquestion");
-    // }
 
     function openVotePage(questionID: number) {
         goto(`/questions/${questionID}`);

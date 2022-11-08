@@ -1,7 +1,7 @@
 import MetamaskOnboarding from '@metamask/onboarding';
 import { BigNumber, ethers } from "ethers";
 import  MainPlatform from '../MainPlatform.json';
-import { Question, QuestionInfo } from './Models'
+import { QuestionInfo } from './Models'
 
 export class Utilities {
     private mmOnboarder!: MetamaskOnboarding;
