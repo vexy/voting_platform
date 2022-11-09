@@ -1,12 +1,10 @@
 <script lang="ts">
-	import ProviderToolbar from "$lib/ProviderToolbar.svelte";
-	import WelcomePanel from "$lib/WelcomePanel.svelte";
+	import Header from "$lib/Header.svelte";
 	import Footer from "$lib/Footer.svelte";
 </script>
-<!-- Place to enter other Svelte pages -->
 
 <background>
-	<ProviderToolbar />
+	<Header />
 	<slot />
 	<Footer />
 </background>

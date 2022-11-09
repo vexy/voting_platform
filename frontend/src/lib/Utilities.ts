@@ -6,7 +6,7 @@ import { QuestionInfo } from './Models'
 export class Utilities {
     private mmOnboarder!: MetamaskOnboarding;
     private platformContract!: ethers.Contract;
-    private signer?: ethers.providers.JsonRpcSigner;
+    public signer?: ethers.providers.JsonRpcSigner;
     //
     private readonly contractAddress: string;
 
@@ -55,9 +55,8 @@ export class Utilities {
     // PLATFORM API IMP
 
     async totalUsers(): Promise<number> {
-        console.log("Executing totalUsers()...");
+        //TODO add try catch here
         const totalQ = await this.platformContract.totalUsers();
-        ethers.logger.info(totalQ);
         return Promise.resolve(this.extractNumber(totalQ));
     }
 
@@ -76,7 +75,6 @@ export class Utilities {
 
     async getUserBalance(): Promise<number> {
         const _sgnr = await this.signer?.getAddress();
-        ethers.logger.info("Executing balance request with: ", _sgnr);
         const balanceBN = await this.platformContract.userBalance(_sgnr);
         return Promise.resolve(this.extractNumber(balanceBN));
     }
@@ -140,5 +138,11 @@ export class Utilities {
     async questionsCount(): Promise<number> {
         const response = await this.platformContract.totalQuestions();
         return Promise.resolve(this.extractNumber(response));
+    }
+
+    async isRegisteredUser(): Promise<boolean> {
+        const response = await this.platformContract.isRegisteredUser();
+        if(response) { return Promise.resolve(true); }
+        else { return Promise.reject(false); }
     }
 }

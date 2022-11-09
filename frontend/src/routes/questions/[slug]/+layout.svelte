@@ -4,6 +4,7 @@
     import { Utilities } from '$lib/Utilities';
     import { QuestionInfo } from '$lib/Models';
 
+    const util = new Utilities();
     let questionInfo: QuestionInfo = new QuestionInfo(0,"","",[],[],[],0,false);
     let voteOptions: number[] = [0,1,2];
 
@@ -11,7 +12,6 @@
     let extrasMeterValues: number[] = [];
 
     onMount(async () => {
-        const util = new Utilities();
         const questionID = Number($page.params.slug);
         questionInfo = await util.getQuestionInfo(questionID);
 
@@ -38,7 +38,7 @@
                 if (optionValue >= 0) {
                     // contains voting option
                     console.log("Voting...");
-                    await util.vote(questionData.id, i)
+                    await util.vote(questionInfo.id, i)
                         .then(() => {
                             alert("Sucessfully voted !");
                         })
@@ -48,7 +48,7 @@
                         });
                 } else {
                     // contains extras option
-                    await util.provideExtra(questionData.id, optionValue);
+                    await util.provideExtra(questionInfo.id, optionValue);
                 }
 
                 break;  //no need to cycle further

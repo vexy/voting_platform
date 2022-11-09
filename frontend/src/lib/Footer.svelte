@@ -1,5 +1,5 @@
 <footer>
-    <code>public-beta v0.6</code>
+    <code>public-beta v0.8</code>
     <div>Made with ❤️ in 🇷🇸</div>
 </footer>
 
