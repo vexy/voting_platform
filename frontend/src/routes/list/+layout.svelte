@@ -6,20 +6,42 @@
     
     let totalQuestions: number = 0;
     let allQuestions: QuestionInfo[] = [];
+    let tableQuestions: QuestionInfo[] = [];
+    //
+    let searchTerm: string = "";
+    let questionsInSearch: QuestionInfo[] = [];
 
     // get all questions and total count
     onMount(async () => {
         const util = new Utilities();
         totalQuestions = await util.questionsCount();
         allQuestions = await util.getAllQuestions();
+        tableQuestions = allQuestions;
     });
 
     function openVotePage(questionID: number) {
         goto(`/questions/${questionID}`);
     }
+
+    function performSearch() {
+        if (searchTerm.length > 0) {
+            // filter out all the questions starting with searchTerm
+            questionsInSearch = allQuestions.filter((qInfo) => { return qInfo.title.includes(searchTerm) });
+            tableQuestions = questionsInSearch;
+        } else {
+            // clear questions in search and put back all questions
+            questionsInSearch = [];
+            tableQuestions = allQuestions;
+        }
+    }
 </script>
 
 <center-container>
+    <searchbar>
+        <input type="search" bind:value={searchTerm} placeholder="Pretraga pitanja..."/>
+        <button class="search-button" on:click={performSearch}>Pronađi</button>
+    </searchbar>
+
     <header-container>
         <h2>Укупан број питања: <code>{totalQuestions}</code></h2>
         <!-- <NewQuestionModal /> -->
@@ -27,7 +49,7 @@
     </header-container>
         
     <questions_container>
-        {#each allQuestions as question }
+        {#each tableQuestions as question }
             <questionbody>
                 <code><u>#{question.id}</u></code>
                 <question-title>{question.title}</question-title>
@@ -46,16 +68,56 @@
 
 <style>
     center-container {
-        position: absolute;
-        margin: auto;
-        top: 50%;
-        width: 90%;
-        left: 0;
-        right: 0;
-        -webkit-transform: translateY(-50%);
-        -ms-transform: translateY(-50%);
-        transform: translateY(-50%);
-        padding: 20px;
+        align-self: center;
+        width: 85vw;
+    }
+
+    searchbar {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    input {
+        width: 75%;
+        padding: 10px;
+        font-size: 15px;
+        letter-spacing: 2px;
+        border-width: 0.5px;
+        border-radius: 25px;
+        border-color: white;
+        outline: none;
+        transition: all .3s ease-in-out;
+        background-color: transparent;
+        color:#fff;
+    }
+
+    input-search:placeholder{
+        color:rgba(255,255,255,.5);
+        font-size: 16px;
+        letter-spacing: 2px;
+        font-weight: 100;
+    }
+
+    .search-button {
+        border-style: none;
+        border-radius: 15%;
+        background-color: #80ed99;
+        cursor: pointer;
+        color: whitesmoke;
+        margin-left: 10px;
+    }
+
+    .search-button:hover {
+        border: 0.5px solid #ffcc80;
+        background-color: #57cc99;
+        font-weight: bolder;
+        margin-left: 5px;
+    }
+
+    .search-button:active {
+        font-weight: lighter;
+        background-color: #57bcaa;
     }
 
     header-container {
