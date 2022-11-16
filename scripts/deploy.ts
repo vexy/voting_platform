@@ -4,7 +4,7 @@ import hre from "hardhat";
 async function main() {
   console.log(":: Compiling contracts");
   await hre.run('compile');
-  console.log("- compilation completed\n");
+  console.log(":: Compilation completed.\n");
 
   const platformFactory = await ethers.getContractFactory("MainPlatform");
   const baseOwner = (await ethers.getSigners())[0].address;
@@ -14,12 +14,13 @@ async function main() {
   const depTxHash = platform.deployTransaction.hash;
 
   // wait for actual deployment
-  console.log(":: Deploying contracts");
+  console.log(":: Contract deployment");
   await platform.deployed();
-  console.log("- Deployment completed. Awaiting receipt...");
+  console.log("- Deployment completed.");
+  console.log("- Awaiting receipt...");
   const receipt = await ethers.provider.waitForTransaction(depTxHash);
   console.log("-- Receipt:");
-  console.log("-- MainPlatform deployed to: ", receipt.contractAddress);
+  console.log("-- MainPlatform address:", receipt.contractAddress);
   console.log("-- Contract owner:\t", receipt.from);
 }
 
