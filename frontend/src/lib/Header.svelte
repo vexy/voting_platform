@@ -13,7 +13,7 @@
                 <div>Broj poena: <code>{Number(totalPoints).toLocaleString()}</code></div>
             {/await}
             {#await utils.signer?.getAddress() then addr}
-                <div>Novčanik: {addr}</div>
+                <div>Novčanik: <code>{addr}</code></div>
             {/await}
         {/if}
     {/await}
@@ -37,6 +37,9 @@
 
     code {
         color: yellow;
+        padding: 1.5px;
+        background: rgb(172, 171, 171);
+        border-radius: 5px;
     }
 
     code:hover {
