@@ -6,7 +6,7 @@
 
     const util = new Utilities();
     let questionInfo: QuestionInfo = new QuestionInfo(0,"","",[],[],[],0,false);
-    let voteOptions: number[] = [0,1,2];
+    let voteOptions: number[] = [0,1,2,3,4];
 
     let meterValues: number[] = [];
     let extrasMeterValues: number[] = [];
@@ -72,10 +72,12 @@
                 </vstack>
             {:else}
                 {#each voteOptions as option }
-                    <hstack>
-                        <input type="radio" name="voting-options" value={option}/>
-                        {questionInfo.labels[option]}
-                    </hstack>
+                    {#if questionInfo.labels[option] !== undefined }
+                        <hstack>
+                            <input type="radio" name="voting-options" value={option}/>
+                            {questionInfo.labels[option]}
+                        </hstack>
+                    {/if}
                 {/each}
             {/if}
         </vstack>
