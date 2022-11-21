@@ -1,4 +1,6 @@
-<div align="center"><i>PLEASE NOTE: <b>PROJECT IS IN ACTIVE DEVELOPMENT</b></i><br></div>
+<div align="center"><i>PLEASE NOTE: <b>PROJECT IS IN ACTIVE DEVELOPMENT</b></i><br><br></div>
+
+!["Platform_sample"](/sample.png)
 
 # Simple Voting platform
 This is an example of blockchain based voting platform consisting of following components:
@@ -7,7 +9,7 @@ This is an example of blockchain based voting platform consisting of following c
 
 |Component|Version|
 |-|-|
-|`contracts`|`0.9 test-net`|
+|`contracts`|`1.0 test-net`|
 |`frontend`|`0.0.8`|
 
 [![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
