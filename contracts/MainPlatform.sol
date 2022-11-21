@@ -9,6 +9,7 @@ struct QuestionInfo {
     uint id;
     address owner;
     string title;
+    string description;
     string[] labels;
     uint[] scores;
     uint[3] extras;
@@ -100,27 +101,41 @@ contract MainPlatform {
     }
 
     ///@notice Lists all the question of the platform (output: QuestionInfo[])
-    function getPlatformQuestions() public view returns (QuestionInfo[] memory){
+    function getPlatformQuestions() public view
+    returns (QuestionInfo[] memory){
         QuestionInfo[] memory output = new QuestionInfo[](platformQuestions.length);
 
         //cycle through all questions and format output
         for(uint i = 0; i < platformQuestions.length; i++ ) {
-            output[i] = QuestionInfo(
-                i,  //as ID of the question
-                platformQuestions[i].getOwner(),
-                platformQuestions[i].getTitle(),
-                platformQuestions[i].getLabels(),
-                platformQuestions[i].getScores(),
-                platformQuestions[i].getExtras(),
-                platformQuestions[i].totalVoters(),
-                platformQuestions[i].hasVoted()
-            );
+            output[i] = fabricateQuestionInfo(i);
         }
 
         return output;
     }
 
-//@ -- Scoring and scoring intel
+    function getQuestionInfo(uint questionID) public view
+    validAddress validQuestionIndex(questionID) registeredUsersOnly
+    returns(QuestionInfo memory) {
+        return fabricateQuestionInfo(questionID);
+    }
+
+    // private helper function
+    function fabricateQuestionInfo(uint _id) private view
+    returns(QuestionInfo memory) {
+        return QuestionInfo(
+            _id,  //as ID of the question
+            platformQuestions[_id].getOwner(),
+            platformQuestions[_id].getTitle(),
+            platformQuestions[_id].getDescription(),
+            platformQuestions[_id].getLabels(),
+            platformQuestions[_id].getScores(),
+            platformQuestions[_id].getExtras(),
+            platformQuestions[_id].totalVoters(),
+            platformQuestions[_id].hasVoted()
+        );
+    }
+
+//@ -- Scoring and extras reporting
 
     function vote(uint questionID, uint voteOption)
     validAddress validQuestionIndex(questionID)
@@ -130,20 +145,20 @@ contract MainPlatform {
         platformQuestions[questionID].accept(voteOption);
     }
 
-    function getQuestionInfo(uint questionID)
-    validAddress validQuestionIndex(questionID) registeredUsersOnly
-    public view
-    returns(QuestionInfo memory) {
-        return QuestionInfo(
-            questionID,  //as ID of the question
-            platformQuestions[questionID].getOwner(),
-            platformQuestions[questionID].getTitle(),
-            platformQuestions[questionID].getLabels(),
-            platformQuestions[questionID].getScores(),
-            platformQuestions[questionID].getExtras(),
-            platformQuestions[questionID].totalVoters(),
-            platformQuestions[questionID].hasVoted()
-        );
+    function extraVote(uint questionID, uint extraOption)
+    validAddress validQuestionIndex(questionID)
+    registeredUsersOnly // pointsDeducible ?
+    public {
+        require(extraOption < 3, "Illegal 'extra option' argument. Must be between 0 and 2.");
+        if (extraOption == 0) {
+            platformQuestions[questionID].none();
+        } else {
+            if (extraOption == 1) {
+                platformQuestions[questionID].malformed();
+            } else {
+                platformQuestions[questionID].report();
+            }
+        }
     }
 
 //@ -- Stats (add more later)
@@ -162,5 +177,11 @@ contract MainPlatform {
 
     function owner() public view returns (address) {
         return platformOwner;
+    }
+
+    function editDescription(uint questionID, string calldata newDescription)
+    validAddress registeredUsersOnly validQuestionIndex(questionID)
+    payable public {
+        platformQuestions[questionID].editDescription(newDescription);
     }
 }

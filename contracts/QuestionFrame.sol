@@ -70,7 +70,7 @@ contract QuestionFrame {
         questionFrame.extras[uint(EXTRAS.ju_gospode_boze)] += 1;
     }
 
-    /*      ---- SCORES AND EXTRAS GETTERS ----      */
+/*      ---- SCORES AND EXTRAS GETTERS ----      */
     function score(uint element) public view returns (uint) {
         return questionFrame.question.score(element);
     }

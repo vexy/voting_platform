@@ -37,10 +37,6 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
       } else {
         platformResponse = await platformContract.addQuestion(testTitle, testLabels);
       }
-
-      // console.log("\t-- New Question created:");
-      // console.log("\t-- Owner: ", platformResponse.from);
-      // console.log("\t-- ID value: ", platformResponse.value.toNumber());
       
       const newQuestionID = platformResponse.value.toNumber();  //this is attached method by NigNumber
       return Promise.resolve(newQuestionID);
@@ -64,6 +60,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         // perform signer1 registration and perform check
         await registerUsers(signer1);
         expect(await platformContract.connect(signer1).isRegisteredUser()).to.equal(true);
+        expect(await platformContract.connect(signer1).userBalance(signer1.address)).to.equal(startingPoints);
       });
 
       it("Can recognize non-registered users", async function() {
@@ -178,6 +175,42 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         expect(qInfoResponse.totalVoters).to.equal(ethers.BigNumber.from(1));
         expect(qInfoResponse.hasVoted).to.equal(true);
       });
+
+      it("Registered user can provide extra:none", async function() {
+        // register signer1 and create a question
+        await registerUsers(signer1);
+        const qID = await createTestQuestion(signer1);
+        expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
+
+        await platformContract.connect(signer1).extraVote(qID, 0);
+        const qiResp = await platformContract.connect(signer1).getQuestionInfo(qID);
+
+        expect(qiResp.extras[0]).to.equal(1);
+      });
+
+      it("Registered user can provide extra:malformed", async function() {
+        // register signer1 and create a question
+        await registerUsers(signer1);
+        const qID = await createTestQuestion(signer1);
+        expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
+
+        await platformContract.connect(signer1).extraVote(qID, 1);
+        const qiResp = await platformContract.connect(signer1).getQuestionInfo(qID);
+
+        expect(qiResp.extras[1]).to.equal(1);
+      });
+
+      it("Registered user can provide extra:report", async function() {
+        // register signer1 and create a question
+        await registerUsers(signer1);
+        const qID = await createTestQuestion(signer1);
+        expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
+
+        await platformContract.connect(signer1).extraVote(qID, 2);
+        const qiResp = await platformContract.connect(signer1).getQuestionInfo(qID);
+
+        expect(qiResp.extras[2]).to.equal(1);
+      });
     });
 
     context("Questions visibility and correctness", async function() {
@@ -194,6 +227,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         expect(qInfoResponse.id).to.equal(0);
         expect(qInfoResponse.owner).to.equal(signer1.address);
         expect(qInfoResponse.title).to.equal("New Question");
+        expect(qInfoResponse.description).to.equal('');
         expect(qInfoResponse.labels[0]).to.equal('one');
         expect(qInfoResponse.labels[1]).to.equal('two');
         expect(qInfoResponse.labels[2]).to.equal('three');
@@ -205,6 +239,25 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         expect(qInfoResponse.extras[2]).to.equal(0);
         expect(qInfoResponse.totalVoters).to.equal(0);
         expect(qInfoResponse.hasVoted).to.equal(false);
+      });
+
+      it("Question description can be edited", async function() {
+        const expectedID = 0;
+        const expectedTotalQuestions = 1;
+
+        const id = await createTestQuestion(); // this returns number
+        expect(id).to.equal(expectedID);
+        expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
+
+        // mark intial state
+        const qInfoStart = await platformContract.getQuestionInfo(id);
+        // perform description edit
+        await platformContract.editDescription(id, 'New description');
+        // mark ending state
+        const qInfoAfter = await platformContract.getQuestionInfo(id);
+
+        expect(qInfoStart.description).to.equal("");
+        expect(qInfoAfter.description).to.equal('New description');
       });
     });
 });
