@@ -46,9 +46,10 @@
                             console.log("Error...");
                             alert("There has been an error during vote !");
                         });
-                } else {
-                    // contains extras option
-                    await util.provideExtra(questionInfo.id, optionValue);
+                } else { // contains extras option
+                    const transformedExtraOption = (optionValue * -1) - 1;
+                    //extra option is transformed to suite platform contract extra options [0,1,2]
+                    await util.provideExtra(questionInfo.id, transformedExtraOption);
                 }
 
                 break;  //no need to cycle further
@@ -84,15 +85,15 @@
         <vstack>
             {#if questionInfo.hasVoted}
                 <vstack>
-                    <label for="none">Ništa od navedenog ({extrasMeterValues[0]}%)</label>
+                    <label for="none">Ништа од наведеног ({extrasMeterValues[0]}%)</label>
                     <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[0]} />
                 </vstack>
                 <vstack>
-                    <label for="none">Pitanje nije dovoljno jasno ({extrasMeterValues[1]}%)</label>
+                    <label for="none">Питање није довољно јасно ({extrasMeterValues[1]}%)</label>
                     <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[1]} />
                 </vstack>
                 <vstack>
-                    <label for="none">Ne adekvatno pitanje ({extrasMeterValues[0]}%)</label>
+                    <label for="none">Не адекватно питање ({extrasMeterValues[2]}%)</label>
                     <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[2]} />
                 </vstack>
             {:else}
@@ -103,7 +104,7 @@
                     <input type="radio" name="voting-options" value=-2/>Питање није довољно јасно
                 </hstack>
                 <hstack>
-                    <input type="radio" name="voting-options" value=-3/>Ne adekvatno pitanje
+                    <input type="radio" name="voting-options" value=-3/>Не адекватно питање
                 </hstack>
             {/if}
         </vstack>
@@ -111,9 +112,9 @@
     <vstack>
         <vstack-centered>
             {#if questionInfo.hasVoted}
-                <code>Ukupno glasova: {questionInfo.totalVoters}</code>
+                <code>Укупно гласова: {questionInfo.totalVoters}</code>
             {:else}
-                <button class="sky-button" on:click={performVote}>Pošalji</button>
+                <button class="sky-button" on:click={performVote}>Пошаљи</button>
             {/if}
         </vstack-centered>
     </vstack>

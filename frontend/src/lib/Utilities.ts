@@ -126,9 +126,11 @@ export class Utilities {
     }
 
     async provideExtra(questionID: number, extraScore: number) {
-        // const response = await this.platformContract.TODO
-        // complete this
-        console.log("Will arive soon !");
+        try {
+            await this.platformContract.extraVote(questionID, extraScore);
+        } catch (e) {
+            console.log("Error during providing extra options");
+        }
     }
 
     async questionsCount(): Promise<number> {

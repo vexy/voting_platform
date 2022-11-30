@@ -40,16 +40,6 @@
     border-radius: 50%;
     text-align: center;
     display:inline-block;
-
-    /* width: 20px;
-    height: 20px;
-    line-height: 20px;
-    -moz-border-radius: 50%;
-    border-radius: 50%;
-    border: solid 1px white;
-    color: yellow;
-    text-align: center;
-    display: block; */
   }
 
   .votebutton {

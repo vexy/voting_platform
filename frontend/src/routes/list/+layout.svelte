@@ -41,7 +41,6 @@
 
     <header-container>
         <h2>Укупан број питања: <code>{totalQuestions}</code></h2>
-        <!-- <NewQuestionModal /> -->
         <button class="addquestion" on:click={() => goto("/newquestion")} >+ Додај ново питање</button>
     </header-container>
 
@@ -74,10 +73,10 @@
         color:#fff;
     }
 
-    input-search:placeholder{
+    input:placeholder{
         color:rgba(255,255,255,.5);
         font-size: 16px;
-        letter-spacing: 2px;
+        letter-spacing: 5px;
         font-weight: 100;
     }
 

@@ -16,12 +16,12 @@ async function main() {
   // wait for actual deployment
   console.log(":: Contract deployment");
   await platform.deployed();
-  console.log("- Deployment completed.");
-  console.log("- Awaiting receipt...");
+  console.log("- Deployment completed, awaiting receipt...");
   const receipt = await ethers.provider.waitForTransaction(depTxHash);
   console.log("-- Receipt:");
   console.log("-- MainPlatform address:", receipt.contractAddress);
   console.log("-- Contract owner:\t", receipt.from);
+  console.log(":: Deployment completed");
 }
 
 // Execute the script...

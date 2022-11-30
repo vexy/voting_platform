@@ -1,11 +1,14 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import { Utilities } from "./Utilities";
     import type { QuestionInfo } from "./Models";
 
     export let dataSet: QuestionInfo[];
 
-    function openVotePage(questionID: number) {
-        goto(`/questions/${questionID}`);
+    async function performReport(questionID: number) {
+        const utils = new Utilities();
+        await utils.provideExtra(questionID, 2);
+        //TODO: refresh page after this
     }
 </script>
 
@@ -14,14 +17,20 @@
         <questionbody>
             <code><u>#{question.id}</u></code>
             <question-title>{question.title}</question-title>
-            <button class="votebutton" on:click={() => openVotePage(question.id)}>
                 {#if question.hasVoted }
-                    Detalji ({question.totalVoters})
+                    <button class="resultsbutton" on:click={() => goto(`/questions/${question.id}`)}>
+                        Rezultati
+                    </button>
                 {:else}
-                    Pogledaj ({question.totalVoters})
+                    <questionbody>
+                        <button class="votebutton" on:click={() => goto(`/questions/${question.id}`)}>
+                            Detalji ({question.totalVoters})
+                        </button>
+                        <button class="reportbutton" on:click={performReport(question.id)}>
+                            Prijavi
+                        </button>
+                    </questionbody>
                 {/if}
-            </button>
-            <!-- <QuestionPanel /> -->
         </questionbody>
     {/each}
 </questions_container>
@@ -30,23 +39,17 @@
     questions_container {
         display: flex;
         flex-direction: column;
-
         height: 60vh;
         gap: 5px;
         padding: 10px;
-
-        /* border: 0.5px solid #ffcc80; */
         border-radius: 5px;
         overflow-y: scroll;
         background-color: #bbdefb;
     }
-
     questionbody {
         display: flex;
         flex-direction: row;
         align-items: baseline;
-        /* justify-content: baseline; */
-        /* background-color: #4a5b7c; */
     }
 
     question-title {
@@ -57,14 +60,13 @@
         color: white;
     }
     question-title:hover {
-        font-style: italic;
         font-size: 20px;
-        /* color: gray; */
+        font-style: italic;
         color: #3a86ff
     }
 
     .votebutton {
-        min-width: 130px;
+        min-width: 95px;
         height: 40px;
         color: #fff;
         padding: 5px 10px;
@@ -97,5 +99,37 @@
         top: 0;
         right: -20px;
         transition: 0.4s;
-    } 
+    }
+
+    .reportbutton {
+        min-width: 90px;
+        height: 40px;
+        color: #fff;
+        padding: 5px 10px;
+        cursor: pointer;
+        display: inline-block;
+        outline: none;
+        overflow: hidden;
+        border-radius: 5px;
+        border: none;
+        background-color: #ba505c;
+        margin-left: 5px;
+    }
+    .reportbutton:hover {
+        font-weight: bolder;
+    }
+
+    .resultsbutton {
+        min-width: 90px;
+        height: 40px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #408852;
+        display: inline-block;
+        color: #fff;
+    }
+    .resultsbutton:hover {
+        font-weight: bolder;
+    }
 </style>
