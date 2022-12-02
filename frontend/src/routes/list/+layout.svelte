@@ -35,8 +35,8 @@
 
 <center-container>
     <searchbar>
-        <input type="search" bind:value={searchTerm} placeholder="Pretraga pitanja..."/>
-        <button class="search-button" on:click={performSearch}>Pronađi</button>
+        <input type="search" bind:value={searchTerm} placeholder="Претрага питања..."/>
+        <button class="search-button" on:click={performSearch}>Пронађи</button>
     </searchbar>
 
     <header-container>

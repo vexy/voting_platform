@@ -1,36 +1,52 @@
 <script lang="ts">
+    // import Modal from "$lib/ModalDialog.svelte";
     import { Utilities } from "$lib/Utilities";
 
     let title: string = "";
     let labels: string[] = [];
 
     function saveQuestion() {
-      const u = new Utilities();
-      u.addNewQuestion(title, labels).then( (result: boolean) => {
-        if (result) {
-          alert("Question successfully added !");
-          title = "";
-          labels = [];
-        } else {
-          alert("There has been an error saving this question.");
-        }
-      });
+      // check inputs
+      if (userInputsAreFine()) {
+        const utilities = new Utilities();
+        utilities.addNewQuestion(title, labels).then( (result: boolean) => {
+          if (result) {
+            alert("Ново питање успешно сачувано !");
+            title = "";
+            labels = [];
+          } else {
+            alert("Дошло је до грешке приликом чувања. Покушајте поново.");
+          }
+        });
+      } else {
+        alert("Питање мора садржати наслов и барем 2 понуђена одговора.");
+      }
+    }
+
+    function userInputsAreFine(): boolean {
+      // labels[0,1] have to be present
+      const lenghts = title.trim().length > 0;
+      const labelNeeds = 
+        labels[0] !== undefined && labels[1] !== undefined &&
+        labels[0].trim().length > 0 && labels[1].trim().length > 0;
+
+      return lenghts && labelNeeds;
+      // return true;
     }
 </script>
 
 <container>
-    <!-- <div>What if we wanted to do this as a background div itself ?</div> -->
-    <h1>Postavite vaše pitanje</h1>
+    <h1>Поставите Ваше питање</h1>
     <title-inputs>
       <!-- <label for="title">Naslov pitanja</label> -->
       <input 
         bind:value={title}
         type="text"
         id="title"
-        placeholder="Naslov pitanja..."
+        placeholder="Наслов питања..."
         class="title-input" />
 
-        <div>Lista mogućih odgovora</div>
+        <div>Листа могућих одговора</div>
         <div>
           <input
             bind:value={labels[0]}
@@ -40,7 +56,7 @@
             minlength="8"
             maxlength="60"
             class="label-input"
-            placeholder="Odgovor 1"
+            placeholder="Одговор 1"
             required
           >
         </div>
@@ -53,7 +69,7 @@
             minlength="8"
             maxlength="60"
             class="label-input"
-            placeholder="Odgovor 2"
+            placeholder="Одговор 2"
             required
           >
         </div>
@@ -66,7 +82,7 @@
             minlength="8"
             maxlength="60"
             class="label-input"
-            placeholder="Odgovor 3"
+            placeholder="Одговор 3"
             required
           >
         </div>
@@ -79,7 +95,7 @@
             minlength="8"
             maxlength="60"
             class="label-input"
-            placeholder="Odgovor 4"
+            placeholder="Одговор 4"
             required
           >
         </div>
@@ -92,11 +108,17 @@
             minlength="8"
             maxlength="60"
             class="label-input"
-            placeholder="Odgovor 5"
+            placeholder="Одговор 5"
             required
           >
         </div>
-        <button on:click={saveQuestion} class="sky-button">Sačuvaj</button>
+        <button on:click={saveQuestion} class="sky-button">Сачувај</button>
+
+        <!-- <Modal>
+          <div slot="trigger" let:open>
+            <button on:click={saveQuestion} class="sky-button">Сачувај</button>
+          </div>
+        </Modal> -->
     </title-inputs>
 </container>
 
@@ -126,8 +148,6 @@
       box-sizing: border-box;
       width: 100%;
       padding: 5px;
-      /* margin: 5px; */
-      /* border-color: yellow; */
       border: 0;
       border-bottom: 1px solid;
       box-shadow: 0 0 15px 4px rgba(0,0,0,0.06);

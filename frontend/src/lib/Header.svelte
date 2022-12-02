@@ -6,14 +6,14 @@
 
 <nav>
     {#await utils.isRegisteredUser()}
-        <i>Loading...</i>
-    {:then success} 
+        <i>Учитавање...</i>
+    {:then success}
         {#if success}
             {#await utils.getUserBalance() then totalPoints}
-                <div>Broj poena: <code>{Number(totalPoints).toLocaleString()}</code></div>
+                <div>Број поена: <code>{Number(totalPoints).toLocaleString()}</code></div>
             {/await}
             {#await utils.signer?.getAddress() then addr}
-                <div>Novčanik: <code>{addr}</code></div>
+                <div>Новчаник: <code>{addr}</code></div>
             {/await}
         {/if}
     {/await}

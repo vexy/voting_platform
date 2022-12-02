@@ -40,11 +40,11 @@
                     console.log("Voting...");
                     await util.vote(questionInfo.id, i)
                         .then(() => {
-                            alert("Sucessfully voted !");
+                            alert("Ваш одговор је примљен. Хвала !");
                         })
                         .catch(() => {
                             console.log("Error...");
-                            alert("There has been an error during vote !");
+                            alert("Дошло је до грешке, покушајте поново.");
                         });
                 } else { // contains extras option
                     const transformedExtraOption = (optionValue * -1) - 1;
