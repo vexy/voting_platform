@@ -1,9 +1,10 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import { Utilities } from "$lib/Utilities";
+    import Utilities from "$lib/Utilities";
     import QuestionsTable from "$lib/QuestionsTable.svelte";
     import type { QuestionInfo } from "$lib/Models";
+    import Header from "$lib/Header.svelte";
     
     let totalQuestions: number = 0;
     let allQuestions: QuestionInfo[] = [];
@@ -14,9 +15,8 @@
 
     // get all questions and total count
     onMount(async () => {
-        const util = new Utilities();
-        totalQuestions = await util.questionsCount();
-        allQuestions = await util.getAllQuestions();
+        totalQuestions = await Utilities.questionsCount();
+        allQuestions = await Utilities.getAllQuestions();
         tableQuestions = allQuestions;
     });
 
@@ -33,6 +33,7 @@
     }
 </script>
 
+<Header />
 <center-container>
     <searchbar>
         <input type="search" bind:value={searchTerm} placeholder="Претрага питања..."/>

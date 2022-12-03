@@ -1,14 +1,14 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { Utilities } from "./Utilities";
+    import Utilities from "./Utilities";
     import type { QuestionInfo } from "./Models";
 
     export let dataSet: QuestionInfo[];
 
     async function performReport(questionID: number) {
-        const utils = new Utilities();
-        await utils.provideExtra(questionID, 2);
-        //TODO: refresh page after this
+        await Utilities.provideExtra(questionID, 2);
+        alert("Ваш избор је сачуван. Хвала !")
+        goto(`/list`);
     }
 </script>
 
@@ -19,15 +19,15 @@
             <question-title>{question.title}</question-title>
                 {#if question.hasVoted }
                     <button class="resultsbutton" on:click={() => goto(`/questions/${question.id}`)}>
-                        Rezultati
+                        Резултати
                     </button>
                 {:else}
                     <questionbody>
                         <button class="votebutton" on:click={() => goto(`/questions/${question.id}`)}>
-                            Detalji ({question.totalVoters})
+                            Детаљи ({question.totalVoters})
                         </button>
                         <button class="reportbutton" on:click={performReport(question.id)}>
-                            Prijavi
+                            Пријави
                         </button>
                     </questionbody>
                 {/if}

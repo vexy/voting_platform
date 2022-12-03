@@ -1,18 +1,16 @@
 <script lang="ts">
-    import { Utilities } from "$lib/Utilities";
-    
-    const utils = new Utilities();
+    import Utilities from "$lib/Utilities";
 </script>
 
 <nav>
-    {#await utils.isRegisteredUser()}
-        <i>Учитавање...</i>
+    {#await Utilities.isRegisteredUser()}
+        <i>Комуникација са MetaMask...</i>
     {:then success}
         {#if success}
-            {#await utils.getUserBalance() then totalPoints}
+            {#await Utilities.getUserBalance() then totalPoints}
                 <div>Број поена: <code>{Number(totalPoints).toLocaleString()}</code></div>
             {/await}
-            {#await utils.signer?.getAddress() then addr}
+            {#await Utilities.signer?.getAddress() then addr}
                 <div>Новчаник: <code>{addr}</code></div>
             {/await}
         {/if}

@@ -4,14 +4,14 @@ import  MainPlatform from '../MainPlatform.json';
 import { QuestionInfo } from './Models'
 import { PUBLIC_CONTRACT_ADDRESS } from '$env/static/public';
 
-export class Utilities {
+class ContractUtilities {
     private mmOnboarder!: MetamaskOnboarding;
     private platformContract!: ethers.Contract;
     public signer?: ethers.providers.JsonRpcSigner;
 
     constructor() {
-        // initially
-        this.connectLocally();
+        //Add what's needed...
+        console.log("Contract works initialized.");
     }
 
     // begins Metamask onboarding
@@ -21,23 +21,26 @@ export class Utilities {
     }
 
     // MetaMask requires requesting permission to connect users accounts
-    async connectWallet() {
+    async connectToMetamask(): Promise<boolean> {
         const _provider = new ethers.providers.Web3Provider(window.ethereum);
-        _provider.send("eth_requestAccounts", [])
-            .then((response) => {
-                if(response.code != 4001) {
-                    this.signer = _provider.getSigner();
-                    this.platformContract = new ethers.Contract(PUBLIC_CONTRACT_ADDRESS, MainPlatform.abi, this.signer);
-                    console.log("Platform contract prepared for Metamask usage");
-                } else {
-                    alert(response.message); //user rejected the request
-                }
-            }).catch((err) => {
-                console.log("ERROR OCCURED\n", err);
-            });
+        const response =  await _provider.send("eth_requestAccounts", []);
+        if (response) {
+            if(response.code != 4001) {
+                this.signer = _provider.getSigner();
+                this.platformContract = new ethers.Contract(PUBLIC_CONTRACT_ADDRESS, MainPlatform.abi, this.signer);
+
+                console.log("Platform contract prepared for Metamask usage");
+                return Promise.resolve(true);
+            } else {
+                alert(response.message); //user rejected the request
+                //fallback to rejecting the promise
+            }
+        }
+
+        return Promise.reject();
     }
 
-    private connectLocally() {
+    public connectLocally() {
         const _provider = new ethers.providers.JsonRpcProvider();
         this.signer = _provider.getSigner();
         this.platformContract = new ethers.Contract(PUBLIC_CONTRACT_ADDRESS, MainPlatform.abi, this.signer);
@@ -144,3 +147,7 @@ export class Utilities {
         else { return Promise.reject(false); }
     }
 }
+
+// setup shared service
+const Utilities = new ContractUtilities();
+export default Utilities;

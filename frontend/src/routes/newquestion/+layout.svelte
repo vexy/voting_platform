@@ -1,6 +1,6 @@
 <script lang="ts">
     // import Modal from "$lib/ModalDialog.svelte";
-    import { Utilities } from "$lib/Utilities";
+    import Utilities from "$lib/Utilities";
 
     let title: string = "";
     let labels: string[] = [];
@@ -8,8 +8,7 @@
     function saveQuestion() {
       // check inputs
       if (userInputsAreFine()) {
-        const utilities = new Utilities();
-        utilities.addNewQuestion(title, labels).then( (result: boolean) => {
+        Utilities.addNewQuestion(title, labels).then( (result: boolean) => {
           if (result) {
             alert("Ново питање успешно сачувано !");
             title = "";
