@@ -4,7 +4,6 @@
     import Utilities from "$lib/Utilities";
     import QuestionsTable from "$lib/QuestionsTable.svelte";
     import type { QuestionInfo } from "$lib/Models";
-    import Header from "$lib/Header.svelte";
     
     let totalQuestions: number = 0;
     let allQuestions: QuestionInfo[] = [];
@@ -33,7 +32,6 @@
     }
 </script>
 
-<Header />
 <center-container>
     <searchbar>
         <input type="search" bind:value={searchTerm} placeholder="Претрага питања..."/>

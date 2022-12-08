@@ -1,10 +1,10 @@
 <script lang="ts">
-	// import Header from "$lib/Header.svelte";
+	import Header from "$lib/Header.svelte";
 	import Footer from "$lib/Footer.svelte";
 </script>
 
 <background>
-	<!-- <Header /> -->
+	<Header />
 	<slot />
 	<Footer />
 </background>

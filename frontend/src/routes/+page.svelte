@@ -1,74 +1,84 @@
 <script lang="ts">
-    import detectEthereumProvider from "@metamask/detect-provider";
+    import Providers from "$lib/Provider";
     import Utilities from "$lib/Utilities";
+    import Provider from "$lib/Provider";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
+    import { hasMetamaskProvider, isProviderConnected, isRegisteredUser } from "$lib/UtilsStore";
 
-    let hasProvider: boolean = false;
-    let hasConectedMetamask: boolean = false;
+    let hasMetamask: boolean = false;
+    let isConnected: boolean = false;
+    let isRegistered: boolean = false;
 
-    // MetaMask requires requesting permission to connect users accounts
-    async function connectMetaMask() {
-        const reply = await Utilities.connectToMetamask();
-        if (reply) {
-            //indicate metamask has been connected
-            hasConectedMetamask = true;
-        } else {
-            //TODO: Remove next line after testing
-            hasConectedMetamask = true;
-            Utilities.connectLocally();
-        }
-    }
+    hasMetamaskProvider.subscribe(newValue => {
+        hasMetamask = newValue;
+    });
+
+    isProviderConnected.subscribe(newValue => {
+        isConnected = newValue;
+    });
+
+    isRegisteredUser.subscribe(nVal => {
+        isRegistered = nVal;
+    });
 
     async function registerNewUser() {
         // check if we've been previously registered
-        if (!Utilities.isRegisteredUser()) {
-            const response = await Utilities.registerNewUser()
-            if (response) {
-                alert("Успешно сте се пријавили на платформу !");
-                console.log("New user registered !");
-                goto("/list");
-            } else {
-                alert("Doslo je do greske prilikom registracije. Pokusajte ponovo");
-            }
-        } else {
-            // navigate directly to the list route
+        const response = await Utilities.registerNewUser()
+        if (response) {
+            alert("Успешно сте се пријавили на платформу !");
+            console.log("New user registered !");
             goto("/list");
+        } else {
+            alert("Дошло је до грешке приликом регистрације. Покушајте поново.");
         }
     }
 
-    onMount(async () => {
-        console.log("Checking if provider can be detected....");
+    // MetaMask requires requesting permission to connect users accounts
+    async function connectToMetamask() {
+        await Utilities.connect();
+    }
 
-        const response = await detectEthereumProvider();
-        if (response) {
-            hasProvider = true;
-            console.log("Detected Metamask provider....");
-        } else { console.log("Unable to find Metamask provider"); }
+    onMount(async () => {
+        await Provider.hasMetamaskProvider();
+		console.log("Main page mounted...");
     });
 </script>
 
 <center-container>
     <h1>100 људи 100 ћуди</h1>
-    {#if hasProvider}
-        {#if hasConectedMetamask}
-            <button class="gradient_button" on:click={registerNewUser}>
-                Хоћу и ја ✌️
-            </button>
-            {#await Utilities.totalUsers()}
-                <i>Комуникација у току...</i>
-            {:then totalUsers}
-                <code>Укупно корисника: {totalUsers}</code>
-            {/await}
+    {#if hasMetamask}
+        {#if isConnected}
+            {#if isRegistered}
+                <button class="gradient_button" on:click={() => goto("/list")}>Погледај листу питања</button>
+            {:else}
+                <button class="gradient_button" on:click={registerNewUser}>
+                    Пријава на платформу ✌️
+                </button>
+                {#await Utilities.totalUsers()}
+                    <i>Komunikacija u toku...</i>
+                {:then totalUserNum} 
+                    <code>Broj registrovanih korisnika: {totalUserNum}</code>
+                {/await}
+                {#await Utilities.questionsCount()}
+                    <i>Komunikacija u toku...</i>
+                {:then count} 
+                    <code>Broj pitanja: {count}</code>
+                {/await}
+            {/if}
         {:else}
-            <button on:click={connectMetaMask}>
-                Повежи свој MetaMask
+            <button on:click={connectToMetamask}>
+                Повежи MetaMask
             </button>
+            <code>За почетак употребе, повежите Ваш <i>MetaMask</i> новчаник...</code>
         {/if}
+        
+        <!-- dodaj test tokene  -->
     {:else}
-        <button on:click={Utilities.beginMetamaskOnboarding}>
+        <button on:click={Providers.beginMetamaskOnboarding}>
             Инсталирај MetaMask
         </button>
+
         <code>За употребу платформе, потребно је инсталирати <a href="https://metamask.io/" target="_blank">MetaMask</a></code>
     {/if}
 </center-container>
@@ -80,6 +90,17 @@
         align-self: center;
         text-align: center;
         gap: 10px;
+    }
+
+    h1 {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        color: #185a9d;
+    }
+
+    h1:hover {
+        font-weight: bolder;
+        color: #ffdd;
+        transition: all 0.2s ease-out;
     }
 
     button {
@@ -122,16 +143,5 @@
     }
     .gradient_button:active {
         top: 2px;
-    }
-
-    h1 {
-        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-        color: #185a9d;
-    }
-
-    h1:hover {
-        font-weight: bolder;
-        color: #ffdd;
-        transition: all 0.2s ease-out;
     }
 </style>
