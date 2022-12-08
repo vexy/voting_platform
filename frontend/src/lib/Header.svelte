@@ -39,7 +39,7 @@
                         <div>Новчаник: <code>{address}</code></div>
                     {/await}
                 {:else}
-                    <i>Registracija u toku...</i>
+                    <i>Регистрација у току...</i>
                 {/if}
             {/await}
         {/if}
@@ -76,21 +76,28 @@
 
     button {
         min-width: 130px;
-        height: 35px;
+        height: 40px;
         color: #fff;
+        padding: 5px 10px;
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
+        position: relative;
+        display: inline-block;
+        outline: none;
         border-radius: 5px;
         border: none;
-        background-size: 120% auto;
-        background-image: linear-gradient(315deg, #c02425 0%, #f0cb35 75%);
-        margin: 2px 5px 5px 15px;
+        box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5), 7px 7px 20px 0px rgba(0,0,0,.1), 4px 4px 5px 0px rgba(0,0,0,.1);
+        background: #d90427d6;
     }
 
     button:hover {
-        background-position: right center;
-        padding: 5px 10px;
+        background-color: #ef233c;
+        font-size: small;
+    }
+
+    button:active {
+        top: 2px;
     }
 
     @media all and (max-width: 800px) {

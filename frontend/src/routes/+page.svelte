@@ -1,5 +1,4 @@
 <script lang="ts">
-    import Providers from "$lib/Provider";
     import Utilities from "$lib/Utilities";
     import Provider from "$lib/Provider";
     import { goto } from "$app/navigation";
@@ -53,18 +52,12 @@
                 <button class="gradient_button" on:click={() => goto("/list")}>Погледај листу питања</button>
             {:else}
                 <button class="gradient_button" on:click={registerNewUser}>
-                    Пријава на платформу ✌️
+                    Хоћу и ја ✌️
                 </button>
-                {#await Utilities.totalUsers()}
-                    <i>Komunikacija u toku...</i>
-                {:then totalUserNum} 
-                    <code>Broj registrovanih korisnika: {totalUserNum}</code>
-                {/await}
-                {#await Utilities.questionsCount()}
-                    <i>Komunikacija u toku...</i>
-                {:then count} 
-                    <code>Broj pitanja: {count}</code>
-                {/await}
+                <div>
+                    <p>За употребу платформе, потребни су <code>MATIC tokeni</code></p>
+                    <p>Тест токене за <i>Mumbai</i> мрежу можете <a href="https://faucet.polygon.technology/" target="_blank">набавити овде</a></p>
+                </div>
             {/if}
         {:else}
             <button on:click={connectToMetamask}>
@@ -72,13 +65,10 @@
             </button>
             <code>За почетак употребе, повежите Ваш <i>MetaMask</i> новчаник...</code>
         {/if}
-        
-        <!-- dodaj test tokene  -->
     {:else}
-        <button on:click={Providers.beginMetamaskOnboarding}>
+        <button on:click={Provider.beginMetamaskOnboarding}>
             Инсталирај MetaMask
         </button>
-
         <code>За употребу платформе, потребно је инсталирати <a href="https://metamask.io/" target="_blank">MetaMask</a></code>
     {/if}
 </center-container>
@@ -89,7 +79,7 @@
         flex-direction: column;
         align-self: center;
         text-align: center;
-        gap: 10px;
+        gap: 5px;
     }
 
     h1 {
@@ -101,6 +91,16 @@
         font-weight: bolder;
         color: #ffdd;
         transition: all 0.2s ease-out;
+    }
+
+    div {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+        font-size: 15px;
+        color: #4d4fb1;
+    }
+
+    div:hover {
+        color: #4d4f81;
     }
 
     button {

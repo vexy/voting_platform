@@ -149,7 +149,6 @@ class ContractUtilities {
 
     async isRegisteredUser(): Promise<boolean> {
         const response = await this.platformContract.isRegisteredUser();
-        console.log("Is registered user: ", response);
         if(response) { return Promise.resolve(true); }
         return Promise.reject(false);
     }
