@@ -1,55 +1,16 @@
 import { BigNumber, ethers } from "ethers";
 import { QuestionInfo } from './Models'
-import Provider from "./Provider";
+import { Provider } from "./Provider";
 import { isProviderConnected, isRegisteredUser } from "$lib/UtilsStore";
 
-class ContractUtilities {
+export default class ContractWorks {
     private platformContract!: ethers.Contract;
-    private bcProvider: Provider;
 
     constructor() {
-        this.bcProvider = new Provider();
-        isProviderConnected.set(false);
-        isRegisteredUser.set(false);
-        console.log("Contract works initialized, no default provider yet.");
-    }
-
-    /// Tries to connect to MetaMask provider
-    public async connect(): Promise<boolean> {
-        try {
-            // try to initialize the contract
-            this.platformContract = await this.bcProvider.connectToMetamask();
-            isProviderConnected.set(true);
-            return Promise.resolve(true);
-        } catch (e) {
-            console.log("Error during MetamaskConnection.");
-            console.log(e);
-            isProviderConnected.set(false);
-            return Promise.reject(false);
-        }
-    }
-
-    public disconnect() {
-        this.bcProvider.disconnect();
-        isProviderConnected.set(false);
-    }
-
-    public connectLocally() {
-        // try to initialize the contract using localhost provider
-        this.platformContract = this.bcProvider.connectLocally();
-        isProviderConnected.set(true);
-    }
-
-    public hasProviderConnected(): boolean {
-        return this.bcProvider.isConnected();
-    }
-
-    public async nativeTokenBalance(): Promise<number> {
-        return this.bcProvider.nativeBalance();
-    }
-
-    public async signerAddress(): Promise<string> {
-        return await this.bcProvider.signerAddress();
+        console.log("Contract works initialized:");
+        console.log("Is provider detected:\t", isProviderConnected);
+        console.log("Is provider connected:\t", Provider.isConnected());
+        this.prepareContract();
     }
 
 //  --- PRIVATE HELPERS
@@ -57,17 +18,63 @@ class ContractUtilities {
         return ethers.BigNumber.from(_bigNumber).toNumber();
     }
 
+    private prepareContract() {
+        // make sure we're connected
+        if(Provider.isConnected()) {
+            this.platformContract = Provider.fabricateContract();
+        }
+    }
+
 //  --- PLATFORM API IMP
     async totalUsers(): Promise<number> {
-        //TODO add try catch here
-        const totalQ = await this.platformContract.totalUsers();
-        return Promise.resolve(this.extractNumber(totalQ));
+        this.prepareContract();
+        try {
+            const resultBN = await this.platformContract.totalUsers();
+            const totalU = this.extractNumber(resultBN);
+            return Promise.resolve(totalU);
+        } catch (err) {
+            console.log("Errored: ", err);
+        }
+        return Promise.reject();
+    }
+
+    async questionsCount(): Promise<number> {
+        this.prepareContract();
+        try {
+            const response = await this.platformContract.totalQuestions();
+            const totalQ = this.extractNumber(response);
+            return Promise.resolve(totalQ);
+        } catch (err) {
+            console.log("Errored: ", err);
+        }
+        return Promise.reject();
+    }
+
+    async getUserBalance(): Promise<number> {
+        this.prepareContract();
+        try {
+            const _address = Provider.signerAddress();
+            const balanceBN = await this.platformContract.userBalance(_address);
+            const balance = this.extractNumber(balanceBN);
+            return Promise.resolve(balance);
+        } catch (err) {
+            console.log("Errored: ", err);
+        }
+        return Promise.reject();
+    }
+
+    async isRegisteredUser(): Promise<boolean> {
+        this.prepareContract();
+
+        const response = await this.platformContract.isRegisteredUser();
+        return Promise.resolve(response);
     }
 
     /// Returns true if user successfully registrers
     async registerNewUser(): Promise<boolean> {
-        console.log("Registering new user...");
+        this.prepareContract();
         try {
+            console.log("Registering new user...");
             await this.platformContract.register();
             isRegisteredUser.set(true);
             return Promise.resolve(true);
@@ -75,85 +82,88 @@ class ContractUtilities {
             ethers.logger.info("Error during registration. Reason: \n");
             ethers.logger.info(err);
             isRegisteredUser.set(false);
-            return Promise.reject(err);
         }
-    }
-
-    async getUserBalance(): Promise<number> {
-        const _address = this.bcProvider.signerAddress();
-        const balanceBN = await this.platformContract.userBalance(_address);
-        return Promise.resolve(this.extractNumber(balanceBN));
+        return Promise.reject(false);
     }
 
     async addNewQuestion(questionTitle: string, labels: string[]): Promise<boolean> {
+        this.prepareContract();
         try {
             await this.platformContract.addQuestion(questionTitle, labels);
             return Promise.resolve(true);
-        } catch(err) {
+        } catch (err) {
             console.log("Creating new question errored. Reason:");
             console.log(err);
-            return Promise.reject(false);
         }
+
+        return Promise.reject(false);
     }
 
     async getAllQuestions(): Promise<(QuestionInfo[])> {
+        this.prepareContract();
         const returnSet: QuestionInfo[] = [];
-        const qInfoSet = await this.platformContract.getPlatformQuestions();
-        // console.log(qInfoSet);
-        // const questionInfoArray = response[0];
-        for(const qInfo of qInfoSet) {
-            returnSet.push(new QuestionInfo(
-                this.extractNumber(qInfo.id),
-                qInfo.owner,
-                qInfo.title,
-                qInfo.labels,
-                qInfo.scores,
-                qInfo.extras,
-                this.extractNumber(qInfo.totalVoters),
-                qInfo.hasVoted
-            ));
+
+        try {
+            const qInfoSet = await this.platformContract.getPlatformQuestions();
+            // console.log(qInfoSet);
+            // const questionInfoArray = response[0];
+            for(const qInfo of qInfoSet) {
+                returnSet.push(new QuestionInfo(
+                    this.extractNumber(qInfo.id),
+                    qInfo.owner,
+                    qInfo.title,
+                    qInfo.labels,
+                    qInfo.scores,
+                    qInfo.extras,
+                    this.extractNumber(qInfo.totalVoters),
+                    qInfo.hasVoted
+                ));
+            }
+
+            return Promise.resolve(returnSet);
+        } catch (err) {
+            console.log("Getting questions errored");
+            console.log(err);
         }
 
-        return Promise.resolve(returnSet);
+        return Promise.reject();
     }
 
     async getQuestionInfo(id: number): Promise<QuestionInfo> {
-        console.log("Getting question info, ID:", id);
-        const qInfo = await this.platformContract.getQuestionInfo(id);
-        return Promise.resolve(qInfo);
+        this.prepareContract();
+        try{
+            const qInfo = await this.platformContract.getQuestionInfo(id);
+            return Promise.resolve(qInfo);
+        } catch (err) {
+            console.log("Errored: ");
+            console.log(err);
+        }
+        
+        return Promise.reject();
     }
 
     async vote(questionID: number, score: number): Promise<boolean> {
-        console.log(`Voting for ${questionID}, score: ${score}`);
+        this.prepareContract();
         try {
+            console.log(`Voting for ${questionID}, score: ${score}`);
             await this.platformContract.vote(questionID, score);
             return Promise.resolve(true);
         } catch (e) {
-            // console.log("Error occured: ", e.reason);
-            return Promise.reject(false);
+            console.log("Error occured: ", e.reason);
         }
+
+        return Promise.reject();
     }
 
-    async provideExtra(questionID: number, extraScore: number) {
+    async provideExtra(questionID: number, extraScore: number): Promise<boolean> {
+        this.prepareContract();
         try {
             await this.platformContract.extraVote(questionID, extraScore);
+            return Promise.resolve(true);
         } catch (e) {
             console.log("Error during providing extra options");
         }
-    }
 
-    async questionsCount(): Promise<number> {
-        const response = await this.platformContract.totalQuestions();
-        return Promise.resolve(this.extractNumber(response));
-    }
-
-    async isRegisteredUser(): Promise<boolean> {
-        const response = await this.platformContract.isRegisteredUser();
-        if(response) { return Promise.resolve(true); }
-        return Promise.reject(false);
+        return Promise.reject();
     }
 }
-
-// setup shared service
-const Utilities = new ContractUtilities();
-export default Utilities;

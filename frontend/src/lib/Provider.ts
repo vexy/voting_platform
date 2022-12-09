@@ -1,70 +1,78 @@
-import { BigNumber, ethers } from "ethers";
 import detectEthereumProvider from "@metamask/detect-provider";
 import MetamaskOnboarding from '@metamask/onboarding';
+import { ethers } from "ethers";
+import { hasMetamaskProvider, isProviderConnected } from "$lib/UtilsStore";
+
+// Static class used to perform basic provider tasks
+class ProviderCommons {
+    static beginMetamaskOnboarding() {
+        const onboarder = new MetamaskOnboarding();
+        onboarder.startOnboarding();
+    }
+
+    static async startMetamaskCheck() {
+        const response = await detectEthereumProvider();
+        if (response) { 
+            hasMetamaskProvider.set(true);
+        } else {
+            hasMetamaskProvider.set(false);
+        }
+    }
+}
+
+export { ProviderCommons };
+
+//--
 import { PUBLIC_CONTRACT_ADDRESS } from '$env/static/public';
 import  MainPlatform from '../MainPlatform.json';
-import { hasMetamaskProvider } from "$lib/UtilsStore";
 
-class Provider {
+class ProviderServices {
     private signer?: ethers.providers.JsonRpcSigner;
-    private hasConnected: boolean
 
     constructor() {
         this.signer = undefined;
-        this.hasConnected = false;
+        console.log("ProviderServices initialized.");
     }
 
     // MetaMask requires requesting permission to connect users accounts
-    public async connectToMetamask(): Promise<ethers.Contract> {
+    public async connectToMetamask(): Promise<boolean> {
         const _provider = new ethers.providers.Web3Provider(window.ethereum);
         const response = await _provider.send("eth_requestAccounts", []);
         if (response) {
             if(response.code != 4001) {
                 this.signer = _provider.getSigner();
-                const contract = new ethers.Contract(PUBLIC_CONTRACT_ADDRESS, MainPlatform.abi, this.signer);
-                this.hasConnected = true;
-                console.log("Connected to Metamask provider. Contract initialized.");
-                // console.log(await this.signer.getAddress());
-                return Promise.resolve(contract);
+                hasMetamaskProvider.set(true);  //indirectly
+                isProviderConnected.set(true);
+                console.log("Connected to Metamask provider, state updated...");
+                return Promise.resolve(true);
             } else {
+                isProviderConnected.set(false);
+                console.log("Error occured during Metamask connection. Reason: ");
                 console.log(response.message); //user rejected the request
-                //fallback to rejecting the promise
             }
         }
 
-        this.hasConnected = false;
         return Promise.reject();
     }
 
-    public connectLocally(): ethers.Contract {
+    public connectLocally() {
         const _provider = new ethers.providers.JsonRpcProvider();
         this.signer = _provider.getSigner();
-        const contract = new ethers.Contract(PUBLIC_CONTRACT_ADDRESS, MainPlatform.abi, this.signer);
-        this.hasConnected = true;
-        console.log("Connected to localhost (JSONRPC) provider. Contract initialized.");
-        return contract;
+        isProviderConnected.set(true);
+        console.log("Connected to localhost (JSONRPC) provider, state updated...");
     }
 
     public disconnect(): void {
-        this.hasConnected = false;
+        isProviderConnected.set(false);
     }
 
     public isConnected(): boolean {
-        return this.hasConnected;
+        // signer object will be something else if there's a connection
+        return this.signer !== undefined;
     }
 
-    public async nativeBalance(): Promise<number> {
-        //check only if we're connected with Metamask
-        if(this.hasConnected) {
-            const _provider = new ethers.providers.Web3Provider(window.ethereum);
-            const _address = await _provider.getSigner().getAddress();
-            const balanceBN = await _provider.getBalance(_address);
-            console.log("Native balance: ", balanceBN);
-            const balance = ethers.BigNumber.from(balanceBN).toNumber();
-            return Promise.resolve(balance);
-        }
-        // reject by default
-        return Promise.reject();
+    public fabricateContract(): ethers.Contract {
+        return new ethers.Contract(PUBLIC_CONTRACT_ADDRESS, MainPlatform.abi, this.signer);
     }
 
     public async signerAddress(): Promise<string> {
@@ -74,23 +82,8 @@ class Provider {
             return "N/A";
         }
     }
-
-    // STATIC METHODS
-    static beginMetamaskOnboarding() {
-        const onboarder = new MetamaskOnboarding();
-        onboarder.startOnboarding();
-    }
-
-    static async hasMetamaskProvider() {
-        const response = await detectEthereumProvider();
-        if (response) { 
-            hasMetamaskProvider.set(true);
-            return true
-        } else {
-            hasMetamaskProvider.set(false);
-            return false
-        }
-    }
 }
 
-export default Provider;
+// initialize as shared singleton
+const Provider = new ProviderServices();
+export { Provider };
