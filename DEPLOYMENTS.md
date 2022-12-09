@@ -7,6 +7,8 @@ In order to fully run this platform, following is a list of pre-requisities:
 5. `MATIC` test token obtained from [Polygon faucet](https://faucet.polygon.technology/)
 6. MetaMask configured to `Mumbai` test-net
 
+MetaMask configuration: https://wiki.polygon.technology/docs/develop/metamask/config-polygon-on-metamask#add-the-polygon-network-manually
+
 Make sure that each step is taken care of as missing items may cause unexpected issues or failure to compile and build the platform.
 
 --- 
@@ -53,9 +55,10 @@ Test-net configuration parameters
 |NetworkName|`Mumbai`|
 |ChainID|`80001`|
 |Token|`MATIC`|
-|RPC|`https://rpc-mumbai.matic.today`|
+|RPC|`https://matic-mumbai.chainstacklabs.com`|
 |TestNet polygonscan|https://mumbai.polygonscan.com/|
 |Network Details|https://wiki.polygon.technology/docs/develop/network-details/network/|
+|MetaMask configuration| _scroll to the bottom of the page and spot "Add Mumbai Network"_. URL: https://matic-mumbai.chainstacklabs.com|
 
 ## Deployment testing
 (_ADD HARDHAT test-deploy task_)
