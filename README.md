@@ -2,6 +2,8 @@
 
 !["Platform_sample"](/sample.png)
 
+**Live preview аavailable at:** https://infoportal.app  
+
 # Simple Voting platform
 This is an example of blockchain based voting platform consisting of following components:
   - `Solidity` based smart-contracts
