@@ -38,7 +38,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         platformResponse = await platformContract.addQuestion(testTitle, testLabels);
       }
       
-      const newQuestionID = platformResponse.value.toNumber();  //this is attached method by NigNumber
+      const newQuestionID = platformResponse.value.toNumber();  //this is attached method by BigNumber
       return Promise.resolve(newQuestionID);
     }
 
@@ -139,16 +139,15 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
     
       it("Registered users can vote owner's questions", async function(){
           const qID = await createTestQuestion();
-          expect(await platformContract.totalQuestions()).to.equal(1);
-
+          
           // register signer1, vote for first option
           await registerUsers(signer1);
           await platformContract.connect(signer1).vote(qID, 0);
+          expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
 
           // get scores for first option
           let expectedScore = ethers.BigNumber.from(1);
-          const qInfoResponse = (await platformContract.connect(signer1).getQuestionInfo(0));
-          //
+          const qInfoResponse = (await platformContract.connect(signer1).getQuestionInfo(qID));
           expect(qInfoResponse.id).to.equal(qID);
           expect(qInfoResponse.owner).to.equal(owner.address);
           expect(qInfoResponse.scores[0]).to.equal(expectedScore);
@@ -214,18 +213,18 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
     });
 
     context("Questions visibility and correctness", async function() {
-      it("Questions can be seen/listed", async function () {
-        // register user and add question
-        await registerUsers(signer1);
-        await createTestQuestion(signer1);
-
-        expect(await platformContract.totalUsers()).to.equal(2); // check users number integrity
-        expect(await platformContract.totalQuestions()).to.equal(1); // check quesiton number integrity
-
-        const qInfoResponse = (await platformContract.connect(signer1).getQuestionInfo(0));
+      it("Created question can be seen by creator", async function () {
+        // create question as owner and check integrity
+        const questionID = await createTestQuestion();
         //
-        expect(qInfoResponse.id).to.equal(0);
-        expect(qInfoResponse.owner).to.equal(signer1.address);
+        const qInfoResponse = (await platformContract.getQuestionInfo(questionID));
+        const totalUsers = await platformContract.totalUsers();
+        const totalQuestions = await platformContract.totalQuestions();
+        //
+        expect(totalUsers).to.equal(1);
+        expect(totalQuestions).to.equal(1);
+        expect(qInfoResponse.id).to.equal(questionID);
+        expect(qInfoResponse.owner).to.equal(owner.address);
         expect(qInfoResponse.title).to.equal("New Question");
         expect(qInfoResponse.description).to.equal('');
         expect(qInfoResponse.labels[0]).to.equal('one');
@@ -239,6 +238,29 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         expect(qInfoResponse.extras[2]).to.equal(0);
         expect(qInfoResponse.totalVoters).to.equal(0);
         expect(qInfoResponse.hasVoted).to.equal(false);
+      });
+
+      it("Created question can be seen by all users", async function () {
+        // create test question and perform vote as an owner
+        const questionID = await createTestQuestion();
+
+        await registerUsers(signer1);
+        await registerUsers(signer2);
+
+        for(const acc of [owner, signer1, signer2]) {
+          const totalUsers = await platformContract.connect(acc).totalUsers();
+          const totalQuestions = await platformContract.connect(acc).totalQuestions();
+          const questionInfo   = await platformContract.connect(acc).getQuestionInfo(questionID);
+
+          expect(totalUsers).to.equal(3);
+          expect(totalQuestions).to.equal(1);
+          //
+          expect(questionInfo.id).to.equal(questionID);
+          expect(questionInfo.owner).to.equal(owner.address);
+          expect(questionInfo.scores[0]).to.equal(0);
+          expect(questionInfo.totalVoters).to.equal(0);
+          expect(questionInfo.hasVoted).to.equal(false);
+        }
       });
 
       it("Question description can be edited", async function() {

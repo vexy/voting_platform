@@ -10,7 +10,8 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
     let signer3: SignerWithAddress;
 
     // adjust at will...
-    let questionLabels = [ "Yes", "No", "Maybe" ];
+    const questionTitle  = "Question test title";
+    const questionLabels = [ "Yes", "No", "Maybe" ];
 
     beforeEach(async function() {
         //get signers
@@ -21,7 +22,7 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
 
         // wait for contract deployment
         const provider = await ethers.getContractFactory("QuestionFrame");
-        questionFrameContract = await provider.deploy(signer1.address, "Question title", questionLabels);
+        questionFrameContract = await provider.deploy(signer1.address, questionTitle, questionLabels);
         await questionFrameContract.deployed();
     });
 
@@ -89,6 +90,8 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
         it("Cannot score same question multiple times", async function(){
             await questionFrameContract.accept(0);
             const newScore = await questionFrameContract.score(0);
+            // check scoring
+            expect(newScore).to.equal(1);
 
             try {
                 //make another score attempt with same question
@@ -107,6 +110,10 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
             const newScore0 = await questionFrameContract.score(0);
             const newScore1 = await questionFrameContract.score(1);
 
+            // check the scoring
+            expect(newScore0).to.equal(1);
+            expect(newScore1).to.equal(0);
+
             try {
                 //make another score attempt with different question
                 await questionFrameContract.accept(1);
@@ -122,6 +129,9 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
             await questionFrameContract.accept(0);
             const newScore = await questionFrameContract.score(0);
             const noneCount = await questionFrameContract.noneCount();
+
+            expect(newScore).to.equal(1);
+            expect(noneCount).to.equal(0);
 
             try {
                 //make another score attempt with different question
@@ -139,6 +149,9 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
             const newScore = await questionFrameContract.score(0);
             const malformedCount = await questionFrameContract.malformedCount();
 
+            expect(newScore).to.equal(1);
+            expect(malformedCount).to.equal(0);
+
             try {
                 //make another score attempt with different question
                 await questionFrameContract.malformed();
@@ -155,6 +168,9 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
             const newScore = await questionFrameContract.score(0);
             const reportCount = await questionFrameContract.reportCount();
 
+            expect(newScore).to.equal(1);
+            expect(reportCount).to.equal(0);
+
             try {
                 //make another score attempt with different question
                 await questionFrameContract.report();
@@ -163,6 +179,107 @@ describe("Testing Suite :: [QuestionFrame contract]", async function() {
                 // if we arrived here, the test is successfull
                 expect(newScore).to.equal(1);
                 expect(reportCount).to.equal(0);
+            }
+        });
+    });
+
+//@----
+
+    context("# Voted/Not-voted states", async function() {
+        it("Can recognize voter", async function() {
+            // accept question and check integrity
+            await questionFrameContract.accept(0);
+
+            const questionScore = await questionFrameContract.score(0);
+            const totalVoters = await questionFrameContract.totalVoters();
+            const hasVoted = await questionFrameContract.hasVoted();
+            //
+            expect(questionScore).to.equal(1);
+            expect(totalVoters).to.equal(1);
+            expect(hasVoted).to.equal(true);
+        });
+
+        it("Can distinct voter and non voter", async function() {
+            // accept question and check integrity
+            await questionFrameContract.accept(0);
+            //
+            const questionScore = await questionFrameContract.score(0);
+            const totalVoters = await questionFrameContract.totalVoters();
+            expect(questionScore).to.equal(1);
+            expect(totalVoters).to.equal(1);
+
+            // check hasVoted flag for all other accounts
+            const hasVotedSigner1 = await questionFrameContract.hasVoted();
+            const hasVotedSigner2 = await questionFrameContract.connect(signer2).hasVoted();
+            const hasVotedSigner3 = await questionFrameContract.connect(signer3).hasVoted();
+
+            expect(hasVotedSigner1).to.equal(true);
+            expect(hasVotedSigner2).to.equal(false);
+            expect(hasVotedSigner3).to.equal(false);
+        });
+
+        it("HasVoted flag changes according to the voting dynamics", async function() {
+            // accept question and check integrity
+            await questionFrameContract.accept(0);
+            //
+            let questionScore = await questionFrameContract.score(0);
+            let totalVoters = await questionFrameContract.totalVoters();
+            //
+            expect(questionScore).to.equal(1);
+            expect(totalVoters).to.equal(1);
+
+            // check hasVoted flag for all accounts
+            let hasVotedSigner1 = await questionFrameContract.hasVoted();
+            let hasVotedSigner2 = await questionFrameContract.connect(signer2).hasVoted();
+            let hasVotedSigner3 = await questionFrameContract.connect(signer3).hasVoted();
+            expect(hasVotedSigner1).to.equal(true);
+            expect(hasVotedSigner2).to.equal(false);
+            expect(hasVotedSigner3).to.equal(false);
+
+            // perform vote as signer2
+            // check score, total count and has voted flag for all accounts
+            await questionFrameContract.connect(signer2).accept(0);
+            //
+            for( let acc of [signer1, signer2, signer3]) {
+                questionScore = await questionFrameContract.connect(acc).score(0);
+                totalVoters = await questionFrameContract.connect(acc).totalVoters();
+
+                expect(questionScore).to.equal(2);
+                expect(totalVoters).to.equal(2);
+            }
+            
+            // check hasVoted flag for all accounts
+            hasVotedSigner1 = await questionFrameContract.hasVoted();
+            hasVotedSigner2 = await questionFrameContract.connect(signer2).hasVoted();
+            hasVotedSigner3 = await questionFrameContract.connect(signer3).hasVoted();
+            expect(hasVotedSigner1).to.equal(true);
+            expect(hasVotedSigner2).to.equal(true);
+            expect(hasVotedSigner3).to.equal(false);
+
+            // lastly, perform vote as signer3 and
+            // check score, total count and has voted flag for all accounts
+            await questionFrameContract.connect(signer3).accept(0);
+            //
+            for( let acc of [signer1, signer2, signer3]) {
+                questionScore = await questionFrameContract.connect(acc).score(0);
+                totalVoters = await questionFrameContract.connect(acc).totalVoters();
+                const hasVoted = await questionFrameContract.connect(acc).hasVoted();
+
+                expect(questionScore).to.equal(3);
+                expect(totalVoters).to.equal(3);
+                expect(hasVoted).to.equal(true);
+            }
+        });
+
+        it("Initialized question has proper initial state logic", async function() {
+            for( let acc of [signer1, signer2, signer3]) {
+                const questionScore = await questionFrameContract.connect(acc).score(0);
+                const totalVoters = await questionFrameContract.connect(acc).totalVoters();
+                const hasVoted = await questionFrameContract.connect(acc).hasVoted();
+
+                expect(questionScore).to.equal(0);
+                expect(totalVoters).to.equal(0);
+                expect(hasVoted).to.equal(false);
             }
         });
     });
