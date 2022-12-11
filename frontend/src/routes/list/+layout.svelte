@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import Utilities from "$lib/Utilities";
+    import Contract from "$lib/Utilities";
     import QuestionsTable from "$lib/QuestionsTable.svelte";
     import type { QuestionInfo } from "$lib/Models";
     
@@ -14,8 +14,8 @@
 
     // get all questions and total count
     onMount(async () => {
-        totalQuestions = await Utilities.questionsCount();
-        allQuestions = await Utilities.getAllQuestions();
+        totalQuestions = await Contract.questionsCount();
+        allQuestions = await Contract.getAllQuestions();
         tableQuestions = allQuestions;
     });
 

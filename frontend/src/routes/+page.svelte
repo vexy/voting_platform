@@ -1,29 +1,29 @@
 <script lang="ts">
-    import Utilities from "$lib/Utilities";
-    import Provider from "$lib/Provider";
+    import Contract from "$lib/Utilities";
+    import { Provider, ProviderCommons } from "$lib/Provider";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { hasMetamaskProvider, isProviderConnected, isRegisteredUser } from "$lib/UtilsStore";
 
     let hasMetamask: boolean = false;
     let isConnected: boolean = false;
-    let isRegistered: boolean = false;
 
     hasMetamaskProvider.subscribe(newValue => {
         hasMetamask = newValue;
     });
 
-    isProviderConnected.subscribe(newValue => {
+    isProviderConnected.subscribe(async (newValue) => {
         isConnected = newValue;
     });
 
     isRegisteredUser.subscribe(nVal => {
-        isRegistered = nVal;
+        // just refresh the content
+        isConnected = isConnected;
     });
 
-    async function registerNewUser() {
+    async function performRegistration() {
         // check if we've been previously registered
-        const response = await Utilities.registerNewUser()
+        const response = await Contract.registerNewUser()
         if (response) {
             alert("Успешно сте се пријавили на платформу !");
             console.log("New user registered !");
@@ -34,12 +34,12 @@
     }
 
     // MetaMask requires requesting permission to connect users accounts
-    async function connectToMetamask() {
-        await Utilities.connect();
+    async function connectMetamask() {
+        await Provider.connectToMetamask();
     }
 
     onMount(async () => {
-        await Provider.hasMetamaskProvider();
+        await ProviderCommons.startMetamaskCheck();
 		console.log("Main page mounted...");
     });
 </script>
@@ -48,25 +48,27 @@
     <h1>100 људи 100 ћуди</h1>
     {#if hasMetamask}
         {#if isConnected}
-            {#if isRegistered}
-                <button class="gradient_button" on:click={() => goto("/list")}>Погледај листу питања</button>
-            {:else}
-                <button class="gradient_button" on:click={registerNewUser}>
-                    Хоћу и ја ✌️
-                </button>
-                <div>
-                    <p>За употребу платформе, потребни су <code>MATIC tokeni</code></p>
-                    <p>Тест токене за <i>Mumbai</i> мрежу можете <a href="https://faucet.polygon.technology/" target="_blank">набавити овде</a></p>
-                </div>
-            {/if}
+            {#await Contract.isRegisteredUser() then isReg }
+                {#if isReg}
+                    <button class="gradient_button" on:click={() => goto("/list")}>Погледај листу питања 🔍</button>
+                {:else}
+                    <button class="gradient_button" on:click={performRegistration}>
+                        Хоћу и ја ✌️
+                    </button>
+                    <div>
+                        <p>За употребу платформе, потребни су <code>MATIC tokeni</code></p>
+                        <p>Тест токене за <i>Mumbai</i> мрежу можете <a href="https://faucet.polygon.technology/" target="_blank">набавити овде</a></p>
+                    </div>
+                {/if}
+            {/await}
         {:else}
-            <button on:click={connectToMetamask}>
+            <button on:click={connectMetamask}>
                 Повежи MetaMask
             </button>
             <code>За почетак употребе, повежите Ваш <i>MetaMask</i> новчаник...</code>
         {/if}
     {:else}
-        <button on:click={Provider.beginMetamaskOnboarding}>
+        <button on:click={ProviderCommons.beginMetamaskOnboarding}>
             Инсталирај MetaMask
         </button>
         <code>За употребу платформе, потребно је инсталирати <a href="https://metamask.io/" target="_blank">MetaMask</a></code>

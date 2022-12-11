@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { page } from "$app/stores";
-    import Utilities from '$lib/Utilities';
+    import Contract from '$lib/Utilities';
     import { QuestionInfo } from '$lib/Models';
 
     let questionInfo: QuestionInfo = new QuestionInfo(0,"","",[],[],[],0,false);
@@ -12,7 +12,7 @@
 
     onMount(async () => {
         const questionID = Number($page.params.slug);
-        questionInfo = await Utilities.getQuestionInfo(questionID);
+        questionInfo = await Contract.getQuestionInfo(questionID);
 
         //pre-calc meter values if user provided answer
         if(questionInfo.hasVoted) {
@@ -37,7 +37,7 @@
                 if (optionValue >= 0) {
                     // contains voting option
                     console.log("Voting...");
-                    await Utilities.vote(questionInfo.id, i)
+                    await Contract.vote(questionInfo.id, i)
                         .then(() => {
                             alert("Ваш одговор је примљен. Хвала !");
                         })
@@ -48,7 +48,7 @@
                 } else { // contains extras option
                     const transformedExtraOption = (optionValue * -1) - 1;
                     //extra option is transformed to suite platform contract extra options [0,1,2]
-                    await Utilities.provideExtra(questionInfo.id, transformedExtraOption);
+                    await Contract.provideExtra(questionInfo.id, transformedExtraOption);
                 }
 
                 break;  //no need to cycle further

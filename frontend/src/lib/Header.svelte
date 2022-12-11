@@ -1,7 +1,8 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import Utilities from "$lib/Utilities";
-    import { hasMetamaskProvider, isProviderConnected } from "./UtilsStore";
+    import Contract from "$lib/Utilities";
+    import { Provider } from "$lib/Provider";
+    import { hasMetamaskProvider, isProviderConnected, isRegisteredUser } from "./UtilsStore";
 
     let providerPresent: boolean = false;
     let metamaskConnected: boolean = false;
@@ -14,9 +15,14 @@
         metamaskConnected = newValue;
     });
 
+    isRegisteredUser.subscribe(nv => {
+        // just trigger a refresh of the component manually
+        metamaskConnected = metamaskConnected;
+    });
+
     // MetaMask requires requesting permission to connect users accounts
     async function disconnect() {
-        Utilities.disconnect();
+        Provider.disconnect();
         console.log("Disconnected... Going back to the root.");
         goto("/");  //go back to root
     }
@@ -28,14 +34,14 @@
             <button on:click={disconnect}>
                 Прекини употребу
             </button>
-            {#await Utilities.isRegisteredUser()}
+            {#await Contract.isRegisteredUser()}
                 <i>Комуникација са платформом...</i>
             {:then success}
                 {#if success}
-                    {#await Utilities.getUserBalance() then totalPoints}
+                    {#await Contract.getUserBalance() then totalPoints}
                         <div>Број поена: <code>{Number(totalPoints).toLocaleString()}</code></div>
                     {/await}
-                    {#await Utilities.signerAddress() then address}
+                    {#await Provider.signerAddress() then address}
                         <div>Новчаник: <code>{address}</code></div>
                     {/await}
                 {:else}

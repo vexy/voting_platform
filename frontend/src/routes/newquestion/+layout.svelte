@@ -1,6 +1,8 @@
 <script lang="ts">
     // import Modal from "$lib/ModalDialog.svelte";
-    import Utilities from "$lib/Utilities";
+    import Contract from "$lib/Utilities";
+    import { goto } from "$app/navigation";
+    import { isRegisteredUser } from "$lib/UtilsStore";
 
     let title: string = "";
     let labels: string[] = [];
@@ -8,11 +10,14 @@
     function saveQuestion() {
       // check inputs
       if (userInputsAreFine()) {
-        Utilities.addNewQuestion(title, labels).then( (result: boolean) => {
+        Contract.addNewQuestion(title, labels).then( (result: boolean) => {
           if (result) {
             alert("Ново питање успешно сачувано !");
             title = "";
             labels = [];
+
+            // trigger a chain of refresh events
+            isRegisteredUser.set(true);
           } else {
             alert("Дошло је до грешке приликом чувања. Покушајте поново.");
           }
@@ -35,6 +40,7 @@
 </script>
 
 <container>
+    <button on:click={() => goto("/list")} >Nazad</button>
     <h1>Поставите Ваше питање</h1>
     <title-inputs>
       <!-- <label for="title">Naslov pitanja</label> -->

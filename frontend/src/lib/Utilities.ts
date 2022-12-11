@@ -1,15 +1,13 @@
 import { BigNumber, ethers } from "ethers";
 import { QuestionInfo } from './Models'
 import { Provider } from "./Provider";
-import { isProviderConnected, isRegisteredUser } from "$lib/UtilsStore";
+import { isRegisteredUser } from "$lib/UtilsStore";
 
-export default class ContractWorks {
+class PlatformContract {
     private platformContract!: ethers.Contract;
 
     constructor() {
-        console.log("Contract works initialized:");
-        console.log("Is provider detected:\t", isProviderConnected);
-        console.log("Is provider connected:\t", Provider.isConnected());
+        console.log("PlatformContract initialized");
         this.prepareContract();
     }
 
@@ -167,3 +165,6 @@ export default class ContractWorks {
         return Promise.reject();
     }
 }
+
+const Contract = new PlatformContract();
+export default Contract;
