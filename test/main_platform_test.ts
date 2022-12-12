@@ -103,18 +103,38 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
       });
 
       it("Registered users can add question", async function() {
-        await registerUsers(signer1);
-        await createTestQuestion(signer1);
         let expectedTotalQuestions = 1;
+        for(let acc of [signer1, signer2]) {
+          await registerUsers(acc);
+          await createTestQuestion(acc);
+          const totalQuestions = await platformContract.connect(acc).totalQuestions();
+
+          expect(totalQuestions).to.equal(expectedTotalQuestions);
+          expectedTotalQuestions += 1;
+        }
+      });
+
+      it("Question description can be edited", async function() {
+        const expectedID = 0;
+        const expectedTotalQuestions = 1;
+
+        // create test question
+        const questionID = await createTestQuestion();
+        const totalQuestions = await platformContract.totalQuestions();
+
+        // mark intial state and perform description edit
+        const qInfoStart = await platformContract.getQuestionInfo(questionID);
         //
-        expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
+        await platformContract.editDescription(questionID, 'New description');
+        //
+        // mark ending state
+        const qInfoAfter = await platformContract.getQuestionInfo(questionID);
 
-        // signer 2
-        await registerUsers(signer2);
-        await createTestQuestion(signer2);
-        expectedTotalQuestions += 1;
-
-        expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
+        // check outcome
+        expect(questionID).to.equal(expectedID);
+        expect(totalQuestions).to.equal(expectedTotalQuestions);
+        expect(qInfoStart.description).to.equal("");
+        expect(qInfoAfter.description).to.equal('New description');
       });
     });
 
@@ -213,7 +233,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
     });
 
     context("Questions visibility and correctness", async function() {
-      it("Created question can be seen by creator", async function () {
+      it("Created question can be seen by owner", async function () {
         // create question as owner and check integrity
         const questionID = await createTestQuestion();
         //
@@ -240,7 +260,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         expect(qInfoResponse.hasVoted).to.equal(false);
       });
 
-      it("Created question can be seen by all users", async function () {
+      it("Created question can be seen by their creators", async function () {
         // create test question and perform vote as an owner
         const questionID = await createTestQuestion();
 
@@ -263,23 +283,45 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         }
       });
 
-      it("Question description can be edited", async function() {
-        const expectedID = 0;
-        const expectedTotalQuestions = 1;
+      it("Owner has proper 'hasVoted' dynamics", async function() {
+        const questionID = await createTestQuestion();
 
-        const id = await createTestQuestion(); // this returns number
-        expect(id).to.equal(expectedID);
-        expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
+        let qInfo = await platformContract.getQuestionInfo(questionID);
+        //
+        expect(qInfo.id).to.equal(questionID);
+        expect(qInfo.owner).to.equal(owner.address);
+        expect(qInfo.scores[0]).to.equal(0);
+        expect(qInfo.totalVoters).to.equal(0);
+        expect(qInfo.hasVoted).to.equal(false);
 
-        // mark intial state
-        const qInfoStart = await platformContract.getQuestionInfo(id);
-        // perform description edit
-        await platformContract.editDescription(id, 'New description');
-        // mark ending state
-        const qInfoAfter = await platformContract.getQuestionInfo(id);
+        // perform vote
+        await platformContract.vote(questionID, 0);
 
-        expect(qInfoStart.description).to.equal("");
-        expect(qInfoAfter.description).to.equal('New description');
+        // check results
+        qInfo = await platformContract.getQuestionInfo(questionID);
+        //
+        expect(qInfo.id).to.equal(questionID);
+        expect(qInfo.owner).to.equal(owner.address);
+        expect(qInfo.scores[0]).to.equal(1);
+        expect(qInfo.totalVoters).to.equal(1);
+        expect(qInfo.hasVoted).to.equal(true);
+      });
+
+      it("Registered users observe voting dynamics properly", async function() {
+        // create question and vote as owner
+        const questionID = await createTestQuestion();
+        await platformContract.vote(questionID, 0);
+
+        // register signer1
+        await registerUsers(signer1);
+        let qInfo = await platformContract.connect(signer1).getQuestionInfo(questionID);
+        //
+        console.log(qInfo);
+        expect(qInfo.id).to.equal(questionID);
+        expect(qInfo.owner).to.equal(owner.address);
+        expect(qInfo.scores[0]).to.equal(1);
+        expect(qInfo.totalVoters).to.equal(1);
+        expect(qInfo.hasVoted).to.equal(false);
       });
     });
 });
