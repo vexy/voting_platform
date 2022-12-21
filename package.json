@@ -1,6 +1,6 @@
 {
   "name": "simple-voting-platform",
-  "version": "1.0",
+  "version": "1.5",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.0"
   }

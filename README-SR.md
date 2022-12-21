@@ -1,5 +1,5 @@
 <div align="center">
-<i>НАПОМЕНА: <b>ПРОЈЕКАТ ЈЕ У АКТИВНОЈ ИЗРАДИ</b></i>
+<i>НАПОМЕНА: <b>ПРОЈЕКАТ ЈЕ БЕТА ТЕСТИРАЊУ</b></i>
 </div>
 
 !["Platform_sample"](/sample.png)
@@ -12,7 +12,7 @@
 
 |Компонента система|Верзија|
 |-|-|
-|`contracts`|`1.0 test-net`|
+|`contracts`|`1.5 test-net`|
 |`frontend`|`0.9`|
 
 [![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
