@@ -13,6 +13,10 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
+      name: "PlatformConfig",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.PlatformConfig__factory>;
+    getContractFactory(
       name: "MainPlatform",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MainPlatform__factory>;
@@ -20,11 +24,12 @@ declare module "hardhat/types/runtime" {
       name: "Question",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Question__factory>;
-    getContractFactory(
-      name: "QuestionFrame",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.QuestionFrame__factory>;
 
+    getContractAt(
+      name: "PlatformConfig",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PlatformConfig>;
     getContractAt(
       name: "MainPlatform",
       address: string,
@@ -35,11 +40,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Question>;
-    getContractAt(
-      name: "QuestionFrame",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.QuestionFrame>;
 
     // default types
     getContractFactory(

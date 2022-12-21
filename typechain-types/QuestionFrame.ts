@@ -23,48 +23,55 @@ import type {
   PromiseOrValue,
 } from "./common";
 
+export type QuestionInfoStruct = {
+  owner: PromiseOrValue<string>;
+  title: PromiseOrValue<string>;
+  description: PromiseOrValue<string>;
+  labels: PromiseOrValue<string>[];
+  scores: PromiseOrValue<BigNumberish>[];
+  extras: [
+    PromiseOrValue<BigNumberish>,
+    PromiseOrValue<BigNumberish>,
+    PromiseOrValue<BigNumberish>
+  ];
+  totalVoters: PromiseOrValue<BigNumberish>;
+  hasVoted: PromiseOrValue<boolean>;
+};
+
+export type QuestionInfoStructOutput = [
+  string,
+  string,
+  string,
+  string[],
+  BigNumber[],
+  [BigNumber, BigNumber, BigNumber],
+  BigNumber,
+  boolean
+] & {
+  owner: string;
+  title: string;
+  description: string;
+  labels: string[];
+  scores: BigNumber[];
+  extras: [BigNumber, BigNumber, BigNumber];
+  totalVoters: BigNumber;
+  hasVoted: boolean;
+};
+
 export interface QuestionFrameInterface extends utils.Interface {
   functions: {
     "accept(uint256)": FunctionFragment;
+    "acceptExtra(uint8)": FunctionFragment;
     "editDescription(string)": FunctionFragment;
-    "editTitle(string)": FunctionFragment;
-    "getDescription()": FunctionFragment;
-    "getExtras()": FunctionFragment;
-    "getLabels()": FunctionFragment;
-    "getOwner()": FunctionFragment;
-    "getScores()": FunctionFragment;
-    "getTitle()": FunctionFragment;
-    "hasVoted()": FunctionFragment;
-    "malformed()": FunctionFragment;
-    "malformedCount()": FunctionFragment;
-    "none()": FunctionFragment;
-    "noneCount()": FunctionFragment;
-    "report()": FunctionFragment;
-    "reportCount()": FunctionFragment;
-    "score(uint256)": FunctionFragment;
-    "totalVoters()": FunctionFragment;
+    "outputQuestionInfo()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "accept"
+      | "acceptExtra"
       | "editDescription"
-      | "editTitle"
-      | "getDescription"
-      | "getExtras"
-      | "getLabels"
-      | "getOwner"
-      | "getScores"
-      | "getTitle"
-      | "hasVoted"
-      | "malformed"
-      | "malformedCount"
-      | "none"
-      | "noneCount"
-      | "report"
-      | "reportCount"
-      | "score"
-      | "totalVoters"
+      | "outputQuestionInfo"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -72,75 +79,29 @@ export interface QuestionFrameInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "acceptExtra",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "editDescription",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "editTitle",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getDescription",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getExtras", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getLabels", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getOwner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getScores", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getTitle", values?: undefined): string;
-  encodeFunctionData(functionFragment: "hasVoted", values?: undefined): string;
-  encodeFunctionData(functionFragment: "malformed", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "malformedCount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "none", values?: undefined): string;
-  encodeFunctionData(functionFragment: "noneCount", values?: undefined): string;
-  encodeFunctionData(functionFragment: "report", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "reportCount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "score",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalVoters",
+    functionFragment: "outputQuestionInfo",
     values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "accept", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "acceptExtra",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "editDescription",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "editTitle", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getDescription",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getExtras", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getLabels", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getOwner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getScores", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getTitle", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasVoted", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "malformed", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "malformedCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "none", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "noneCount", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "reportCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "score", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalVoters",
+    functionFragment: "outputQuestionInfo",
     data: BytesLike
   ): Result;
 
@@ -175,7 +136,12 @@ export interface QuestionFrame extends BaseContract {
 
   functions: {
     accept(
-      element: PromiseOrValue<BigNumberish>,
+      option: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    acceptExtra(
+      option: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -184,55 +150,18 @@ export interface QuestionFrame extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    editTitle(
-      newTitle: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getDescription(overrides?: CallOverrides): Promise<[string]>;
-
-    getExtras(
+    outputQuestionInfo(
       overrides?: CallOverrides
-    ): Promise<[[BigNumber, BigNumber, BigNumber]]>;
-
-    getLabels(overrides?: CallOverrides): Promise<[string[]]>;
-
-    getOwner(overrides?: CallOverrides): Promise<[string]>;
-
-    getScores(overrides?: CallOverrides): Promise<[BigNumber[]]>;
-
-    getTitle(overrides?: CallOverrides): Promise<[string]>;
-
-    hasVoted(overrides?: CallOverrides): Promise<[boolean]>;
-
-    malformed(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    malformedCount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    none(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    noneCount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    report(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    reportCount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    score(
-      element: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    totalVoters(overrides?: CallOverrides): Promise<[BigNumber]>;
+    ): Promise<[QuestionInfoStructOutput]>;
   };
 
   accept(
-    element: PromiseOrValue<BigNumberish>,
+    option: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  acceptExtra(
+    option: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -241,55 +170,18 @@ export interface QuestionFrame extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  editTitle(
-    newTitle: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getDescription(overrides?: CallOverrides): Promise<string>;
-
-  getExtras(
+  outputQuestionInfo(
     overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
-  getLabels(overrides?: CallOverrides): Promise<string[]>;
-
-  getOwner(overrides?: CallOverrides): Promise<string>;
-
-  getScores(overrides?: CallOverrides): Promise<BigNumber[]>;
-
-  getTitle(overrides?: CallOverrides): Promise<string>;
-
-  hasVoted(overrides?: CallOverrides): Promise<boolean>;
-
-  malformed(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  malformedCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  none(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  noneCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  report(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  reportCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  score(
-    element: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  totalVoters(overrides?: CallOverrides): Promise<BigNumber>;
+  ): Promise<QuestionInfoStructOutput>;
 
   callStatic: {
     accept(
-      element: PromiseOrValue<BigNumberish>,
+      option: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    acceptExtra(
+      option: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -298,52 +190,21 @@ export interface QuestionFrame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    editTitle(
-      newTitle: PromiseOrValue<string>,
+    outputQuestionInfo(
       overrides?: CallOverrides
-    ): Promise<void>;
-
-    getDescription(overrides?: CallOverrides): Promise<string>;
-
-    getExtras(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
-
-    getLabels(overrides?: CallOverrides): Promise<string[]>;
-
-    getOwner(overrides?: CallOverrides): Promise<string>;
-
-    getScores(overrides?: CallOverrides): Promise<BigNumber[]>;
-
-    getTitle(overrides?: CallOverrides): Promise<string>;
-
-    hasVoted(overrides?: CallOverrides): Promise<boolean>;
-
-    malformed(overrides?: CallOverrides): Promise<void>;
-
-    malformedCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    none(overrides?: CallOverrides): Promise<void>;
-
-    noneCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    report(overrides?: CallOverrides): Promise<void>;
-
-    reportCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    score(
-      element: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    totalVoters(overrides?: CallOverrides): Promise<BigNumber>;
+    ): Promise<QuestionInfoStructOutput>;
   };
 
   filters: {};
 
   estimateGas: {
     accept(
-      element: PromiseOrValue<BigNumberish>,
+      option: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    acceptExtra(
+      option: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -352,54 +213,17 @@ export interface QuestionFrame extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    editTitle(
-      newTitle: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getDescription(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getExtras(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getLabels(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getOwner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getScores(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTitle(overrides?: CallOverrides): Promise<BigNumber>;
-
-    hasVoted(overrides?: CallOverrides): Promise<BigNumber>;
-
-    malformed(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    malformedCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    none(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    noneCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    report(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    reportCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    score(
-      element: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    totalVoters(overrides?: CallOverrides): Promise<BigNumber>;
+    outputQuestionInfo(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     accept(
-      element: PromiseOrValue<BigNumberish>,
+      option: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    acceptExtra(
+      option: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -408,48 +232,8 @@ export interface QuestionFrame extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    editTitle(
-      newTitle: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getDescription(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getExtras(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getLabels(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getScores(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getTitle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    hasVoted(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    malformed(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    malformedCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    none(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    noneCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    report(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    reportCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    score(
-      element: PromiseOrValue<BigNumberish>,
+    outputQuestionInfo(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    totalVoters(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -23,22 +23,49 @@ import type {
   PromiseOrValue,
 } from "./common";
 
+export type QuestionMetaStruct = {
+  owner: PromiseOrValue<string>;
+  title: PromiseOrValue<string>;
+  description: PromiseOrValue<string>;
+  labels: PromiseOrValue<string>[];
+  scores: PromiseOrValue<BigNumberish>[];
+  extras: [
+    PromiseOrValue<BigNumberish>,
+    PromiseOrValue<BigNumberish>,
+    PromiseOrValue<BigNumberish>
+  ];
+};
+
+export type QuestionMetaStructOutput = [
+  string,
+  string,
+  string,
+  string[],
+  BigNumber[],
+  [BigNumber, BigNumber, BigNumber]
+] & {
+  owner: string;
+  title: string;
+  description: string;
+  labels: string[];
+  scores: BigNumber[];
+  extras: [BigNumber, BigNumber, BigNumber];
+};
+
 export interface QuestionInterface extends utils.Interface {
   functions: {
     "accept(uint256)": FunctionFragment;
-    "editLabel(uint256,string)": FunctionFragment;
-    "getLabels()": FunctionFragment;
-    "getScores()": FunctionFragment;
-    "score(uint256)": FunctionFragment;
+    "acceptExtra(uint8)": FunctionFragment;
+    "editDescription(string)": FunctionFragment;
+    "produceQuestionMeta()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "accept"
-      | "editLabel"
-      | "getLabels"
-      | "getScores"
-      | "score"
+      | "acceptExtra"
+      | "editDescription"
+      | "produceQuestionMeta"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -46,21 +73,31 @@ export interface QuestionInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "editLabel",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "getLabels", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getScores", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "score",
+    functionFragment: "acceptExtra",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "editDescription",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "produceQuestionMeta",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "accept", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "editLabel", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getLabels", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getScores", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "score", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "acceptExtra",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "editDescription",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "produceQuestionMeta",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -97,20 +134,19 @@ export interface Question extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    editLabel(
-      element: PromiseOrValue<BigNumberish>,
-      newLabel: PromiseOrValue<string>,
+    acceptExtra(
+      option: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getLabels(overrides?: CallOverrides): Promise<[string[]]>;
+    editDescription(
+      _newDescription: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    getScores(overrides?: CallOverrides): Promise<[BigNumber[]]>;
-
-    score(
-      element: PromiseOrValue<BigNumberish>,
+    produceQuestionMeta(
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[QuestionMetaStructOutput]>;
   };
 
   accept(
@@ -118,20 +154,19 @@ export interface Question extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  editLabel(
-    element: PromiseOrValue<BigNumberish>,
-    newLabel: PromiseOrValue<string>,
+  acceptExtra(
+    option: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getLabels(overrides?: CallOverrides): Promise<string[]>;
+  editDescription(
+    _newDescription: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  getScores(overrides?: CallOverrides): Promise<BigNumber[]>;
-
-  score(
-    element: PromiseOrValue<BigNumberish>,
+  produceQuestionMeta(
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<QuestionMetaStructOutput>;
 
   callStatic: {
     accept(
@@ -139,20 +174,19 @@ export interface Question extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    editLabel(
-      element: PromiseOrValue<BigNumberish>,
-      newLabel: PromiseOrValue<string>,
+    acceptExtra(
+      option: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    getLabels(overrides?: CallOverrides): Promise<string[]>;
-
-    getScores(overrides?: CallOverrides): Promise<BigNumber[]>;
-
-    score(
-      element: PromiseOrValue<BigNumberish>,
+    editDescription(
+      _newDescription: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<void>;
+
+    produceQuestionMeta(
+      overrides?: CallOverrides
+    ): Promise<QuestionMetaStructOutput>;
   };
 
   filters: {};
@@ -163,20 +197,17 @@ export interface Question extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    editLabel(
-      element: PromiseOrValue<BigNumberish>,
-      newLabel: PromiseOrValue<string>,
+    acceptExtra(
+      option: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    getLabels(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getScores(overrides?: CallOverrides): Promise<BigNumber>;
-
-    score(
-      element: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    editDescription(
+      _newDescription: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    produceQuestionMeta(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -185,18 +216,17 @@ export interface Question extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    editLabel(
-      element: PromiseOrValue<BigNumberish>,
-      newLabel: PromiseOrValue<string>,
+    acceptExtra(
+      option: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    getLabels(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    editDescription(
+      _newDescription: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
-    getScores(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    score(
-      element: PromiseOrValue<BigNumberish>,
+    produceQuestionMeta(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
