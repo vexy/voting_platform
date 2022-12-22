@@ -2,7 +2,7 @@
 Frontend component of the simple _distributed voting platform_.  
 It is written in `TypeScript` with `SvelteKit` framework.
 
-> **NOTE** Project is in active development. **Expect changes** or missing functionality.
+> **NOTE** Project is in close to public launch **Expect minor changes** or improved functionality.
 
 ## Installation
 Make sure you have latest [NPM](https://www.npmjs.com/) installed.  

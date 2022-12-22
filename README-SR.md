@@ -13,7 +13,7 @@
 |Компонента система|Верзија|
 |-|-|
 |`contracts`|`1.5 test-net`|
-|`frontend`|`0.9`|
+|`frontend`|`0.95`|
 
 [![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
 

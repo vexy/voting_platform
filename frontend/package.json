@@ -1,6 +1,6 @@
 {
 	"name": "voting-platform-frontend",
-	"version": "0.9",
+	"version": "0.95",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",

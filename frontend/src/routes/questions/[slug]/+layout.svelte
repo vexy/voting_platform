@@ -16,11 +16,11 @@
 
         //pre-calc meter values if user provided answer
         if(questionInfo.hasVoted) {
-            for(let score of questionInfo.scores) {
+            for(let score of questionInfo.question.scores) {
                 meterValues.push((score / questionInfo.totalVoters) * 100);
             }
             //
-            for(let ext of questionInfo.extras) {
+            for(let ext of questionInfo.question.extras) {
                 extrasMeterValues.push((ext / questionInfo.totalVoters) * 100);
             }
         }
