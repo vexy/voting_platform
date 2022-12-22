@@ -1,9 +1,9 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import Utilities from "./Utilities";
-    import type { QuestionInfo } from "./Models";
+    import type { QuestionInfoOutput } from "./Models";
 
-    export let dataSet: QuestionInfo[];
+    export let dataSet: QuestionInfoOutput[];
 
     async function performReport(questionID: number) {
         await Utilities.provideExtra(questionID, 2);
@@ -16,7 +16,7 @@
     {#each dataSet as question }
         <questionbody>
             <code><u>#{question.id}</u></code>
-            <question-title>{question.title}</question-title>
+            <question-title>{question.question.title}</question-title>
                 {#if question.hasVoted }
                     <button class="resultsbutton" on:click={() => goto(`/questions/${question.id}`)}>
                         Резултати

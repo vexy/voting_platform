@@ -3,18 +3,17 @@
     import { onMount } from "svelte";
     import Contract from "$lib/Utilities";
     import QuestionsTable from "$lib/QuestionsTable.svelte";
-    import type { QuestionInfo } from "$lib/Models";
-    
-    let totalQuestions: number = 0;
-    let allQuestions: QuestionInfo[] = [];
-    let tableQuestions: QuestionInfo[] = [];
+    import type { QuestionInfoOutput } from "$lib/Models";
+    import { PlatformStore } from "$lib/UtilsStore";
+
+    let allQuestions: QuestionInfoOutput[] = [];
+    let tableQuestions: QuestionInfoOutput[] = [];
     //
     let searchTerm: string = "";
-    let questionsInSearch: QuestionInfo[] = [];
+    let questionsInSearch: QuestionInfoOutput[] = [];
 
     // get all questions and total count
-    onMount(async () => {
-        totalQuestions = await Contract.questionsCount();
+    onMount(async () => {;
         allQuestions = await Contract.getAllQuestions();
         tableQuestions = allQuestions;
     });
@@ -22,7 +21,7 @@
     function performSearch() {
         if (searchTerm.length > 0) {
             // filter out all the questions starting with searchTerm
-            questionsInSearch = allQuestions.filter((qInfo) => { return qInfo.title.includes(searchTerm) });
+            questionsInSearch = allQuestions.filter((qInfo) => { return qInfo.question.title.includes(searchTerm) });
             tableQuestions = questionsInSearch;
         } else {
             // clear questions in search and put back all questions
@@ -39,7 +38,7 @@
     </searchbar>
 
     <header-container>
-        <h2>Укупан број питања: <code>{totalQuestions}</code></h2>
+        <h2>Укупан број питања: <code>{$PlatformStore.totalQuestions}</code></h2>
         <button class="addquestion" on:click={() => goto("/newquestion")} >+ Додај ново питање</button>
     </header-container>
 

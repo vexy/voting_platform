@@ -1,7 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import MetamaskOnboarding from '@metamask/onboarding';
 import { ethers } from "ethers";
-import { hasMetamaskProvider, isProviderConnected } from "$lib/UtilsStore";
+import { PlatformStore } from "$lib/UtilsStore";
 
 // Static class used to perform basic provider tasks
 class ProviderCommons {
@@ -12,10 +12,10 @@ class ProviderCommons {
 
     static async startMetamaskCheck() {
         const response = await detectEthereumProvider();
-        if (response) { 
-            hasMetamaskProvider.set(true);
+        if (response) {
+            PlatformStore.metamaskDetected(true);
         } else {
-            hasMetamaskProvider.set(false);
+            PlatformStore.metamaskDetected(false);
         }
     }
 }
@@ -31,7 +31,7 @@ class ProviderServices {
 
     constructor() {
         this.signer = undefined;
-        console.log("ProviderServices initialized.");
+        console.log("<Provider> ProviderServices initialized.");
     }
 
     // MetaMask requires requesting permission to connect users accounts
@@ -41,13 +41,14 @@ class ProviderServices {
         if (response) {
             if(response.code != 4001) {
                 this.signer = _provider.getSigner();
-                hasMetamaskProvider.set(true);  //indirectly
-                isProviderConnected.set(true);
-                console.log("Connected to Metamask provider, state updated...");
+                PlatformStore.metamaskDetected(true);
+                PlatformStore.connect(true);
+
+                console.log("<Provider> Connected to Metamask provider, store updated...");
                 return Promise.resolve(true);
             } else {
-                isProviderConnected.set(false);
-                console.log("Error occured during Metamask connection. Reason: ");
+                PlatformStore.connect(true);
+                console.log("<Provider> Error occured during Metamask connection. Reason: ");
                 console.log(response.message); //user rejected the request
             }
         }
@@ -58,20 +59,21 @@ class ProviderServices {
     public connectLocally() {
         const _provider = new ethers.providers.JsonRpcProvider();
         this.signer = _provider.getSigner();
-        isProviderConnected.set(true);
-        console.log("Connected to localhost (JSONRPC) provider, state updated...");
+        PlatformStore.connect(true);
+        console.log("<Provider> Connected to localhost (JSONRPC) provider, state updated...");
     }
 
     public disconnect(): void {
-        isProviderConnected.set(false);
+        PlatformStore.connect(false);
     }
 
-    public isConnected(): boolean {
-        // signer object will be something else if there's a connection
-        return this.signer !== undefined;
-    }
+    // public isConnected(): boolean {
+    //     // signer object will be something if there's a connection
+    //     return this.signer !== undefined;
+    // }
 
     public fabricateContract(): ethers.Contract {
+        if(this.signer === undefined) { throw new Error("SignerDoesNotExist"); }
         return new ethers.Contract(PUBLIC_CONTRACT_ADDRESS, MainPlatform.abi, this.signer);
     }
 

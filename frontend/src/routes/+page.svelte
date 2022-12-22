@@ -3,29 +3,17 @@
     import { Provider, ProviderCommons } from "$lib/Provider";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import { hasMetamaskProvider, isProviderConnected, isRegisteredUser } from "$lib/UtilsStore";
-
-    let hasMetamask: boolean = false;
-    let isConnected: boolean = false;
-
-    hasMetamaskProvider.subscribe(newValue => {
-        hasMetamask = newValue;
-    });
-
-    isProviderConnected.subscribe(async (newValue) => {
-        isConnected = newValue;
-    });
-
-    isRegisteredUser.subscribe(nVal => {
-        // just refresh the content
-        isConnected = isConnected;
-    });
+    import { PlatformStore } from "$lib/UtilsStore";
 
     async function performRegistration() {
         // check if we've been previously registered
         const response = await Contract.registerNewUser()
         if (response) {
             alert("Успешно сте се пријавили на платформу !");
+            // update other platform fields
+            await Contract.questionsCount();
+            await Contract.totalUsers();
+            await Contract.getUserBalance();
             console.log("New user registered !");
             goto("/list");
         } else {
@@ -35,21 +23,26 @@
 
     // MetaMask requires requesting permission to connect users accounts
     async function connectMetamask() {
-        await Provider.connectToMetamask();
+        const success = await Provider.connectToMetamask();
+        if(success) {
+            // update other fields
+            await Contract.questionsCount();
+            await Contract.totalUsers();
+        }
     }
 
     onMount(async () => {
         await ProviderCommons.startMetamaskCheck();
-		console.log("Main page mounted...");
+        console.log("MainPage mounted, provider check completed.");
     });
 </script>
 
 <center-container>
     <h1>100 људи 100 ћуди</h1>
-    {#if hasMetamask}
-        {#if isConnected}
-            {#await Contract.isRegisteredUser() then isReg }
-                {#if isReg}
+    {#if $PlatformStore.hasMetamask}
+        {#if $PlatformStore.isConnected}
+            {#await Contract.isRegisteredUser() then success }
+                {#if success}
                     <button class="gradient_button" on:click={() => goto("/list")}>Погледај листу питања 🔍</button>
                 {:else}
                     <button class="gradient_button" on:click={performRegistration}>

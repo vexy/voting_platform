@@ -1,32 +1,12 @@
 <script lang="ts">
-    import { isProviderConnected, isRegisteredUser } from "$lib/UtilsStore";
-    import Contract from "$lib/Utilities";
-
-    let isConnected: boolean = false;
-    //
-    isProviderConnected.subscribe(newValue => {
-        isConnected = newValue;
-    });
-
-    isRegisteredUser.subscribe(nv => {
-        // trigger a manuall refresh upon registration flag change
-        isConnected = isConnected;
-    });
+    import { PlatformStore } from "$lib/UtilsStore";
 </script>
 
 <footer>
-    {#if isConnected}
-        {#await Contract.totalUsers()}
-            <i>Koмуникација у току...</i>
-        {:then totalUserNum} 
-            <div>Регистрованих корисника: <code>{totalUserNum}</code></div>
-        {/await}
+    {#if $PlatformStore.isConnected}
+        <div>Регистрованих корисника: <code>{$PlatformStore.totalUsers}</code></div>
         <div>Made with ❤️ in 🇷🇸</div>
-        {#await Contract.questionsCount()}
-            <i>Koмуникација у току...</i>
-        {:then count} 
-            <div>Број питања: <code>{count}</code></div>
-        {/await}
+        <div>Број питања: <code>{$PlatformStore.totalQuestions}</code></div>
     {:else}
         <code>public-beta v0.9</code>
         <div>Made with ❤️ in 🇷🇸</div>

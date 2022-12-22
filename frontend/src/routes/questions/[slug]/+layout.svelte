@@ -2,9 +2,9 @@
     import { onMount } from 'svelte';
     import { page } from "$app/stores";
     import Contract from '$lib/Utilities';
-    import { QuestionInfo } from '$lib/Models';
+    import { QuestionInfoOutput, QuestionMeta } from '$lib/Models';
 
-    let questionInfo: QuestionInfo = new QuestionInfo(0,"","",[],[],[],0,false);
+    let questionInfo: QuestionInfoOutput = new QuestionInfoOutput(0, new QuestionMeta("", "", [], [], []) , 0, false);
     let voteOptions: number[] = [0,1,2,3,4];
 
     let meterValues: number[] = [];
@@ -58,24 +58,24 @@
 </script>
 
 <container>
-    <h1>{questionInfo.title}</h1>
+    <h1>{questionInfo.question.title}</h1>
     <!-- <h3><code>- rezultati - </code></h3> -->
 
     <vote-panel>
         <vstack>
             {#if questionInfo.hasVoted}
                 <vstack>
-                    {#each questionInfo.labels as caption, index}
+                    {#each questionInfo.question.labels as caption, index}
                         <label for={caption}>{caption} ({meterValues[index]} %)</label>
                         <meter id={caption} min="0" max="100" low="30" high="75" optimum="80" value={meterValues[index]} />
                     {/each}
                 </vstack>
             {:else}
                 {#each voteOptions as option }
-                    {#if questionInfo.labels[option] !== undefined }
+                    {#if questionInfo.question.labels[option] !== undefined }
                         <hstack>
                             <input type="radio" name="voting-options" value={option}/>
-                            {questionInfo.labels[option]}
+                            {questionInfo.question.labels[option]}
                         </hstack>
                     {/if}
                 {/each}

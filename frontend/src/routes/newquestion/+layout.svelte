@@ -2,7 +2,6 @@
     // import Modal from "$lib/ModalDialog.svelte";
     import Contract from "$lib/Utilities";
     import { goto } from "$app/navigation";
-    import { isRegisteredUser } from "$lib/UtilsStore";
 
     let title: string = "";
     let labels: string[] = [];
@@ -15,9 +14,6 @@
             alert("Ново питање успешно сачувано !");
             title = "";
             labels = [];
-
-            // trigger a chain of refresh events
-            isRegisteredUser.set(true);
           } else {
             alert("Дошло је до грешке приликом чувања. Покушајте поново.");
           }

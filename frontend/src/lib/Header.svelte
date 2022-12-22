@@ -2,22 +2,11 @@
     import { goto } from "$app/navigation";
     import Contract from "$lib/Utilities";
     import { Provider } from "$lib/Provider";
-    import { hasMetamaskProvider, isProviderConnected, isRegisteredUser } from "./UtilsStore";
+    import { PlatformStore } from "./UtilsStore";
+    import { onMount } from "svelte";
 
-    let providerPresent: boolean = false;
-    let metamaskConnected: boolean = false;
-
-    hasMetamaskProvider.subscribe(newValue => {
-        providerPresent = newValue;
-    });
-
-    isProviderConnected.subscribe(newValue => {
-        metamaskConnected = newValue;
-    });
-
-    isRegisteredUser.subscribe(nv => {
-        // just trigger a refresh of the component manually
-        metamaskConnected = metamaskConnected;
+    onMount(async () => {
+        console.log("Header mounted.");
     });
 
     // MetaMask requires requesting permission to connect users accounts
@@ -29,25 +18,21 @@
 </script>
 
 <nav>
-    {#if providerPresent}
-        {#if metamaskConnected}
+    {#if $PlatformStore.hasMetamask}
+        {#if $PlatformStore.isConnected}
             <button on:click={disconnect}>
                 Прекини употребу
             </button>
-            {#await Contract.isRegisteredUser()}
-                <i>Комуникација са платформом...</i>
-            {:then success}
-                {#if success}
-                    {#await Contract.getUserBalance() then totalPoints}
-                        <div>Број поена: <code>{Number(totalPoints).toLocaleString()}</code></div>
-                    {/await}
-                    {#await Provider.signerAddress() then address}
-                        <div>Новчаник: <code>{address}</code></div>
-                    {/await}
-                {:else}
-                    <i>Регистрација у току...</i>
-                {/if}
-            {/await}
+            {#if $PlatformStore.isRegistered}
+                {#await Contract.getUserBalance() then totalPoints}
+                    <div>Број поена: <code>{Number(totalPoints).toLocaleString()}</code></div>
+                {/await}
+                {#await Provider.signerAddress() then address}
+                    <div>Новчаник: <code>{address}</code></div>
+                {/await}
+            {:else}
+                <div><i>Регистрyj се за детаље...</i></div>
+            {/if}
         {/if}
     {/if}
 </nav>

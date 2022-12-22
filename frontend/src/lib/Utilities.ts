@@ -1,14 +1,14 @@
 import { BigNumber, ethers } from "ethers";
-import { QuestionInfo } from './Models'
+import { QuestionInfoOutput } from './Models'
 import { Provider } from "./Provider";
-import { isRegisteredUser } from "$lib/UtilsStore";
+import { PlatformStore } from "./UtilsStore";
 
 class PlatformContract {
     private platformContract!: ethers.Contract;
 
     constructor() {
-        console.log("PlatformContract initialized");
-        this.prepareContract();
+        // this.prepareContract();
+        console.log("<Platform contract> initialized.");
     }
 
 //  --- PRIVATE HELPERS
@@ -16,19 +16,16 @@ class PlatformContract {
         return ethers.BigNumber.from(_bigNumber).toNumber();
     }
 
-    private prepareContract() {
-        // make sure we're connected
-        if(Provider.isConnected()) {
-            this.platformContract = Provider.fabricateContract();
-        }
-    }
-
 //  --- PLATFORM API IMP
     async totalUsers(): Promise<number> {
-        this.prepareContract();
         try {
+            this.platformContract = Provider.fabricateContract();
             const resultBN = await this.platformContract.totalUsers();
             const totalU = this.extractNumber(resultBN);
+
+            // inform store
+            PlatformStore.updateUserCount(totalU);
+
             return Promise.resolve(totalU);
         } catch (err) {
             console.log("Errored: ", err);
@@ -37,10 +34,11 @@ class PlatformContract {
     }
 
     async questionsCount(): Promise<number> {
-        this.prepareContract();
         try {
+            this.platformContract = Provider.fabricateContract();
             const response = await this.platformContract.totalQuestions();
             const totalQ = this.extractNumber(response);
+            PlatformStore.updateQuestionsCount(totalQ);
             return Promise.resolve(totalQ);
         } catch (err) {
             console.log("Errored: ", err);
@@ -49,10 +47,10 @@ class PlatformContract {
     }
 
     async getUserBalance(): Promise<number> {
-        this.prepareContract();
         try {
+            this.platformContract = Provider.fabricateContract();
             const _address = Provider.signerAddress();
-            const balanceBN = await this.platformContract.userBalance(_address);
+            const balanceBN = await this.platformContract.balanceOf(_address);
             const balance = this.extractNumber(balanceBN);
             return Promise.resolve(balance);
         } catch (err) {
@@ -62,31 +60,34 @@ class PlatformContract {
     }
 
     async isRegisteredUser(): Promise<boolean> {
-        this.prepareContract();
-
+        this.platformContract = Provider.fabricateContract();
         const response = await this.platformContract.isRegisteredUser();
+        // update the store on the fly
+        PlatformStore.registered(response);
         return Promise.resolve(response);
     }
 
-    /// Returns true if user successfully registrers
+    /// Returns true if user successfully registers
     async registerNewUser(): Promise<boolean> {
-        this.prepareContract();
         try {
-            console.log("Registering new user...");
+            this.platformContract = Provider.fabricateContract();
             await this.platformContract.register();
-            isRegisteredUser.set(true);
+            console.log("New user registered, informing store.");
+            // update the store on the fly
+            PlatformStore.registered(true);
             return Promise.resolve(true);
         } catch (err) {
-            ethers.logger.info("Error during registration. Reason: \n");
-            ethers.logger.info(err);
-            isRegisteredUser.set(false);
+            console.log("Error during registration. Reason:");
+            console.log(err);
         }
+
+        PlatformStore.registered(false);
         return Promise.reject(false);
     }
 
     async addNewQuestion(questionTitle: string, labels: string[]): Promise<boolean> {
-        this.prepareContract();
         try {
+            this.platformContract = Provider.fabricateContract();
             await this.platformContract.addQuestion(questionTitle, labels);
             return Promise.resolve(true);
         } catch (err) {
@@ -97,27 +98,25 @@ class PlatformContract {
         return Promise.reject(false);
     }
 
-    async getAllQuestions(): Promise<(QuestionInfo[])> {
-        this.prepareContract();
-        const returnSet: QuestionInfo[] = [];
+    async getAllQuestions(): Promise<(QuestionInfoOutput[])> {
+        const returnSet: QuestionInfoOutput[] = [];
 
         try {
-            const qInfoSet = await this.platformContract.getPlatformQuestions();
-            // console.log(qInfoSet);
+            this.platformContract = Provider.fabricateContract();
+            const qInfoArray = await this.platformContract.getAllQuestions();
+            console.log(qInfoArray);
             // const questionInfoArray = response[0];
-            for(const qInfo of qInfoSet) {
-                returnSet.push(new QuestionInfo(
-                    this.extractNumber(qInfo.id),
-                    qInfo.owner,
-                    qInfo.title,
-                    qInfo.labels,
-                    qInfo.scores,
-                    qInfo.extras,
+            for(const qInfo of qInfoArray) {
+                returnSet.push(new QuestionInfoOutput(
+                    qInfo.id,
+                    qInfo.question,
                     this.extractNumber(qInfo.totalVoters),
                     qInfo.hasVoted
                 ));
             }
 
+            // update questions count on the fly
+            PlatformStore.updateQuestionsCount(qInfoArray.length);
             return Promise.resolve(returnSet);
         } catch (err) {
             console.log("Getting questions errored");
@@ -127,10 +126,10 @@ class PlatformContract {
         return Promise.reject();
     }
 
-    async getQuestionInfo(id: number): Promise<QuestionInfo> {
-        this.prepareContract();
+    async getQuestionInfo(id: number): Promise<QuestionInfoOutput> {
         try{
-            const qInfo = await this.platformContract.getQuestionInfo(id);
+            this.platformContract = Provider.fabricateContract();
+            const qInfo: QuestionInfoOutput = await this.platformContract.getQuestionInfo(id);
             return Promise.resolve(qInfo);
         } catch (err) {
             console.log("Errored: ");
@@ -141,10 +140,10 @@ class PlatformContract {
     }
 
     async vote(questionID: number, score: number): Promise<boolean> {
-        this.prepareContract();
         try {
-            console.log(`Voting for ${questionID}, score: ${score}`);
+            this.platformContract = Provider.fabricateContract();
             await this.platformContract.vote(questionID, score);
+            console.log(`Successfull vote for ${questionID}, score: ${score}`);
             return Promise.resolve(true);
         } catch (e) {
             console.log("Error occured: ", e.reason);
@@ -154,9 +153,9 @@ class PlatformContract {
     }
 
     async provideExtra(questionID: number, extraScore: number): Promise<boolean> {
-        this.prepareContract();
         try {
-            await this.platformContract.extraVote(questionID, extraScore);
+            this.platformContract = Provider.fabricateContract();
+            await this.platformContract.voteExtra(questionID, extraScore);
             return Promise.resolve(true);
         } catch (e) {
             console.log("Error during providing extra options");
