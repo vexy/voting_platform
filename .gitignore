@@ -5,6 +5,9 @@ artifacts/
 typechain-types/
 /typechain-types/
 
+# env secrets
+.env
+
 # node modules
 node_modules/
 

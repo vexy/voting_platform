@@ -7,7 +7,8 @@ In order to fully run this platform, following is a list of pre-requisities:
 5. `MATIC` test token obtained from [Polygon faucet](https://faucet.polygon.technology/)
 6. MetaMask configured to `Mumbai` test-net
 
-MetaMask configuration: https://wiki.polygon.technology/docs/develop/metamask/config-polygon-on-metamask#add-the-polygon-network-manually
+MetaMask configuration: https://wiki.polygon.technology/docs/develop/metamask/config-polygon-on-metamask#add-the-polygon-network-manually  
+MumbaiFaucet (Alchemy): https://mumbaifaucet.com/
 
 Make sure that each step is taken care of as missing items may cause unexpected issues or failure to compile and build the platform.
 
