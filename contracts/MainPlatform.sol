@@ -116,6 +116,7 @@ contract MainPlatform {
     returns(QuestionInfoOutput memory) {
         // calculate QuestionInfoOutput for given questionID
         QuestionInfoOutput memory _output = QuestionInfoOutput(
+            questionID,
             platformQuestions[questionID].produceQuestionMeta(),
             questionTotalVoters[questionID],
             answeredQuestions[questionID][msg.sender]

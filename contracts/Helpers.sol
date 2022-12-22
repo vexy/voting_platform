@@ -23,6 +23,7 @@ struct QuestionMeta {
 }
 
 struct QuestionInfoOutput {
+    uint id;
     QuestionMeta question;
     uint totalVoters;
     bool hasVoted;

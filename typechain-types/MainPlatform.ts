@@ -53,16 +53,19 @@ export type QuestionMetaStructOutput = [
 };
 
 export type QuestionInfoOutputStruct = {
+  id: PromiseOrValue<BigNumberish>;
   question: QuestionMetaStruct;
   totalVoters: PromiseOrValue<BigNumberish>;
   hasVoted: PromiseOrValue<boolean>;
 };
 
 export type QuestionInfoOutputStructOutput = [
+  BigNumber,
   QuestionMetaStructOutput,
   BigNumber,
   boolean
 ] & {
+  id: BigNumber;
   question: QuestionMetaStructOutput;
   totalVoters: BigNumber;
   hasVoted: boolean;
