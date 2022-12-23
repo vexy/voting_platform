@@ -29,6 +29,9 @@ Following is the set of supported features:
     - report inapropriate content
   - vote for specific options
 
+!["Platform_sample"](/sample2.png)
+!["Platform_sample"](/sample2.png)
+
 ### Deployment info
 Checkout [deployment details](DEPLOYMENTS.md) for more instructions.
 
