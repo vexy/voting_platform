@@ -8,7 +8,6 @@ In order to fully run this platform, following is a list of pre-requisities:
 6. MetaMask configured to `Mumbai` test-net
 
 MetaMask configuration: https://wiki.polygon.technology/docs/develop/metamask/config-polygon-on-metamask#add-the-polygon-network-manually  
-MumbaiFaucet (Alchemy): https://mumbaifaucet.com/
 
 Make sure that each step is taken care of as missing items may cause unexpected issues or failure to compile and build the platform.
 
@@ -33,7 +32,6 @@ npm install --save-dev @nomicfoundation/hardhat-toolbox
 
 Finally, you can check if everything works well by typing:
 ```
-npx hardhat compile
 npx hardhat run scripts/deploy.ts --network polygon    # may change in future
 ```
 
@@ -42,12 +40,16 @@ npx hardhat run scripts/deploy.ts --network polygon    # may change in future
 Checkout open [issues](https://github.com/vexy/simple_voting/issues) or open another one if you run into trouble.
 
 ### Main net deployment info
-Check the [`/scripts`](/scripts/) folder for more nerdy information.
-
-> _Main-net **deployment comming soon**_
+> _Main-net deployment will be configured soon..._
 
 ### TestNet deployment info
-**Valid address** is needed to sign deployment of the contracts.  
+So far `MainPlatform` contract has been deployed to the following:
+|Network name|Deployment parameter|Contract address|
+|-|-|-|
+|Polygon Mumbai (Polygonscan)|`--network polygon-mumbai`|`0x8FF5f9Fa43bb9201902E091902Df80BC1b1EAFe4` and `0x0D9abe98233ECaAC3a2f0E3a229dc9268825FC54`|
+|Polygon Mymbai (Alchemy)|`--network alchemy_polygon_mumbai`|`0x922242c7124752B620b5E87D7c19A93CfD3C22dC`|
+
+MumbaiFaucet (Alchemy): https://mumbaifaucet.com/
 
 Test-net configuration parameters
 
@@ -62,7 +64,6 @@ Test-net configuration parameters
 |MetaMask configuration| _scroll to the bottom of the page and spot "Add Mumbai Network"_. URL: https://matic-mumbai.chainstacklabs.com|
 
 ## Deployment testing
-(_ADD HARDHAT test-deploy task_)
 Before deploying to the main-net, make sure you've `compiled` and `tested` entire contract suite.
 ```
 npx hardhat compile

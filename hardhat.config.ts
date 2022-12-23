@@ -1,5 +1,10 @@
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+const { API_KEY, PRIVATE_KEY, ALCHEMY_API_KEY } = process.env;
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -14,14 +19,21 @@ const config: HardhatUserConfig = {
       }
     }
   },
-  // defaultNetwork: "mumbai", //used for testing
+  defaultNetwork: "matic", //used for testing
   networks: {
     hardhat: {},
-    // mumbai: {
-    //   url: "some.url.goes.here",
-    //   accounts: ["some.accounts.go.here"]
-    // }
-  }
+    polygon_mumbai: {
+      url: "https://rpc-mumbai.maticvigil.com",
+      accounts: [`0x${PRIVATE_KEY}`]
+    },
+    alchemy_polygon_mumbai: {
+      url: ALCHEMY_API_KEY,
+      accounts: [`0x${PRIVATE_KEY}`]
+    }
+  },
+  etherscan: {
+    apiKey: API_KEY
+  },
 };
 
 task("accounts", "Prints the list of available accounts", async (taskArgs, hre) => {
@@ -33,12 +45,6 @@ task("accounts", "Prints the list of available accounts", async (taskArgs, hre) 
     const etherBalance = hre.ethers.utils.formatEther(weiBalance);
     console.log(`Address: ${account.address}, ballance: ${etherBalance} ETH (${weiBalance} wei)`);
   }
-});
-
-task("dpl", "Deploys contracts using specified address")
-  .addParam("address", "Address to use during deployment")
-  .setAction(async(taskArgs) => {
-    console.log("Hello, everything will be deployed using: ", taskArgs.address);
 });
 
 export default config;
