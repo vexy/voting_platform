@@ -8,7 +8,7 @@
         <div>Made with ❤️ in 🇷🇸</div>
         <div>Број питања: <code>{$PlatformStore.totalQuestions}</code></div>
     {:else}
-        <code>public-beta v0.9</code>
+        <code>Version: 1.0</code>
         <div>Made with ❤️ in 🇷🇸</div>
     {/if}
 </footer>
@@ -24,7 +24,7 @@
     }
 
     footer div {
-        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         font-size: 12px;
         color: #140773;
         /* padding-right: 15px; */

@@ -3,16 +3,15 @@
     import Contract from "$lib/Utilities";
     import { Provider } from "$lib/Provider";
     import { PlatformStore } from "./UtilsStore";
-    import { onMount } from "svelte";
+    // import { onMount } from "svelte";
 
-    onMount(async () => {
-        console.log("Header mounted.");
-    });
+    // onMount(async () => {
+    //     console.log("Header mounted.");
+    // });
 
     // MetaMask requires requesting permission to connect users accounts
     async function disconnect() {
         Provider.disconnect();
-        console.log("Disconnected... Going back to the root.");
         goto("/");  //go back to root
     }
 </script>
@@ -31,7 +30,7 @@
                     <div>Новчаник: <code>{address}</code></div>
                 {/await}
             {:else}
-                <div><i>Регистрyj се за детаље...</i></div>
+                <div><i>Регистрyj се за детаље</i></div>
             {/if}
         {/if}
     {/if}
@@ -48,7 +47,7 @@
     }
 
     div {
-        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         font-size: small;
         margin: 10px;
     }
