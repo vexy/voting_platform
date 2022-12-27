@@ -1,3 +1,8 @@
+<svelte:head>
+    <title>Welcome to Infoportal.app</title>
+    <meta name="description" content="Infoportal.app place to publish your questions, answers, thouts and opinions. Blochain based." />
+</svelte:head>
+
 <script lang="ts">
     import Contract from "$lib/Utilities";
     import { Provider, ProviderCommons } from "$lib/Provider";
@@ -10,15 +15,19 @@
         const response = await Contract.registerNewUser()
         if (response) {
             alert("Успешно сте се пријавили на платформу !");
-            // update other platform fields
-            await Contract.questionsCount();
-            await Contract.totalUsers();
-            await Contract.getUserBalance();
             console.log("New user registered !");
+            // update other platform fields
+            fetchPlatformInfo();
             goto("/list");
         } else {
             alert("Дошло је до грешке приликом регистрације. Покушајте поново.");
         }
+    }
+
+    async function fetchPlatformInfo() {
+        await Contract.questionsCount();
+        await Contract.totalUsers();
+        await Contract.getUserBalance();
     }
 
     // MetaMask requires requesting permission to connect users accounts
@@ -50,7 +59,7 @@
                     </button>
                     <div>
                         <p>За употребу платформе, потребни су <code>MATIC tokeni</code></p>
-                        <p>Тест токене за <i>Mumbai</i> мрежу можете <a href="https://faucet.polygon.technology/" target="_blank">набавити овде</a></p>
+                        <p>Тест токене за <i>Mumbai</i> мрежу можете <a href="https://faucet.polygon.technology/" target="_blank" rel="noreferrer">набавити овде</a></p>
                     </div>
                 {/if}
             {/await}
@@ -64,7 +73,7 @@
         <button on:click={ProviderCommons.beginMetamaskOnboarding}>
             Инсталирај MetaMask
         </button>
-        <code>За употребу платформе, потребно је инсталирати <a href="https://metamask.io/" target="_blank">MetaMask</a></code>
+        <code>За употребу платформе, потребно је инсталирати <a href="https://metamask.io/" target="_blank" rel="noreferrer">MetaMask</a></code>
     {/if}
 </center-container>
 
