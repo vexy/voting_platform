@@ -6,9 +6,12 @@
 <script lang="ts">
     import Contract from "$lib/Utilities";
     import { Provider, ProviderCommons } from "$lib/Provider";
+    import { PlatformStore } from "$lib/UtilsStore";
+    import EasyConfigPanel from "$lib/EasyConfigPanel.svelte";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import { PlatformStore } from "$lib/UtilsStore";
+
+    let usersCount: number = 0;
 
     async function performRegistration() {
         // check if we've been previously registered
@@ -26,7 +29,7 @@
 
     async function fetchPlatformInfo() {
         await Contract.questionsCount();
-        await Contract.totalUsers();
+        usersCount = await Contract.totalUsers();
         await Contract.getUserBalance();
     }
 
@@ -35,45 +38,51 @@
         const success = await Provider.connectToMetamask();
         if(success) {
             // update other fields
-            await Contract.questionsCount();
+            usersCount = await Contract.questionsCount();
             await Contract.totalUsers();
         }
     }
 
     onMount(async () => {
         await ProviderCommons.startMetamaskCheck();
-        console.log("MainPage mounted, provider check completed.");
+        // console.log("MainPage mounted, provider check completed.");
     });
 </script>
 
 <center-container>
-    <h1>100 људи 100 ћуди</h1>
+    <h1>100 људи 100 ћуди</h1><br>
+
     {#if $PlatformStore.hasMetamask}
         {#if $PlatformStore.isConnected}
             {#await Contract.isRegisteredUser() then success }
                 {#if success}
-                    <button class="gradient_button" on:click={() => goto("/list")}>Погледај листу питања 🔍</button>
+                    <button class="gradient-button" on:click={() => goto("/list")}>Погледај листу питања 🔍</button>
                 {:else}
-                    <button class="gradient_button" on:click={performRegistration}>
+                    <button class="gradient-button" on:click={performRegistration}>
                         Хоћу и ја ✌️
                     </button>
                     <div>
-                        <p>За употребу платформе, потребни су <code>MATIC tokeni</code></p>
-                        <p>Тест токене за <i>Mumbai</i> мрежу можете <a href="https://faucet.polygon.technology/" target="_blank" rel="noreferrer">набавити овде</a></p>
+                        <p>Регистровани корисникa: {usersCount}</p>
                     </div>
                 {/if}
             {/await}
         {:else}
-            <button on:click={connectMetamask}>
+            <!-- <code>За почетак употребе, повежите Ваш <i>MetaMask</i> новчаник...</code> -->
+            <button class="metamask-button" on:click={connectMetamask}>
                 Повежи MetaMask
             </button>
             <code>За почетак употребе, повежите Ваш <i>MetaMask</i> новчаник...</code>
         {/if}
+        
+        <!-- SECTION FOR CONFIGURING  -->
+        <EasyConfigPanel />
     {:else}
-        <button on:click={ProviderCommons.beginMetamaskOnboarding}>
+        <button class="metamask-button" on:click={ProviderCommons.beginMetamaskOnboarding}>
             Инсталирај MetaMask
         </button>
         <code>За употребу платформе, потребно је инсталирати <a href="https://metamask.io/" target="_blank" rel="noreferrer">MetaMask</a></code>
+
+        <!-- READ MORE BUTTON  -->
     {/if}
 </center-container>
 
@@ -107,7 +116,7 @@
         color: #4d4f81;
     }
 
-    button {
+    .metamask-button {
         min-width: 130px;
         height: 35px;
         color: #fff;
@@ -121,12 +130,12 @@
         margin: 2px 5px 5px 15px;
     }
 
-    button:hover {
+    .metamask-button:hover {
         background-position: right center;
         padding: 5px 10px;
     }
 
-    .gradient_button {
+    .gradient-button {
         min-width: 130px;
         height: 40px;
         color: #fff;
@@ -140,12 +149,12 @@
         background-size: 120% auto;
         background-image: linear-gradient(315deg, #43cea2 0%, #185a9d 75%);
     }
-    .gradient_button:hover {
+    .gradient-button:hover {
         background-position: right center;
         color: #fff9;
         font-weight: initial;
     }
-    .gradient_button:active {
+    .gradient-button:active {
         top: 2px;
     }
 </style>

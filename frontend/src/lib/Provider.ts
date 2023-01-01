@@ -26,6 +26,20 @@ export { ProviderCommons };
 import { PUBLIC_CONTRACT_ADDRESS } from '$env/static/public';
 import  MainPlatform from '../MainPlatform.json';
 
+// Mumbai network parameters (rework if needed, or read from ENV)
+const mumbaiNetworkParams = {
+    chainId: '0x13881',     // hex of 8001
+    chainName: 'Mumbai Polygon',
+    rpcUrls: ['https://matic-mumbai.chainstacklabs.com'],
+    blockExplorerUrls: ['https://mumbai.polygonscan.com/'],
+
+    nativeCurrency: {
+      name: 'MATIC',
+      symbol: 'MATIC', // 2-6 characters long
+      decimals: 18,
+    },
+};
+
 class ProviderServices {
     private signer?: ethers.providers.JsonRpcSigner;
 
@@ -44,13 +58,40 @@ class ProviderServices {
                 PlatformStore.metamaskDetected(true);
                 PlatformStore.connect(true);
 
-                console.log("<Provider> Connected to Metamask provider, store updated...");
+                // console.log("<Provider> Connected to Metamask provider, store updated...");
                 return Promise.resolve(true);
             } else {
                 PlatformStore.connect(true);
                 console.log("<Provider> Error occured during Metamask connection. Reason: ");
                 console.log(response.message); //user rejected the request
             }
+        }
+
+        return Promise.reject();
+    }
+
+    public async configureMumbaiNetwork(): Promise<boolean> {
+        try {
+            // first, add mumbai network
+            const response = await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [ mumbaiNetworkParams ]
+            });
+            console.log(response);
+      
+            // everything is okay, try to switch the networks
+            // console.log("Mumbai network already added, trying to switch to it...");
+            const switchResponse = await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: mumbaiNetworkParams.chainId }],
+            });
+            console.log(switchResponse);
+
+            // console.log("Mumbai network already in place");
+            return Promise.resolve(true);
+        } catch (err) {
+            console.log("Error during network process:");
+            console.log(err);
         }
 
         return Promise.reject();
