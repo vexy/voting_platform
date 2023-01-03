@@ -62,7 +62,7 @@
         {#if questionInfo.hasVoted}
             <vstack>
                 {#each questionInfo.question.labels as caption, index}
-                    <label for={caption}>{caption} ({meterValues[index]} %)</label>
+                    <label for={caption}>{caption} ({meterValues[index].toFixed(1)} %)</label>
                     <meter id={caption} min="0" max="100" low="30" high="75" optimum="80" value={meterValues[index]} />
                 {/each}
             </vstack>
@@ -80,15 +80,15 @@
     <vstack>
         {#if questionInfo.hasVoted}
             <vstack>
-                <label for="none">Ништа од наведеног ({extrasMeterValues[0]}%)</label>
+                <label for="none">Ништа од наведеног ({extrasMeterValues[0].toFixed(1)}%)</label>
                 <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[0]} />
             </vstack>
             <vstack>
-                <label for="none">Питање није довољно јасно ({extrasMeterValues[1]}%)</label>
+                <label for="none">Питање није довољно јасно ({extrasMeterValues[1].toFixed(1)}%)</label>
                 <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[1]} />
             </vstack>
             <vstack>
-                <label for="none">Не адекватно питање ({extrasMeterValues[2]}%)</label>
+                <label for="none">Не адекватно питање ({extrasMeterValues[2].toFixed(1)}%)</label>
                 <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[2]} />
             </vstack>
         {:else}
