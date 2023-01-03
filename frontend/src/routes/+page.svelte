@@ -38,8 +38,8 @@
         const success = await Provider.connectToMetamask();
         if(success) {
             // update other fields
-            usersCount = await Contract.questionsCount();
-            await Contract.totalUsers();
+            await Contract.questionsCount();
+            usersCount = await Contract.totalUsers();
         }
     }
 
@@ -72,10 +72,10 @@
                 Повежи MetaMask
             </button>
             <code>За почетак употребе, повежите Ваш <i>MetaMask</i> новчаник...</code>
+
+            <!-- SECTION FOR CONFIGURING  -->
+            <EasyConfigPanel />
         {/if}
-        
-        <!-- SECTION FOR CONFIGURING  -->
-        <EasyConfigPanel />
     {:else}
         <button class="metamask-button" on:click={ProviderCommons.beginMetamaskOnboarding}>
             Инсталирај MetaMask

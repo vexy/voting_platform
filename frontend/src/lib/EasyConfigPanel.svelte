@@ -2,14 +2,17 @@
     import { Provider } from "$lib/Provider";
 
     async function configureMumbai() {
-        const response = await Provider.configureMumbaiNetwork();
-        if(response) {
-            console.log("Mumbai network successfully added.");
+        try {
+            await Provider.configureMumbaiNetwork();
+            alert("Mumbai мрежа је успешно додата !");
+            // window.location.reload();
+        } catch(e) {
+            console.log("Errored: ", e);
         }
     }
 
     async function getTestMATIC() {
-        window.open('https://mumbaifaucet.com/', '_blank', 'noreferrer');
+        window.open('https://faucet.polygon.technology/', '_blank', 'noreferrer');
     }
 </script>
 
@@ -27,6 +30,9 @@
     <p>У колико нисте, додајте <i>Mumbai мрежу</i> у Ваш MetaMask.</p>
     <p>За употребу платформе, потребно је набавити <code>MATIC</code> токене</p>
 </div>
+
+<!-- ADD READ MORE HERE -->
+<!-- <button class="gradient-button">САЗНАЈ ВИШЕ</button> -->
 
 <style>
     div {

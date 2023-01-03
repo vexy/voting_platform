@@ -104,7 +104,7 @@ class PlatformContract {
         try {
             this.platformContract = Provider.fabricateContract();
             const qInfoArray = await this.platformContract.getAllQuestions();
-            console.log(qInfoArray);
+            // console.log(qInfoArray);
             // const questionInfoArray = response[0];
             for(const qInfo of qInfoArray) {
                 returnSet.push(new QuestionInfoOutput(
