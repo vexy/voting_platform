@@ -1,3 +1,8 @@
+<svelte:head>
+    <title>Infoportal.app | Home</title>
+    <meta name="description" content="Infoportal.app place to publish your questions, answers, thouts and opinions. Blochain based." />
+</svelte:head>
+
 <script lang="ts">
 	import Header from "$lib/Header.svelte";
 	import Footer from "$lib/Footer.svelte";

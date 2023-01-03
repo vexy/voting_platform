@@ -1,8 +1,3 @@
-<svelte:head>
-    <title>Welcome to Infoportal.app</title>
-    <meta name="description" content="Infoportal.app place to publish your questions, answers, thouts and opinions. Blochain based." />
-</svelte:head>
-
 <script lang="ts">
     import Contract from "$lib/Utilities";
     import { Provider, ProviderCommons } from "$lib/Provider";
@@ -20,17 +15,17 @@
             alert("Успешно сте се пријавили на платформу !");
             console.log("New user registered !");
             // update other platform fields
-            fetchPlatformInfo();
+            fetchPlatformInfo(true);
             goto("/list");
         } else {
             alert("Дошло је до грешке приликом регистрације. Покушајте поново.");
         }
     }
 
-    async function fetchPlatformInfo() {
+    async function fetchPlatformInfo(fetchBalance?: boolean) {
         await Contract.questionsCount();
         usersCount = await Contract.totalUsers();
-        await Contract.getUserBalance();
+        if(fetchBalance) { await Contract.getUserBalance(); }
     }
 
     // MetaMask requires requesting permission to connect users accounts
@@ -38,8 +33,7 @@
         const success = await Provider.connectToMetamask();
         if(success) {
             // update other fields
-            await Contract.questionsCount();
-            usersCount = await Contract.totalUsers();
+            fetchPlatformInfo();
         }
     }
 
