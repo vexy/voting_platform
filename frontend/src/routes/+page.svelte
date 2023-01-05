@@ -3,6 +3,7 @@
     import { Provider, ProviderCommons } from "$lib/Provider";
     import { PlatformStore } from "$lib/UtilsStore";
     import EasyConfigPanel from "$lib/EasyConfigPanel.svelte";
+    import Instructions from "$lib/Instructions.svelte"
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
 
@@ -44,7 +45,7 @@
 </script>
 
 <center-container>
-    <h1>100 људи 100 ћуди</h1><br>
+    <h1>100 људи 100 ћуди</h1>
 
     {#if $PlatformStore.hasMetamask}
         {#if $PlatformStore.isConnected}
@@ -55,9 +56,7 @@
                     <button class="gradient-button" on:click={performRegistration}>
                         Хоћу и ја ✌️
                     </button>
-                    <div>
-                        <p>Регистровани корисникa: {usersCount}</p>
-                    </div>
+                    <p>Регистровани корисникa: {usersCount}</p>
                 {/if}
             {/await}
         {:else}
@@ -71,11 +70,7 @@
             <EasyConfigPanel />
         {/if}
     {:else}
-        <button class="metamask-button" on:click={ProviderCommons.beginMetamaskOnboarding}>
-            Инсталирај MetaMask
-        </button>
-        <code>За употребу платформе, потребно је инсталирати <a href="https://metamask.io/" target="_blank" rel="noreferrer">MetaMask</a></code>
-
+        <Instructions />
         <!-- READ MORE BUTTON  -->
     {/if}
 </center-container>
@@ -98,16 +93,6 @@
         font-weight: bolder;
         color: #ffdd;
         transition: all 0.2s ease-out;
-    }
-
-    div {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        font-size: 15px;
-        color: #4d4fb1;
-    }
-
-    div:hover {
-        color: #4d4f81;
     }
 
     .metamask-button {
