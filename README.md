@@ -1,6 +1,6 @@
 <div align="center">
   <i>PLEASE NOTE: <b>PROJECT IS IN PUBLIC BETA TEST STAGE</b></i>
-  <p><b>Live preview available at:<b> <a href="https://infoportal.app">https://infoportal.app</a></p>
+  <p><b>Live preview available at:</b> <a href="https://infoportal.app">https://infoportal.app</a></p>
 </div>
 
 !["Platform_sample"](/sample.png)
