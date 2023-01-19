@@ -1,8 +1,9 @@
-<div align="center"><i>PLEASE NOTE: <b>PROJECT IS IN BETA TEST STAGE</b></i><br><br></div>
+<div align="center">
+  <i>PLEASE NOTE: <b>PROJECT IS IN PUBLIC BETA TEST STAGE</b></i>
+  <p><b>Live preview available at:<b> <a href="https://infoportal.app">https://infoportal.app</a></p>
+</div>
 
 !["Platform_sample"](/sample.png)
-
-**Live preview available at:** https://infoportal.app  
 
 # Simple Voting platform
 This is an example of blockchain based voting platform consisting of following components:
@@ -12,7 +13,7 @@ This is an example of blockchain based voting platform consisting of following c
 |Component|Version|
 |-|-|
 |`contracts`|`1.5 test-net`|
-|`frontend`|`0.95`|
+|`frontend`|`1.1`|
 
 [![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
 

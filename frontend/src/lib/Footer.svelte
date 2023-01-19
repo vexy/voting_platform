@@ -4,11 +4,11 @@
 
 <footer>
     {#if $PlatformStore.isConnected}
-        <div>Регистрованих корисника: <code>{$PlatformStore.totalUsers}</code></div>
         <div>Made with ❤️ in 🇷🇸</div>
+        <div>Регистрованих корисника: <code>{$PlatformStore.totalUsers}</code></div>
         <div>Број питања: <code>{$PlatformStore.totalQuestions}</code></div>
     {:else}
-        <code>Version: 1.0</code>
+        <code>Version: 1.1</code>
         <div>Made with ❤️ in 🇷🇸</div>
     {/if}
 </footer>
