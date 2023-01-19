@@ -72,7 +72,6 @@ class PlatformContract {
         try {
             this.platformContract = Provider.fabricateContract();
             await this.platformContract.register();
-            console.log("New user registered, informing store.");
             // update the store on the fly
             PlatformStore.registered(true);
             return Promise.resolve(true);
@@ -88,8 +87,15 @@ class PlatformContract {
     async addNewQuestion(questionTitle: string, labels: string[]): Promise<boolean> {
         try {
             this.platformContract = Provider.fabricateContract();
-            await this.platformContract.addQuestion(questionTitle, labels);
-            return Promise.resolve(true);
+            const addQResponse = await this.platformContract.addQuestion(questionTitle, labels);
+
+            // await for response receipt and examine confirmations
+            const receipt = await addQResponse.wait()
+            // console.log(receipt);
+            if(receipt.status === 1) {  // check if we're successfull
+                // console.log("Question added, hash: ", receipt.transactionHash);
+                return Promise.resolve(true);
+            } // otherwise, fallthrough and reject
         } catch (err) {
             console.log("Creating new question errored. Reason:");
             console.log(err);
@@ -104,9 +110,9 @@ class PlatformContract {
         try {
             this.platformContract = Provider.fabricateContract();
             const qInfoArray = await this.platformContract.getAllQuestions();
-            // console.log(qInfoArray);
-            // const questionInfoArray = response[0];
+            //
             for(const qInfo of qInfoArray) {
+                // construct new questioninfo objects
                 returnSet.push(new QuestionInfoOutput(
                     qInfo.id,
                     qInfo.question,
@@ -142,9 +148,14 @@ class PlatformContract {
     async vote(questionID: number, score: number): Promise<boolean> {
         try {
             this.platformContract = Provider.fabricateContract();
-            await this.platformContract.vote(questionID, score);
-            console.log(`Successfull vote for ${questionID}, score: ${score}`);
-            return Promise.resolve(true);
+            const voteResult = await this.platformContract.vote(questionID, score);
+            //
+            //wait for confirmations
+            const receipt = await voteResult.wait();
+            if(receipt.status === 1) {
+                console.log("Vote successfull. Receipt hash: ", receipt.transactionHash);
+                return Promise.resolve(true);
+            }
         } catch (e) {
             console.log("Error occured: ", e.reason);
         }
@@ -155,8 +166,14 @@ class PlatformContract {
     async provideExtra(questionID: number, extraScore: number): Promise<boolean> {
         try {
             this.platformContract = Provider.fabricateContract();
-            await this.platformContract.voteExtra(questionID, extraScore);
-            return Promise.resolve(true);
+            const voteResult = await this.platformContract.voteExtra(questionID, extraScore);
+
+            // wait for confirmations
+            const receipt = await voteResult.wait();
+            if(receipt.status === 1) {
+                console.log("Vote successfull. Receipt hash: ", receipt.transactionHash);
+                return Promise.resolve(true);
+            }
         } catch (e) {
             console.log("Error during providing extra options");
         }

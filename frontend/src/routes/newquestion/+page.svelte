@@ -1,23 +1,32 @@
 <script lang="ts">
-    // import Modal from "$lib/ModalDialog.svelte";
+    import Loader from "$lib/Loader.svelte";
     import Contract from "$lib/Utilities";
     import { goto } from "$app/navigation";
+
+    // loading flag...
+    let isLoading = false;
 
     let title: string = "";
     let labels: string[] = [];
 
-    function saveQuestion() {
+    async function saveQuestion() {
       // check inputs
       if (userInputsAreFine()) {
-        Contract.addNewQuestion(title, labels).then( (result: boolean) => {
-          if (result) {
+        try {
+          isLoading = true;
+          const success = await Contract.addNewQuestion(title, labels);
+
+          if(success) {
             alert("Ново питање успешно сачувано !");
             title = "";
             labels = [];
-          } else {
-            alert("Дошло је до грешке приликом чувања. Покушајте поново.");
           }
-        });
+        } catch (err) {
+          alert("Дошло је до грешке приликом чувања. Покушајте поново.");
+        }
+
+        // in any case, as a last step, stop the loader
+        isLoading = false;
       } else {
         alert("Питање мора садржати наслов и барем 2 понуђена одговора.");
       }
@@ -35,11 +44,12 @@
     }
 </script>
 
-<button on:click={() => goto("/list")} >Nazad</button>
+<centered>
+  <button class="save-button" on:click={() => goto('/list')}>Назад</button>
+</centered>
 <h1>Поставите Ваше питање</h1>
 
-<title-inputs>
-    <!-- <label for="title">Naslov pitanja</label> -->
+<new-question-frame>
     <input 
     bind:value={title}
     type="text"
@@ -113,21 +123,31 @@
         required
         >
     </div>
-    <button class="save-button" on:click={saveQuestion}>Сачувај</button>
+</new-question-frame>
 
-    <!-- <Modal>
-        <div slot="trigger" let:open>
-        <button on:click={saveQuestion} class="sky-button">Сачувај</button>
-        </div>
-    </Modal> -->
-</title-inputs>
+<centered>
+  {#if isLoading}
+    <Loader message="Комуникација са blockchain мрежом..."/>
+  {:else}
+    <button class="save-button" on:click={saveQuestion}>Сачувај</button>
+  {/if}
+</centered>
 
 <style>
-    title-inputs {
-        display: flex;
-        flex-direction:  column;
-        gap: 12.5px;
-        justify-content: space-around;
+    centered {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      padding: 5px;
+    }
+
+    new-question-frame {
+      display: flex;
+      flex-direction:  column;
+      gap: 12.5px;
+      justify-content: space-around;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .title-input {
@@ -138,6 +158,7 @@
       margin-bottom: 25px;
       border: 1px solid #eee;
       font-size: medium;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .label-input {
@@ -148,6 +169,7 @@
       border-bottom: 1px solid;
       box-shadow: 0 0 15px 4px rgba(0,0,0,0.06);
       background-color: inherit;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .save-button {
@@ -176,5 +198,5 @@
     .save-button:active {
       box-shadow: 0 0 #4433ff;
       top: 5px;
-    }
+    }    
 </style>

@@ -52,6 +52,7 @@
             {#await Contract.isRegisteredUser() then success }
                 {#if success}
                     <button class="gradient-button" on:click={() => goto("/list")}>Погледај листу питања 🔍</button>
+                    <p>Број постављених питања: {$PlatformStore.totalQuestions}</p>
                 {:else}
                     <button class="gradient-button" on:click={performRegistration}>
                         Хоћу и ја ✌️
@@ -82,10 +83,10 @@
         align-self: center;
         text-align: center;
         gap: 5px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     h1 {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         color: #185a9d;
     }
 

@@ -1,6 +1,6 @@
 <script lang="ts">
     async function checkTutorials() {
-        window.open('https://infoport.app/uputstva', '_blank', 'noreferrer');
+        window.open('https://youtu.be/pff3fzqF6v0', '_blank', 'noreferrer');
     }
 </script>
 
@@ -9,7 +9,7 @@
     <button class="instructions" on:click={checkTutorials}>
         Упутства за приступање
     </button>
-    <p>За више детаља, погледајте упутства за приступање платформи.</p>
+    <p>За више детаља, погледајте видео упутства за приступање платформи...</p>
 </container>
 
 <style>

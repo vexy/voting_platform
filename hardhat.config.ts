@@ -19,7 +19,7 @@ const config: HardhatUserConfig = {
       }
     }
   },
-  defaultNetwork: "matic", //used for testing
+  defaultNetwork: "hardhat", //used for testing
   networks: {
     hardhat: {},
     polygon_mumbai: {
