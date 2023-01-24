@@ -23,20 +23,28 @@ class ProviderCommons {
 export { ProviderCommons };
 
 //--
-import { PUBLIC_CONTRACT_ADDRESS } from '$env/static/public';
+import { 
+    PUBLIC_CONTRACT_ADDRESS,
+    PUBLIC_CHAIN_ID,
+    PUBLIC_CHAIN_NAME,
+    PUBLIC_RPC_URL,
+    PUBLIC_EXPLORER,
+    PUBLIC_SYMBOL,
+    PUBLIC_DECIMALS
+} from '$env/static/public';
 import  MainPlatform from '../MainPlatform.json';
 
 // Mumbai network parameters (rework if needed, or read from ENV)
 const mumbaiNetworkParams = {
-    chainId: '0x13881',     // hex of 80001
-    chainName: 'Polygon Mumbai',
-    rpcUrls: ['https://matic-mumbai.chainstacklabs.com'],
-    blockExplorerUrls: ['https://mumbai.polygonscan.com/'],
+    chainId: PUBLIC_CHAIN_ID,  //PUBLIC_CHAIN_ID,
+    chainName: PUBLIC_CHAIN_NAME,
+    rpcUrls: [PUBLIC_RPC_URL],
+    blockExplorerUrls: [PUBLIC_EXPLORER],
 
     nativeCurrency: {
-      name: 'MATIC',
-      symbol: 'MATIC', // 2-6 characters long
-      decimals: 18,
+      name: PUBLIC_SYMBOL,
+      symbol: PUBLIC_SYMBOL,
+      decimals: PUBLIC_DECIMALS,
     },
 };
 
@@ -109,11 +117,6 @@ class ProviderServices {
     public disconnect(): void {
         PlatformStore.connect(false);
     }
-
-    // public isConnected(): boolean {
-    //     // signer object will be something if there's a connection
-    //     return this.signer !== undefined;
-    // }
 
     public fabricateContract(): ethers.Contract {
         if(this.signer === undefined) { throw new Error("SignerDoesNotExist"); }
