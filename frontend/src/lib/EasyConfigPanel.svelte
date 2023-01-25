@@ -1,58 +1,64 @@
 <script lang="ts">
-    import { Provider } from "$lib/Provider";
+    import { ProviderCommons } from "$lib/Provider";
+
+    // define static assets
+    const metamask_logo = new URL('./assets/metamask.svg', import.meta.url).href
+    const polygon_logo = new URL('./assets/polygon.png', import.meta.url).href
+
+    let isExpanded: boolean = false;
 
     async function configureMumbai() {
         try {
-            await Provider.configureMumbaiNetwork();
+            await ProviderCommons.configureMumbaiNetwork();
             alert("Mumbai мрежа је успешно додата !");
             // window.location.reload();
         } catch(e) {
             console.log("Errored: ", e);
         }
     }
-
-    async function getTestMATIC() {
-        window.open('https://faucet.polygon.technology/', '_blank', 'noreferrer');
-    }
 </script>
 
-<h3>⚙️ Подешавања</h3>
-<hstack>
-    <button class="mumbai-button" on:click={configureMumbai}>
-        Додај Mumbai мрежу
-    </button>
+<button class="blue-button" on:click={() => isExpanded = !isExpanded }>⚙️ Подешавања</button>
+{#if isExpanded}
+    <hstack>
+        <row>
+            <button class="mumbai-button" on:click={configureMumbai}>
+                <!-- <img src={polygon_logo} height="25" width="25" alt="polygon_logo" /> -->
+                Додај Mumbai мрежу
+            </button>
+    
+            <p>Додајте параметре <i>Mumbai мреже</i> у Ваш MetaMask</p>
+        </row>
 
-    <button class="mumbai-button" on:click={getTestMATIC}>
-        Набави MATIC токене
-    </button>
-</hstack>
-<div>
-    <p>У колико нисте, додајте <i>Mumbai мрежу</i> у Ваш MetaMask.</p>
-    <p>За употребу платформе, потребно је набавити <code>MATIC</code> токене</p>
-</div>
+        <row>
+            <button class="mumbai-button" on:click={() => ProviderCommons.getTestMATIC()}>
+                Набави MATIC токене
+            </button>
 
-<!-- ADD READ MORE HERE -->
-<!-- <button class="gradient-button">САЗНАЈ ВИШЕ</button> -->
+            <p>За употребу платформе, потребно је набавити <code>MATIC</code> токене</p>
+        </row>
+    </hstack>
+{/if}
 
 <style>
-    div {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        font-size: 12px;
-        /* color: #63e742; */
-    }
-
-    h3 {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
-
     hstack {
         display: flex;
+        flex-direction: column;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    p {
+        font-size: 12px;
+    }
+
+    row {
+        display: flex;
         flex-direction: row;
-        align-content: center;
+        align-items: baseline;
     }
 
     .mumbai-button {
-        min-width: 130px;
+        min-width: 110px;
         height: 35px;
         color: #fff;
         font-weight: bold;
@@ -72,5 +78,23 @@
 
     .mumbai-button:active {
         top: 2px;
+    }
+
+    .blue-button {
+        /* min-width: 90px; */
+        height: 35px;
+        color: #fff;
+        padding: 5px 10px;
+        margin: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        border: 2px solid #2c0b8e;
+        background: #2c0b8e;
+    }
+
+    .blue-button:hover {
+        background: #fff;
+        color: #2c0b8e
     }
 </style>

@@ -3,8 +3,34 @@ import MetamaskOnboarding from '@metamask/onboarding';
 import { ethers } from "ethers";
 import { PlatformStore } from "$lib/UtilsStore";
 
+// ENV DEFINITIONS
+import { 
+    PUBLIC_CONTRACT_ADDRESS,
+    PUBLIC_CHAIN_ID,
+    PUBLIC_CHAIN_NAME,
+    PUBLIC_RPC_URL,
+    PUBLIC_EXPLORER,
+    PUBLIC_SYMBOL,
+    PUBLIC_DECIMALS,
+    PUBLIC_FAUCET
+} from '$env/static/public';
+
 // Static class used to perform basic provider tasks
 class ProviderCommons {
+    // Mumbai network parameters
+    static mumbaiNetworkParams = {
+        chainId: PUBLIC_CHAIN_ID,  //PUBLIC_CHAIN_ID,
+        chainName: PUBLIC_CHAIN_NAME,
+        rpcUrls: [PUBLIC_RPC_URL],
+        blockExplorerUrls: [PUBLIC_EXPLORER],
+
+        nativeCurrency: {
+            name: PUBLIC_SYMBOL,
+            symbol: PUBLIC_SYMBOL,
+            decimals: PUBLIC_DECIMALS,
+        },
+    };
+
     static beginMetamaskOnboarding() {
         const onboarder = new MetamaskOnboarding();
         onboarder.startOnboarding();
@@ -18,35 +44,46 @@ class ProviderCommons {
             PlatformStore.metamaskDetected(false);
         }
     }
+
+    static async configureMumbaiNetwork(): Promise<boolean> {
+        try {
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: ProviderCommons.mumbaiNetworkParams.chainId }],
+            });
+
+            console.log("Switched to Mumbai network.");
+            return Promise.resolve(true);
+        } catch (switchError) {
+            // check if we have no Mumbai network ?
+            if(switchError.code === 4902 ) {
+                const awaitResponse = await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [ ProviderCommons.mumbaiNetworkParams ]
+                });
+
+                if(awaitResponse === null) {
+                    console.log("Mumbai network added and switched.");
+                    return Promise.resolve(true);
+                }
+                // add Mumbai failed here...
+            }
+            // in any other case, just fallback and reject the promise
+            // console.log("Add network original error: ", switchError);
+        }
+
+        return Promise.reject(false);
+    }
+
+    static async getTestMATIC() {
+        window.open(PUBLIC_FAUCET, '_blank', 'noreferrer');
+    }
 }
 
 export { ProviderCommons };
 
 //--
-import { 
-    PUBLIC_CONTRACT_ADDRESS,
-    PUBLIC_CHAIN_ID,
-    PUBLIC_CHAIN_NAME,
-    PUBLIC_RPC_URL,
-    PUBLIC_EXPLORER,
-    PUBLIC_SYMBOL,
-    PUBLIC_DECIMALS
-} from '$env/static/public';
 import  MainPlatform from '../MainPlatform.json';
-
-// Mumbai network parameters (rework if needed, or read from ENV)
-const mumbaiNetworkParams = {
-    chainId: PUBLIC_CHAIN_ID,  //PUBLIC_CHAIN_ID,
-    chainName: PUBLIC_CHAIN_NAME,
-    rpcUrls: [PUBLIC_RPC_URL],
-    blockExplorerUrls: [PUBLIC_EXPLORER],
-
-    nativeCurrency: {
-      name: PUBLIC_SYMBOL,
-      symbol: PUBLIC_SYMBOL,
-      decimals: PUBLIC_DECIMALS,
-    },
-};
 
 class ProviderServices {
     private signer?: ethers.providers.JsonRpcSigner;
@@ -76,35 +113,6 @@ class ProviderServices {
         }
 
         return Promise.reject();
-    }
-
-    public async configureMumbaiNetwork(): Promise<boolean> {
-        try {
-            await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: mumbaiNetworkParams.chainId }],
-            });
-
-            console.log("Switched to Mumbai network.");
-            return Promise.resolve(true);
-        } catch (switchError) {
-            // check if we have no Mumbai network ?
-            if(switchError.code === 4902 ) {
-                const awaitResponse = await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [ mumbaiNetworkParams ]
-                });
-
-                if(awaitResponse === null) {
-                    console.log("Mumbai network added and switched.");
-                    return Promise.resolve(true);
-                }
-                // add Mumbai failed here...
-            }
-            // in any other case, just fallback and reject the promise
-        }
-
-        return Promise.reject(false);
     }
 
     public connectLocally() {
