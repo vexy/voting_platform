@@ -8,6 +8,7 @@
     import { onMount } from "svelte";
 
     let usersCount: number = 0;
+    const metamask_logo = new URL('./assets/metamask.svg', import.meta.url).href
 
     async function performRegistration() {
         // check if we've been previously registered
@@ -44,46 +45,52 @@
     });
 </script>
 
-<center-container>
+<page-container>
     <h1>100 људи 100 ћуди</h1>
 
     {#if $PlatformStore.hasMetamask}
         {#if $PlatformStore.isConnected}
             {#await Contract.isRegisteredUser() then success }
                 {#if success}
-                    <button class="gradient-button" on:click={() => goto("/list")}>Погледај листу питања 🔍</button>
+                    <button class="gradient-button" on:click={() => goto("/list")}>🔍 Погледај листу питања</button>
                     <p>Број постављених питања: {$PlatformStore.totalQuestions}</p>
                 {:else}
                     <button class="gradient-button" on:click={performRegistration}>
                         Хоћу и ја ✌️
                     </button>
-                    <p>Регистровани корисникa: {usersCount}</p>
                 {/if}
+                <p>Регистровани корисникa: {usersCount}</p>
             {/await}
         {:else}
-            <!-- <code>За почетак употребе, повежите Ваш <i>MetaMask</i> новчаник...</code> -->
             <button class="metamask-button" on:click={connectMetamask}>
                 Повежи MetaMask
             </button>
-            <code>За почетак употребе, повежите Ваш <i>MetaMask</i> новчаник...</code>
+            <span>Повежите Ваш <i>MetaMask</i> новчаник како бисте приступили платформи...</span>
 
             <!-- SECTION FOR CONFIGURING  -->
             <EasyConfigPanel />
         {/if}
     {:else}
         <Instructions />
-        <!-- READ MORE BUTTON  -->
     {/if}
-</center-container>
+</page-container>
 
 <style>
-    center-container {
+    page-container {
         display: flex;
         flex-direction: column;
-        align-self: center;
-        text-align: center;
-        gap: 5px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        align-items: center;
+    }
+
+    span {
+        font-size: 14px;
+        background-image: linear-gradient(to right, #c78513 0%, #fff 100%);
+        background-clip: text;
+
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent; 
+        -moz-background-clip: text;
+        -moz-text-fill-color: transparent;
     }
 
     h1 {
@@ -92,7 +99,13 @@
 
     h1:hover {
         font-weight: bolder;
-        color: #ffdd;
+        background-image: linear-gradient(to bottom right, #fffd 25%, #1170d0 80%);
+        background-clip: text;
+
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent; 
+        -moz-background-clip: text;
+        -moz-text-fill-color: transparent;
         transition: all 0.2s ease-out;
     }
 

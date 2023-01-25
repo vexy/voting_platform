@@ -8,17 +8,18 @@
 	import Footer from "$lib/Footer.svelte";
 </script>
 
-<background>
+<main-container>
 	<Header />
-	<slot />
+	<main-content>
+		<slot />
+	</main-content>
 	<Footer />
-</background>
+</main-container>
 
 <style>
-    background {
+    main-container {
 		display: flex;
 		flex-direction: column;
-		align-items: stretch;
 		justify-content: space-between;
 
 		position: absolute;
@@ -26,15 +27,22 @@
         bottom: 0;
         left: 0;
         right: 0;
-        width: 100%;
-        height: 100%;
+        width: 100vw; 
+        height: 100vh;
         background-image: linear-gradient(to top, #a3bded 0%, #6991c7 100%);
 		/* background-image: linear-gradient(to top, #c79081 0%, #dfa579 100%); */
         /* background-image: linear-gradient(60deg, #64b3f4 0%, #c2e59c 100%); */
+
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	}
 
+	main-content {
+		margin-inline: 5px;
+		overflow-y: auto;
+    }
+
 	@media (min-width: 640px) {
-		background {
+		main-container {
 			background-image: linear-gradient(60deg, #64b3f4 0%, #c2e59c 100%);
 			max-width: none;
 			max-height: none;
@@ -42,7 +50,7 @@
 	}
 
 	@media (min-width: 280px) {
-		background {
+		main-container {
 			max-width: none;
 			max-height: none;
 		}

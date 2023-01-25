@@ -138,7 +138,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       padding: 5px;
     }
 
@@ -147,7 +146,6 @@
       flex-direction:  column;
       gap: 12.5px;
       justify-content: space-around;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .title-input {
@@ -158,7 +156,6 @@
       margin-bottom: 25px;
       border: 1px solid #eee;
       font-size: medium;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .label-input {
@@ -169,7 +166,6 @@
       border-bottom: 1px solid;
       box-shadow: 0 0 15px 4px rgba(0,0,0,0.06);
       background-color: inherit;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .save-button {

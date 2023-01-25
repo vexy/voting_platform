@@ -3,11 +3,6 @@
     import Contract from "$lib/Utilities";
     import { Provider } from "$lib/Provider";
     import { PlatformStore } from "./UtilsStore";
-    // import { onMount } from "svelte";
-
-    // onMount(async () => {
-    //     console.log("Header mounted.");
-    // });
 
     // MetaMask requires requesting permission to connect users accounts
     async function disconnect() {
@@ -47,7 +42,6 @@
     }
 
     div {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         font-size: small;
         margin: 10px;
     }

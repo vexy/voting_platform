@@ -2,10 +2,17 @@
     async function checkTutorials() {
         window.open('https://youtu.be/pff3fzqF6v0', '_blank', 'noreferrer');
     }
+
+    async function downloadMetamask() {
+        window.open('https://metamask.io/download', '_blank', 'noreferrer');
+    }
 </script>
 
 <container>
     <h3><i>MetaMask новчаник није детектован...</i></h3>
+    <button class="instructions" on:click={downloadMetamask}>
+        Набави MetaMask новчаник
+    </button>
     <button class="instructions" on:click={checkTutorials}>
         Упутства за приступање
     </button>
@@ -23,7 +30,6 @@
     }
 
     h3, p, button {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         align-self: center;
     }
 

@@ -2,7 +2,6 @@
     import { ProviderCommons } from "$lib/Provider";
 
     // define static assets
-    const metamask_logo = new URL('./assets/metamask.svg', import.meta.url).href
     const polygon_logo = new URL('./assets/polygon.png', import.meta.url).href
 
     let isExpanded: boolean = false;
@@ -18,13 +17,15 @@
     }
 </script>
 
-<button class="blue-button" on:click={() => isExpanded = !isExpanded }>⚙️ Подешавања</button>
+<button class="blue-button" on:click={() => isExpanded = !isExpanded }>⚙️ Подешавања приступа</button>
 {#if isExpanded}
     <hstack>
         <row>
             <button class="mumbai-button" on:click={configureMumbai}>
-                <!-- <img src={polygon_logo} height="25" width="25" alt="polygon_logo" /> -->
-                Додај Mumbai мрежу
+                <span>
+                    <img src={polygon_logo} height="20" width="20" alt="polygon_logo" />
+                    Додај Mumbai мрежу
+                </span>
             </button>
     
             <p>Додајте параметре <i>Mumbai мреже</i> у Ваш MetaMask</p>
@@ -81,7 +82,6 @@
     }
 
     .blue-button {
-        /* min-width: 90px; */
         height: 35px;
         color: #fff;
         padding: 5px 10px;
@@ -89,12 +89,12 @@
         cursor: pointer;
         border-radius: 5px;
         transition: all 0.3s ease;
-        border: 2px solid #2c0b8e;
-        background: #2c0b8e;
+        border: 2px solid #185a9d;
+        background: #185a9d;
     }
 
     .blue-button:hover {
         background: #fff;
-        color: #2c0b8e
+        color: #185a9d
     }
 </style>
