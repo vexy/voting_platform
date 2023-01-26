@@ -27,6 +27,7 @@
         overflow-y: scroll;
         padding: 20px;
         background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+        text-align: center;
     }
 
     h3, p, button {
@@ -34,7 +35,7 @@
     }
 
     p {
-        font-size: 14px;
+        font-size: 13px;
         color: #1e21dc;
     }
 

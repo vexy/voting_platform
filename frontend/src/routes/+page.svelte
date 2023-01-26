@@ -8,7 +8,7 @@
     import { onMount } from "svelte";
 
     let usersCount: number = 0;
-    const metamask_logo = new URL('./assets/metamask.svg', import.meta.url).href
+    const metamask_logo = new URL('../lib/assets/metamask.svg', import.meta.url).href
 
     async function performRegistration() {
         // check if we've been previously registered
@@ -63,9 +63,10 @@
             {/await}
         {:else}
             <button class="metamask-button" on:click={connectMetamask}>
-                Повежи MetaMask
+                <img src={metamask_logo} height="23" alt="metamask_logo"/>
+                <p>Повежи MetaMask</p>
             </button>
-            <span>Повежите Ваш <i>MetaMask</i> новчаник како бисте приступили платформи...</span>
+            <span>За почетак употребе платформе, повежите Ваш <i>MetaMask</i> новчаник...</span>
 
             <!-- SECTION FOR CONFIGURING  -->
             <EasyConfigPanel />
@@ -84,8 +85,10 @@
 
     span {
         font-size: 14px;
+        text-align: center;
         background-image: linear-gradient(to right, #c78513 0%, #fff 100%);
         background-clip: text;
+        margin: 10px;
 
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent; 
@@ -95,6 +98,7 @@
 
     h1 {
         color: #185a9d;
+        text-align: center;
     }
 
     h1:hover {
@@ -110,17 +114,19 @@
     }
 
     .metamask-button {
+        display: flex;
+        align-items: center;
+        gap: 5px;
         min-width: 130px;
         height: 35px;
         color: #fff;
         font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
         border-radius: 5px;
         border: none;
         background-size: 120% auto;
         background-image: linear-gradient(315deg, #c02425 0%, #f0cb35 75%);
-        margin: 2px 5px 5px 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
 
     .metamask-button:hover {

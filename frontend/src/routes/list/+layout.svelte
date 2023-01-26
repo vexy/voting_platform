@@ -17,7 +17,7 @@
 </svelte:head>
 
 <center-container>
-    <slot></slot>
+    <slot />
 </center-container>
 
 <style>

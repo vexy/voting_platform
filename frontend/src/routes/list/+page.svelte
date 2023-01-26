@@ -36,8 +36,8 @@
 </searchbar>
 
 <header-container>
-    <h2>Укупан број питања: <code>{$PlatformStore.totalQuestions}</code></h2>
-    <button class="addquestion" on:click={() => goto("/newquestion")} >+ Додај ново питање</button>
+    <h3>Укупан број питања: <code>{$PlatformStore.totalQuestions}</code></h3>
+    <button class="addquestion" on:click={() => goto("/newquestion")} >🗒 Додај ново питање</button>
 </header-container>
 
 <QuestionsTable dataSet={tableQuestions} />

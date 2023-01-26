@@ -17,49 +17,71 @@
     }
 </script>
 
-<button class="blue-button" on:click={() => isExpanded = !isExpanded }>⚙️ Подешавања приступа</button>
+<button class="blue-button" on:click={() => isExpanded = !isExpanded }>⚙️ Подешавање новчаника</button>
 {#if isExpanded}
-    <hstack>
+    <settings-container>
         <row>
-            <button class="mumbai-button" on:click={configureMumbai}>
-                <span>
-                    <img src={polygon_logo} height="20" width="20" alt="polygon_logo" />
-                    Додај Mumbai мрежу
-                </span>
+            <button class="setup-button" on:click={configureMumbai}>
+                <img src={polygon_logo} height="20" alt="polygon_logo" />
+                <span>Додај Mumbai мрежу</span>
             </button>
-    
-            <p>Додајте параметре <i>Mumbai мреже</i> у Ваш MetaMask</p>
+
+            <span>Додајте параметре <i>Mumbai мреже</i> у Ваш MetaMask</span>
         </row>
 
         <row>
-            <button class="mumbai-button" on:click={() => ProviderCommons.getTestMATIC()}>
-                Набави MATIC токене
+            <button class="setup-button" on:click={() => ProviderCommons.getTestMATIC()}>
+                <img src={polygon_logo} height="20" alt="polygon_logo" />
+                <span>Набави MATIC токене</span>
             </button>
 
-            <p>За употребу платформе, потребно је набавити <code>MATIC</code> токене</p>
+            <span>Преузмите бесплатне <code>MATIC</code> токене са официјелног сајта</span>
         </row>
-    </hstack>
+    </settings-container>
+{:else}
+    <p>У колико нисте, подесите MetaMask новчаник пре употребе платформе</p>
 {/if}
 
 <style>
-    hstack {
+    settings-container {
         display: flex;
         flex-direction: column;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
-
-    p {
-        font-size: 12px;
+        gap: 10px;
     }
 
     row {
         display: flex;
         flex-direction: row;
-        align-items: baseline;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
     }
 
-    .mumbai-button {
-        min-width: 110px;
+    span {
+        font-size: 12px;
+        text-align: center;
+        color: #fff;
+    }
+
+    p {
+        font-size: 11px;
+        text-align: center;
+        color: #185a9d;
+
+        background-image: radial-gradient(ellipse at top, #185a9d, transparent);
+        background-clip: text;
+
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent; 
+        -moz-background-clip: text;
+        -moz-text-fill-color: transparent;
+    }
+
+    .setup-button {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        min-width: 170px;
         height: 35px;
         color: #fff;
         font-weight: bold;
@@ -72,13 +94,9 @@
         margin: 2px 5px 5px 15px;
     }
 
-    .mumbai-button:hover {
+    .setup-button:hover {
         background-position: right center;
-        padding: 5px 10px;
-    }
-
-    .mumbai-button:active {
-        top: 2px;
+        padding: 5px;
     }
 
     .blue-button {

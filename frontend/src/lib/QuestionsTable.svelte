@@ -19,7 +19,7 @@
             <question-title>{question.question.title}</question-title>
                 {#if question.hasVoted }
                     <button class="resultsbutton" on:click={() => goto(`/questions/${question.id}`)}>
-                        Резултати
+                        📈 Резултати
                     </button>
                 {:else}
                     <questionbody>
@@ -27,7 +27,7 @@
                             Детаљи ({question.totalVoters})
                         </button>
                         <button class="reportbutton" on:click={performReport(question.id)}>
-                            Пријави
+                            🚩
                         </button>
                     </questionbody>
                 {/if}
@@ -49,7 +49,7 @@
     questionbody {
         display: flex;
         flex-direction: row;
-        align-items: baseline;
+        align-items: center;
     }
 
     question-title {
@@ -101,21 +101,18 @@
     }
 
     .reportbutton {
-        min-width: 90px;
+        min-width: 40px;
         height: 40px;
-        color: #fff;
-        padding: 5px 10px;
-        cursor: pointer;
-        display: inline-block;
-        outline: none;
-        overflow: hidden;
         border-radius: 5px;
         border: none;
-        background-color: #ba505c;
+        background-color: #d9757f;
         margin-left: 5px;
     }
     .reportbutton:hover {
-        font-weight: bolder;
+        padding: 10px;
+        border: #fff1ab;
+        border-width: 1px;
+        border-style: dotted;
     }
 
     .resultsbutton {

@@ -107,7 +107,7 @@
                 <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[1]} />
             </vstack>
             <vstack>
-                <label for="none">Не адекватно питање ({extrasMeterValues[2].toFixed(1)}%)</label>
+                <label for="none">Не адекватно питање [🚩] ({extrasMeterValues[2].toFixed(1)}%)</label>
                 <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[2]} />
             </vstack>
         {:else}
@@ -118,7 +118,7 @@
                 <input type="radio" name="voting-options" value=-2/>Питање није довољно јасно
             </hstack>
             <hstack>
-                <input type="radio" name="voting-options" value=-3/>Не адекватно питање
+                <input type="radio" name="voting-options" value=-3/>Не адекватно питање [🚩]
             </hstack>
         {/if}
     </vstack>
