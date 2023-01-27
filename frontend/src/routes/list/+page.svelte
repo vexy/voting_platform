@@ -12,6 +12,8 @@
     let searchTerm: string = "";
     let questionsInSearch: QuestionInfoOutput[] = [];
 
+    let isLoadingData: boolean = true;
+
     function performSearch() {
         if (searchTerm.length > 0) {
             // filter out all the questions starting with searchTerm
@@ -27,6 +29,7 @@
     onMount(async () => {
         allQuestions = await Contract.getAllQuestions();
         tableQuestions = allQuestions;
+        isLoadingData = false;
     });
 </script>
 
@@ -40,7 +43,7 @@
     <button class="addquestion" on:click={() => goto("/newquestion")} >🗒 Додај ново питање</button>
 </header-container>
 
-<QuestionsTable dataSet={tableQuestions} />
+<QuestionsTable dataSet={tableQuestions} isLoading={isLoadingData}/>
 
 <style>
     searchbar {

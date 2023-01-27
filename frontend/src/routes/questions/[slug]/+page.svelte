@@ -6,9 +6,13 @@
     import Loader from '$lib/Loader.svelte';
     import Contract from '$lib/Utilities';
     import { QuestionInfoOutput, QuestionMeta } from '$lib/Models';
+    import type { PageData } from './$types';
+    import { Provider } from '$lib/Provider';
+    import { redirect } from '@sveltejs/kit';
 
-    // loading flag...
+    // interaction loading flag...
     let isLoading = false;
+    let isLoadingQuestion = true;
 
     let questionInfo: QuestionInfoOutput = new QuestionInfoOutput(0, new QuestionMeta("", "", [], [], []) , 0, false);
     let voteOptions: number[] = [0,1,2,3,4];
@@ -22,6 +26,7 @@
     onMount(async () => {
         const questionID = Number($page.params.slug);
         questionInfo = await Contract.getQuestionInfo(questionID);
+        isLoadingQuestion = false;
 
         //pre-calc meter values if user provided answer
         if(questionInfo.hasVoted) {
@@ -78,22 +83,26 @@
 
 <vote-panel>
     <vstack>
-        {#if questionInfo.hasVoted}
-            <vstack>
-                {#each questionInfo.question.labels as caption, index}
-                    <label for={caption}>{caption} ({meterValues[index].toFixed(1)} %)</label>
-                    <meter id={caption} min="0" max="100" low="30" high="75" optimum="80" value={meterValues[index]} />
+        {#if !isLoadingQuestion}
+            {#if questionInfo.hasVoted}
+                <vstack>
+                    {#each questionInfo.question.labels as caption, index}
+                        <label for={caption}>{caption} ({meterValues[index].toFixed(1)} %)</label>
+                        <meter id={caption} min="0" max="100" low="30" high="75" optimum="80" value={meterValues[index]} />
+                    {/each}
+                </vstack>
+            {:else}
+                {#each voteOptions as option }
+                    {#if questionInfo.question.labels[option] !== undefined }
+                        <hstack>
+                            <input type="radio" name="voting-options" value={option}/>
+                            {questionInfo.question.labels[option]}
+                        </hstack>
+                    {/if}
                 {/each}
-            </vstack>
+            {/if}
         {:else}
-            {#each voteOptions as option }
-                {#if questionInfo.question.labels[option] !== undefined }
-                    <hstack>
-                        <input type="radio" name="voting-options" value={option}/>
-                        {questionInfo.question.labels[option]}
-                    </hstack>
-                {/if}
-            {/each}
+            <Loader />
         {/if}
     </vstack>
     <vstack>

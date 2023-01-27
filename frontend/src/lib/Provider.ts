@@ -138,6 +138,11 @@ class ProviderServices {
             return "N/A";
         }
     }
+
+    public isConnected(): boolean {
+        // signer object will be something if there's a connection
+        return this.signer !== undefined;
+    }
 }
 
 // initialize as shared singleton

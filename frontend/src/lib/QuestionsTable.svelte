@@ -1,9 +1,11 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import Utilities from "./Utilities";
-    import type { QuestionInfoOutput } from "./Models";
+    import Loader from '$lib/Loader.svelte';
+    import Utilities from "$lib/Utilities";
+    import type { QuestionInfoOutput } from "$lib/Models";
 
     export let dataSet: QuestionInfoOutput[];
+    export let isLoading: boolean = false;
 
     async function performReport(questionID: number) {
         await Utilities.provideExtra(questionID, 2);
@@ -13,26 +15,32 @@
 </script>
 
 <questions_container>
-    {#each dataSet as question }
-        <questionbody>
-            <code><u>#{question.id}</u></code>
-            <question-title>{question.question.title}</question-title>
-                {#if question.hasVoted }
-                    <button class="resultsbutton" on:click={() => goto(`/questions/${question.id}`)}>
-                        📈 Резултати
-                    </button>
-                {:else}
-                    <questionbody>
-                        <button class="votebutton" on:click={() => goto(`/questions/${question.id}`)}>
-                            Детаљи ({question.totalVoters})
+    {#if !isLoading}
+        {#each dataSet as question }
+            <questionbody>
+                <code><u>#{question.id}</u></code>
+                <question-title>{question.question.title}</question-title>
+                    {#if question.hasVoted }
+                        <button class="resultsbutton" on:click={() => goto(`/questions/${question.id}`)}>
+                            📈 Резултати
                         </button>
-                        <button class="reportbutton" on:click={performReport(question.id)}>
-                            🚩
-                        </button>
-                    </questionbody>
-                {/if}
-        </questionbody>
-    {/each}
+                    {:else}
+                        <questionbody>
+                            <button class="votebutton" on:click={() => goto(`/questions/${question.id}`)}>
+                                Детаљи ({question.totalVoters})
+                            </button>
+                            <button class="reportbutton" on:click={performReport(question.id)}>
+                                🚩
+                            </button>
+                        </questionbody>
+                    {/if}
+            </questionbody>
+        {/each}
+    {:else}
+        <ll>
+            <Loader message="Учитавање..."/>
+        </ll>
+    {/if}
 </questions_container>
 
 <style>
@@ -50,6 +58,12 @@
         display: flex;
         flex-direction: row;
         align-items: center;
+    }
+
+    ll {
+        flex: 1;
+        display: flex;
+        justify-content: space-around;
     }
 
     question-title {
