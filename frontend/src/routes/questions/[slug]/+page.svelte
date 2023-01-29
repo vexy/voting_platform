@@ -6,13 +6,13 @@
     import Loader from '$lib/Loader.svelte';
     import Contract from '$lib/Utilities';
     import { QuestionInfoOutput, QuestionMeta } from '$lib/Models';
-    import type { PageData } from './$types';
-    import { Provider } from '$lib/Provider';
-    import { redirect } from '@sveltejs/kit';
+    import Popup from '$lib/Popup.svelte';
 
     // interaction loading flag...
-    let isLoading = false;
+    let isSavingData = false;
     let isLoadingQuestion = true;
+    let isShowingPopup = false;
+    let hasErrored = false;
 
     let questionInfo: QuestionInfoOutput = new QuestionInfoOutput(0, new QuestionMeta("", "", [], [], []) , 0, false);
     let voteOptions: number[] = [0,1,2,3,4];
@@ -41,49 +41,81 @@
     });
 
     async function performVote() {
-        isLoading = true;
+        isSavingData = true;
+        let popupMessage = "Дошло је до грешке, покушајте поново."
 
         // find which user option is selected
         const optionButtons = document.getElementsByName('voting-options');
         for(let i = 0; i < optionButtons.length; i++) {
             if(optionButtons[i].checked) {
                 const optionValue = optionButtons[i].value;
+                let response = false;
 
                 try {
-                    // check if the button meta option is regular vote option
-                    // or extras option (negative value)
+                    // check if we're voting or providing extra options
+                    // voting: optionsValue > 0 | extras: optionsValue < 0
                     if (optionValue >= 0) {
-                        const success = await Contract.vote(questionInfo.id, i);
-                        if(success) {
-                            alert("Ваш одговор је примљен. Хвала !");
-
-                            // automatically forward us to the results page
-                            const redirect = "/questions/" + $page.params.slug;
-                            await goto(redirect);
-                        }
+                        response = await Contract.vote(questionInfo.id, i);
                     } else {
                         //extra option is transformed to suite platform contract extra options [0,1,2]
                         const transformedExtraOption = (optionValue * -1) - 1;
-                        await Contract.provideExtra(questionInfo.id, transformedExtraOption);
+                        response = await Contract.provideExtra(questionInfo.id, transformedExtraOption);
                     }
+
+                    // at this point, it is safe to assume both vote/reporting went well
+                    popupMessage = `Ваш одговор је примљен.<br />Хвала !`;
+                    hasErrored = false;
                 } catch (err) {
                     console.log("Vote/report process failed. Reason: ", err);
-                    alert("Дошло је до грешке, покушајте поново.");
+                    hasErrored = true;  // indicate we've errored
                 }
 
+                // whatever happened, just show popup at this point
+                // popup title has been set prior to this location
+                isShowingPopup = true;
                 break;  //no need to cycle further
             }
         }
 
-        isLoading = false;
+        isSavingData = false;
+    }
+
+    async function refreshScores() {
+        isShowingPopup = false;
+        // automatically forward us to the results page
+        const redirect = `/questions/${$page.params.slug}`;
+        console.log("Forwarding to: ", redirect);
+        await goto(redirect, {replaceState: true, invalidateAll: true});
     }
 </script>
+
+<!-- page popup definition -->
+<Popup show={isShowingPopup}>
+    <div slot="header">
+        {#if hasErrored}
+            Дошло је до грешке, покушајте поново...
+        {:else}
+            Ваш одговор је примљен.<br />Хвала !
+        {/if}
+    </div>
+    <div slot="actions">
+        {#if hasErrored}
+            <button class="close-button" on:click={() => {isShowingPopup = false}}>
+                Затвори 🙄
+            </button>
+        {:else}
+            <button class="show-results" on:click={() => {refreshScores()}}>
+                📈 Погледај резултате
+            </button>
+        {/if}
+    </div>
+</Popup>
 
 <h1>{questionInfo.question.title}</h1>
 
 <vote-panel>
-    <vstack>
-        {#if !isLoadingQuestion}
+    {#if !isLoadingQuestion}
+        <vstack>
             {#if questionInfo.hasVoted}
                 <vstack>
                     {#each questionInfo.question.labels as caption, index}
@@ -101,51 +133,59 @@
                     {/if}
                 {/each}
             {/if}
-        {:else}
-            <Loader />
-        {/if}
-    </vstack>
-    <vstack>
-        {#if questionInfo.hasVoted}
-            <vstack>
-                <label for="none">Ништа од наведеног ({extrasMeterValues[0].toFixed(1)}%)</label>
-                <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[0]} />
-            </vstack>
-            <vstack>
-                <label for="none">Питање није довољно јасно ({extrasMeterValues[1].toFixed(1)}%)</label>
-                <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[1]} />
-            </vstack>
-            <vstack>
-                <label for="none">Не адекватно питање [🚩] ({extrasMeterValues[2].toFixed(1)}%)</label>
-                <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[2]} />
-            </vstack>
-        {:else}
-            <hstack>
-                <input type="radio" name="voting-options" value=-1/>Ништа од наведеног
-            </hstack>
-            <hstack>
-                <input type="radio" name="voting-options" value=-2/>Питање није довољно јасно
-            </hstack>
-            <hstack>
-                <input type="radio" name="voting-options" value=-3/>Не адекватно питање [🚩]
-            </hstack>
-        {/if}
-    </vstack>
+        </vstack>
+        <vstack>
+            {#if questionInfo.hasVoted}
+                <vstack>
+                    <label for="none">Ништа од наведеног ({extrasMeterValues[0].toFixed(1)}%)</label>
+                    <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[0]} />
+                </vstack>
+                <vstack>
+                    <label for="none">Питање није довољно јасно ({extrasMeterValues[1].toFixed(1)}%)</label>
+                    <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[1]} />
+                </vstack>
+                <vstack>
+                    <label for="none">Не адекватно питање [🚩] ({extrasMeterValues[2].toFixed(1)}%)</label>
+                    <meter id="none" min="0" max="100" low="30" high="75" optimum="80" value={extrasMeterValues[2]} />
+                </vstack>
+            {:else}
+                <hstack>
+                    <input type="radio" name="voting-options" value=-1/>Ништа од наведеног
+                </hstack>
+                <hstack>
+                    <input type="radio" name="voting-options" value=-2/>Питање није довољно јасно
+                </hstack>
+                <hstack>
+                    <input type="radio" name="voting-options" value=-3/>Не адекватно питање [🚩]
+                </hstack>
+            {/if}
+        </vstack>
+    {:else}
+        <Loader />
+    {/if}
 </vote-panel>
 
-<centered>
-    {#if isLoading}
-        <Loader message="Слање одговора у току..." />
-    {:else}
-        {#if questionInfo.hasVoted}
-            <p>Укупно гласова: {questionInfo.totalVoters} (<i>{totalVotePercentage}%</i> корисникa платформе)</p>
+<!-- show button stack only if we're not laoding data -->
+{#if !isLoadingQuestion}
+    <centered>
+        {#if isSavingData}
+            <Loader message="Слање одговора у току..." />
         {:else}
-            <button class="vote-button" on:click={performVote}>Пошаљи</button>
-        {/if}
+            {#if questionInfo.hasVoted}
+                <p>Укупно гласова: {questionInfo.totalVoters} (<i>{totalVotePercentage}%</i> корисникa платформе)</p>
+            {/if}
 
-        <button class="vote-button" on:click={() => { goto('/list') }}>Назад</button>
-    {/if}
-</centered>
+            <action-buttons>
+                <button class="back-button" on:click={() => { goto('/list') }}>Назад</button>
+                {#if questionInfo.hasVoted}
+                    <!-- <button disabled>Подели</button> -->
+                {:else}
+                    <button class="vote-button" on:click={performVote}>Пошаљи</button>
+                {/if}
+            </action-buttons>
+        {/if}
+    </centered>
+{/if}
 
 <style>
     vote-panel {
@@ -160,25 +200,33 @@
         gap: 10px;
     }
 
-    centered {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5px;
-      word-wrap: break-word;
-    }
-
     hstack {
         display: flex;
         flex-direction: row;
         align-items: baseline;
+        gap: 3.5px;
+    }
+
+    centered {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      word-wrap: break-word;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    action-buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
     }
 
     h1 {
         font-size: 35pt;
         text-align: center;
         word-wrap: break-word;
-        /* background-color: aqua; */
     }
 
     .vote-button {
@@ -191,21 +239,76 @@
         cursor: pointer;
         transition: all 0.3s ease;
         position: relative;
-        display: inline-block;
-        outline: none;
+        border-radius: 5px;
+        border: none;
+        background: #137a22;
+        box-shadow: 0 5px #163901;
+    }
+
+    .vote-button:hover {
+        box-shadow: 0 3px #163901;
+        top: 1px;
+    }
+    
+    .vote-button:active {
+        box-shadow: 0 0 #163901;
+        top: 5px;
+    }
+
+    .back-button {
+        margin-top: 15px;
+        min-width: 130px;
+        height: 40px;
+        color: #fff;
+        padding: 5px 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
         border-radius: 5px;
         border: none;
         background: #3a86ff;
         box-shadow: 0 5px #4433ff;
     }
 
-    .vote-button:hover {
+    .back-button:hover {
         box-shadow: 0 3px #4433ff;
         top: 1px;
     }
     
-    .vote-button:active {
+    .back-button:active {
         box-shadow: 0 0 #4433ff;
         top: 5px;
+    }
+
+    .show-results {
+        min-width: 90px;
+        height: 40px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #408852;
+        display: inline-block;
+        color: #fff;
+        padding: 10px;
+    }
+
+    .show-results:hover {
+        background-image: linear-gradient(to top, #7a7a77, #2d044a);
+        font-weight: bolder;
+    }
+
+    .close-button {
+        padding: 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        position: relative;
+        color: #fff;
+        background-color: #123;
+    }
+
+    .close-button:hover {
+        font-weight: bolder;
     }
 </style>

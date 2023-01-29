@@ -157,7 +157,8 @@ class PlatformContract {
                 return Promise.resolve(true);
             }
         } catch (e) {
-            console.log("Error occured: ", e.reason);
+            console.log("Error occured during voting. Error: ");
+            console.log(e);
         }
 
         return Promise.reject();
@@ -175,7 +176,8 @@ class PlatformContract {
                 return Promise.resolve(true);
             }
         } catch (e) {
-            console.log("Error during providing extra options");
+            console.log("Error during providing extra options. Error:");
+            console.log(e);
         }
 
         return Promise.reject();
