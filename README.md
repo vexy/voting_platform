@@ -1,50 +1,39 @@
 <div align="center">
-  <i>PLEASE NOTE: <b>PROJECT IS IN PUBLIC BETA TEST STAGE</b></i>
+  <i>SMART-CONTRACT component of <b>INFOPORTAL.APP</b> project</i>
   <p><b>Live preview available at:</b> <a href="https://infoportal.app">https://infoportal.app</a></p>
 </div>
 
-!["Platform_sample"](/sample.png)
+[![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)  
+Current contacts version: `1.5 test-net` 
 
-# Simple Voting platform
-This is an example of blockchain based voting platform consisting of following components:
-  - `Solidity` based smart-contracts
-  - user facing side, written in `TypeScript/JavaScript` using `SvelteKit`.
-
-|Component|Version|
-|-|-|
-|`contracts`|`1.5 test-net`|
-|`frontend`|`1.2`|
-
-[![wakatime](https://wakatime.com/badge/github/vexy/simple_voting.svg)](https://wakatime.com/badge/github/vexy/simple_voting?style=for-the-badge)
-
-> _Follow the progress on [project board](https://github.com/vexy/simple_voting/projects/1) or report an [issue](https://github.com/vexy/simple_voting/issues) if you run into trouble_  
-
-## 📦 Feature set
+# 📦 Feature set - "Simple poll platform"
+This is an example of several smart-contracts written in `Solidity` language.  
 Following is the set of supported features:
-  - easy setup and self hosting
-  - `Ethereum` wallets compatible
-  - free user registration
-  - free content posting
-  - browsing the list of platform content
+  - platform user registration
+  - content posting
+  - browsing the list of platform content:
     - preview content details
     - report inapropriate content
-  - vote for specific options
+  - vote for specific options  
+  - question/poll interaction
+  
+TBD:
+- [ ] contact events  
+- [ ] custom error set
 
-!["Platform_sample"](/sample2.png)
-!["Platform_sample"](/sample2.png)
+### Frontedn component
+For more information on frontend component see [this repo](https://github.com/vexy/infoportal).
+
+!["Platform_sample"](/sample1.png)  
+Live preview at [infoportal.app](https://infoportal.app).
 
 ### Deployment info
-Checkout [deployment details](DEPLOYMENTS.md) for more instructions.
+Contact has been deployed on test-net. Checkout [deployment details](DEPLOYMENTS.md) for more instructions.
 
 # Contributing guide 🙌
-Button styles from the `frontend` part are taken from: https://markodenic.com/tools/buttons-generator/.
+This project is **open to contribution**.  Feel free to talk through issues or as a separate disucssion.
 
-Checkout more cool stuff from [Marko Denic](https://github.com/markodenic).
-
-Just check the [project board](https://github.com/vexy/simple_voting/projects/1) and help yourself with a nice little task suited to your needs :)  
-
-> PRs and any sort of contribution is **more than welcome**.  
-> **!! THANK YOU IN ADVANCE !!**
+> _Follow the progress on [project board](https://github.com/vexy/simple_voting/projects/1) or report an [issue](https://github.com/vexy/simple_voting/issues) if you run into trouble_  
 
 ---  
 
