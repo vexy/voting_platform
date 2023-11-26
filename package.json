@@ -2,7 +2,7 @@
   "name": "simple-voting-platform",
   "version": "1.5",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
-    "dotenv": "^16.0.3"
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.3.0"
   }
 }
