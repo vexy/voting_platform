@@ -11,36 +11,23 @@ MetaMask configuration: https://wiki.polygon.technology/docs/develop/metamask/co
 
 Make sure that each step is taken care of as missing items may cause unexpected issues or failure to compile and build the platform.
 
---- 
-## Deploying web platform
-To build the fronted:
-```bash
-npm run build #wait to complete...
-```
-
-To build the fronted locally:
-```bash
-npm run dev #wait to complete...
-```
-
-## Deploying contracts
-
-After installing hardhat, make sure the following libraries are installed:
+## Additional dependencies
+After `hardhat` has been installed, make sure the following libraries are installed:
 ```
 npm install --save-dev @nomicfoundation/hardhat-toolbox
 ```
 
 Finally, you can check if everything works well by typing:
-```
-npx hardhat run scripts/deploy.ts --network polygon    # may change in future
-```
-
-> **NOTE**: Final deployment is in progress. Expect changes to this procedure.
 
 Checkout open [issues](https://github.com/vexy/simple_voting/issues) or open another one if you run into trouble.
 
 ### Main net deployment info
-> _Main-net deployment will be configured soon..._
+To easily deploy to `polygon` network, use the following command:
+```
+npx hardhat run scripts/deploy.ts --network polygon    # may change in future
+```
+
+> _Main-net deployment details will be published soon..._
 
 ### TestNet deployment info
 So far `MainPlatform` contract has been deployed to the following:
