@@ -3,7 +3,7 @@ build/
 cache/
 artifacts/
 typechain-types/
-/typechain-types/
+# /typechain-types/
 
 # env secrets
 .env
