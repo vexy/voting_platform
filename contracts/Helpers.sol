@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity ^0.8.9;
+pragma solidity <0.9;
 
 /**
     Name of last case represents a famous replica
@@ -12,19 +12,17 @@ enum EXTRAS {
     ju_gospode_boze // 2
 }
 
-// Will be used for easier communication with external callers
-struct QuestionMeta {
-    address owner;
+// Basic question model abstraction
+struct QuestionModel {
     string title;
-    string description;
-    string[] labels;
+    string[] options;
     uint[] scores;
     uint[3] extras;
 }
 
-struct QuestionInfoOutput {
+struct PlatformQuestion {
     uint id;
-    QuestionMeta question;
+    QuestionModel question;
     uint totalVoters;
     bool hasVoted;
 }

@@ -13,9 +13,9 @@ describe("Testing Suite :: [Question contract]", async function() {
     // adjust at will...
     const questionTitle  = 'Are up for something ?'
     const questionLabels = [ 'Yes', 'No', 'Maybe' ];
+    const contract_arguments = [questionTitle, questionLabels];
 
     beforeEach(async function() {
-        const contract_arguments = [questionTitle, questionLabels];
         const allSigners = await ethers.getSigners();
         signer1 = allSigners[0];
         signer2 = allSigners[1];
@@ -23,6 +23,7 @@ describe("Testing Suite :: [Question contract]", async function() {
 
         // start contract deployment
         question_contract = await ethers.deployContract("Question", contract_arguments, signer1);
+        const p = await ethers.deployContract("Question", contract_arguments, signer1);
     });
 
     context("# Correct initialization", async function() {
