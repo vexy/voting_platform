@@ -42,7 +42,7 @@ task("accounts", "Prints the list of available accounts", async (taskArgs, hre) 
   console.log("~~ Available signers ~~");
   for (const account of accounts) {
     const weiBalance = await hre.ethers.provider.getBalance(account.address);
-    const etherBalance = hre.ethers.utils.formatEther(weiBalance);
+    const etherBalance = hre.ethers.formatEther(weiBalance);
     console.log(`Address: ${account.address}, ballance: ${etherBalance} ETH (${weiBalance} wei)`);
   }
 });
