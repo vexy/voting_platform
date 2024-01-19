@@ -3,7 +3,6 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 
-
 describe("Testing Suite :: [Question contract]", async function() {
     let question_contract: Contract;
     let signer1: SignerWithAddress;    //initially

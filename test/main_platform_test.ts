@@ -1,55 +1,57 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers } from "hardhat";
-import { Contract } from "ethers";
 import { expect, assert } from "chai";
+import type { MainPlatform } from "../typechain-types";
+import type { PlatformQuestionStructOutput } from "../typechain-types/MainPlatform";
 
 describe("Testing Suite :: [MainPlatform contract]", async function () {
-    let platformContract: Contract;   // shared contract object
-    let owner: SignerWithAddress, signer1: SignerWithAddress, signer2: SignerWithAddress; //3 signers
+    let platformContract: MainPlatform;   // shared contract object
 
-    const startingPoints = ethers.BigNumber.from(1000000);   //1 mil
-    const testTitle = 'New Question';
-    const testLabels = ['one', 'two', 'three'];
+    const startingPoints = ethers.getBigInt(1_000_000);   //1 mil
+    const testTitle = "Most peculiar way to understand universe ?";
+    const testLabels = ["Coding", "Methaphysics", "Spirituality"];
+    const questionHash_TEST = "0x4beaf07cffcbc86efbeb4efd38d3031735a4ad343505d95d1ff11fae4362d120";
 
     beforeEach(async function () {
-      // assign basic signers
-      const allSigners = await ethers.getSigners();
-      owner = allSigners[0];
-      signer1 = allSigners[1];
-      signer2 = allSigners[2];
+      const [ owner ] = await ethers.getSigners(); // get basic signer
       
       // initialize contract and wait for deployment
-      const factory = await ethers.getContractFactory("MainPlatform");
-      platformContract = await factory.deploy(owner.address);
-      await platformContract.deployed();
+      platformContract = await ethers.deployContract("MainPlatform", [owner], owner);
     });
 
+    async function getSigner(signerID: number) {
+      return (await ethers.getSigners())[signerID];
+  }
+
     // GENERAL HELPERS:
-    async function registerUser(user: SignerWithAddress) {
-      await platformContract.connect(user).register();
+    async function registerUser(user: HardhatEthersSigner) {
+      const userCall = platformContract.connect(user);
+      await userCall.register();
     }
 
-    async function createTestQuestion(as?: SignerWithAddress): Promise<number> {
-      let platformResponse;
-      if(as) {
-        platformResponse = await platformContract.connect(as).addQuestion(testTitle, testLabels);
-      } else {
-        platformResponse = await platformContract.addQuestion(testTitle, testLabels);
-      }
-      
-      const newQuestionID = platformResponse.value.toNumber();  //this is attached method by BigNumber
-      return Promise.resolve(newQuestionID);
+    async function getAddedQuestion(): Promise<PlatformQuestionStructOutput> {
+      // add new question and query the blochckain straight after
+      await platformContract.addQuestion(testTitle, testLabels);
+      //TODO: capture and parse result other than returned from the method
+
+      //query the results
+      const newQuestion = await platformContract.getQuestionInfo(questionHash_TEST);
+      return newQuestion;
     }
 
     context("Initial setup", async function() {
       it("Can initialize properly", async function() {
-          expect(await platformContract.totalQuestions()).to.equal(0);
-          expect(await platformContract.totalUsers()).to.equal(1);  // owner included
-          expect(await platformContract.owner()).to.equal(owner.address);
+          const platformSigner = await getSigner(0);
+          const totalQuestions = await platformContract.totalQuestions();
+          const totalUsers = await platformContract.totalUsers();
+          const platformOwner = await platformContract.owner();
+
+          expect(totalQuestions).to.equal(0);
+          expect(totalUsers).to.equal(1);  // owner as first user included
+          expect(platformOwner).to.equal(platformSigner.address);
       });
 
       it("Has proper voting points after initialization", async function() {
-          expect(await platformContract.balanceOf(owner.address)).to.equal(startingPoints);
+          expect(await platformContract.pointsBalance()).to.equal(startingPoints);
       });
 
       it("Can recognize registered users" , async function() {
@@ -57,477 +59,133 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
         expect(await platformContract.isRegisteredUser()).to.equal(true);
 
         // perform signer1 registration and perform check
-        await registerUser(signer1);
-        expect(await platformContract.connect(signer1).isRegisteredUser()).to.equal(true);
-        expect(await platformContract.connect(signer1).balanceOf(signer1.address)).to.equal(startingPoints);
+        const user1 = await getSigner(1);
+        await registerUser(user1);
+        expect(await platformContract.connect(user1).isRegisteredUser()).to.equal(true);
+        expect(await platformContract.connect(user1).pointsBalance()).to.equal(startingPoints);
       });
 
       it("Can recognize non-registered users", async function() {
-        expect(await platformContract.connect(signer1).isRegisteredUser()).to.equal(false);
-        expect(await platformContract.connect(signer2).isRegisteredUser()).to.equal(false);
+        const user1 = await getSigner(1);
+        const user2 = await getSigner(2);
+        expect(await platformContract.connect(user1).isRegisteredUser()).to.equal(false);
+        expect(await platformContract.connect(user2).isRegisteredUser()).to.equal(false);
       });
     });
 
     context("Users management", async function() {
       it("Can register new users", async function() {
-        await registerUser(signer1);
-        await registerUser(signer2);
+        const user1 = await getSigner(1);
+        const user2 = await getSigner(2);
+        await registerUser(user1);
+        await registerUser(user2);
 
         expect(await platformContract.totalUsers()).to.equal(3);  // 2 new + owner
       });
 
       it("Users can query their balance", async function() {
-        await registerUser(signer1);
-        await registerUser(signer2);
+        const user1 = await getSigner(1);
+        const user2 = await getSigner(2);
+        await registerUser(user1);
+        await registerUser(user2);
 
-        const ownerBalance = await platformContract.balanceOf(owner.address);
-        const s1Balance = await platformContract.balanceOf(signer1.address);
-        const s2Balance = await platformContract.balanceOf(signer2.address);
+        const ownerBalance = await platformContract.pointsBalance();
+        const s1Balance = await platformContract.pointsBalance();
+        const s2Balance = await platformContract.pointsBalance();
 
         expect(ownerBalance).to.equal(startingPoints);
         expect(s1Balance).to.equal(startingPoints);
         expect(s2Balance).to.equal(startingPoints);
       });
+
+      it("No double registration", async function() {
+        //at this point owner is automatically registered as fist user
+        //attempt another registration and expect failure
+        try {
+          await platformContract.register();
+          assert.fail("Should have not allowed double registration of this user.")
+        } catch {
+          const totalUsers = await platformContract.totalUsers();
+          expect(totalUsers).to.equal(1);  // owner as first user included
+        }
+      });
     });
 
     context("Questions posting", async function() {
       it("Owner can add question", async function() {
-        const expectedTotalQuestions = 1;
-
-        const id = await createTestQuestion(); // this returns number
-        const response = await platformContract.getQuestionInfo(id);
+        await platformContract.addQuestion(testTitle, testLabels);
         
-        expect(response.question.owner).to.equal(owner.address);
-        expect(response.question.title).to.equal(testTitle);
-        expect(response.question.labels[0]).to.equal(testLabels[0]);
-        expect(response.question.labels[1]).to.equal(testLabels[1]);
-        expect(response.question.labels[2]).to.equal(testLabels[2]);
-        expect(response.question.scores[0]).to.equal(0);
-        expect(response.question.scores[1]).to.equal(0);
-        expect(response.question.scores[2]).to.equal(0);
-        expect(response.question.extras[0]).to.equal(0);
-        expect(response.question.extras[1]).to.equal(0);
-        expect(response.question.extras[2]).to.equal(0);
-        expect(response.totalVoters).to.equal(0);
-        expect(response.hasVoted).to.equal(false);
-
-        expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
-      });
-
-      it("Owner can add multiple question", async function() {
-        const expectedTotalQuestions = 3;
-
-        // check first question
-        let qIDBig1 = await platformContract.addQuestion("Question1", ['one', 'two', 'three']);
-        let qIDBig2 = await platformContract.addQuestion("Question2", ['one1', 'two2', 'three3']);
-        let qIDBig3 = await platformContract.addQuestion("Question3", ['one11', 'two22', 'three333']);
-
-        // const respAll = await platformContract.getAllQuestions();
-        // console.log(respAll);
-        let response1 = await platformContract.getQuestionInfo(0);
-        let response2 = await platformContract.getQuestionInfo(1);
-        let response3 = await platformContract.getQuestionInfo(2);
-
-        expect(response1.question.owner).to.equal(owner.address);
-        expect(response1.question.title).to.equal("Question1");
-        expect(response1.question.labels[0]).to.equal('one');
-        expect(response1.question.labels[1]).to.equal('two');
-        expect(response1.question.labels[2]).to.equal('three');
-        expect(response1.question.scores[0]).to.equal(0);
-        expect(response1.question.scores[1]).to.equal(0);
-        expect(response1.question.scores[2]).to.equal(0);
-        expect(response1.question.extras[0]).to.equal(0);
-        expect(response1.question.extras[1]).to.equal(0);
-        expect(response1.question.extras[2]).to.equal(0);
-        expect(response1.totalVoters).to.equal(0);
-        expect(response1.hasVoted).to.equal(false);
-
-        // Question2
-        expect(response2.question.owner).to.equal(owner.address);
-        expect(response2.question.title).to.equal("Question2");
-        expect(response2.question.labels[0]).to.equal('one1');
-        expect(response2.question.labels[1]).to.equal('two2');
-        expect(response2.question.labels[2]).to.equal('three3');
-        expect(response2.question.scores[0]).to.equal(0);
-        expect(response2.question.scores[1]).to.equal(0);
-        expect(response2.question.scores[2]).to.equal(0);
-        expect(response2.question.extras[0]).to.equal(0);
-        expect(response2.question.extras[1]).to.equal(0);
-        expect(response2.question.extras[2]).to.equal(0);
-        expect(response2.totalVoters).to.equal(0);
-        expect(response2.hasVoted).to.equal(false);
-
-        // Question 3
-        expect(response3.question.owner).to.equal(owner.address);
-        expect(response3.question.title).to.equal("Question3");
-        expect(response3.question.labels[0]).to.equal('one11');
-        expect(response3.question.labels[1]).to.equal('two22');
-        expect(response3.question.labels[2]).to.equal('three333');
-        expect(response3.question.scores[0]).to.equal(0);
-        expect(response3.question.scores[1]).to.equal(0);
-        expect(response3.question.scores[2]).to.equal(0);
-        expect(response3.question.extras[0]).to.equal(0);
-        expect(response3.question.extras[1]).to.equal(0);
-        expect(response3.question.extras[2]).to.equal(0);
-        expect(response3.totalVoters).to.equal(0);
-        expect(response3.hasVoted).to.equal(false);
-
-        expect(await platformContract.totalQuestions()).to.equal(expectedTotalQuestions);
-      });
-
-      it("Registered users can add question", async function() {
-        let expectedTotalQuestions = 1;
-
-        for(const acc of [signer1, signer2]) {
-          await registerUser(acc);
-
-          const qID = await createTestQuestion(acc);
-          const response = await platformContract.connect(acc).getQuestionInfo(qID)
-
-          expect(response.question.title).to.equal(testTitle);
-          expect(response.question.labels[0]).to.equal(testLabels[0]);
-          expect(response.question.labels[1]).to.equal(testLabels[1]);
-          expect(response.question.labels[2]).to.equal(testLabels[2]);
-          expect(response.question.scores[0]).to.equal(0);
-          expect(response.question.scores[1]).to.equal(0);
-          expect(response.question.scores[2]).to.equal(0);
-          expect(response.question.extras[0]).to.equal(0);
-          expect(response.question.extras[1]).to.equal(0);
-          expect(response.question.extras[2]).to.equal(0);
-          expect(response.totalVoters).to.equal(0);
-          expect(response.hasVoted).to.equal(false);
-
-          const totalQuestions = await platformContract.connect(acc).totalQuestions();
-          expect(totalQuestions).to.equal(expectedTotalQuestions);
-          expectedTotalQuestions += 1;
-        }
-      });
-
-      // it("Question description can be edited", async function() {
-      //   const expectedID = 0;
-      //   const expectedTotalQuestions = 1;
-
-      //   // create test question
-      //   const questionID = await createTestQuestion();
-      //   const totalQuestions = await platformContract.totalQuestions();
-
-      //   // mark intial state and perform description edit
-      //   const qInfoStart = await platformContract.getQuestionInfo(questionID);
-      //   //
-      //   await platformContract.editDescription(questionID, 'New description');
-      //   //
-      //   // mark ending state
-      //   const qInfoAfter = await platformContract.getQuestionInfo(questionID);
-
-      //   // check outcome
-      //   expect(questionID).to.equal(expectedID);
-      //   expect(totalQuestions).to.equal(expectedTotalQuestions);
-      //   expect(qInfoStart.description).to.equal("");
-      //   expect(qInfoAfter.description).to.equal('New description');
-      // });
-    });
-
-    context("Questions answering/voting", async function() {
-      it("Owner can vote", async function() {
-        const qID = await createTestQuestion();
-
-        // perform voting
-        await platformContract.vote(qID, 0);
-
-        // get question info
-        const qInfo = await platformContract.getQuestionInfo(qID);
-        
-        expect(qInfo.question.owner).to.equal(owner.address);
-        expect(qInfo.question.scores[0]).to.equal(1);
-        expect(qInfo.question.scores[1]).to.equal(0);
-        expect(qInfo.question.scores[2]).to.equal(0);
-        expect(qInfo.totalVoters).to.equal(1);
-        expect(qInfo.hasVoted).to.equal(true);
-
+        // check total number of questions on the platform
         expect(await platformContract.totalQuestions()).to.equal(1);
-      });
-    
-      it("Registered users can vote owner's questions", async function(){
-          const qID = await createTestQuestion(); //as owner
-          
-          // register signer1, vote for first option
-          await registerUser(signer1);
-          await platformContract.connect(signer1).vote(qID, 0);
-          expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
+        
+        const allQuestions = await platformContract.getAllQuestions();
 
-          // get scores for first option
-          const qInfo = await platformContract.connect(signer1).getQuestionInfo(qID);
-
-          expect(qInfo.question.owner).to.equal(owner.address);
-          expect(qInfo.question.scores[0]).to.equal(1);
-          expect(qInfo.question.scores[1]).to.equal(0);
-          expect(qInfo.question.scores[2]).to.equal(0);
-          expect(qInfo.totalVoters).to.equal(1);
-          expect(qInfo.hasVoted).to.equal(true);
+        expect(allQuestions[0].questionHash).to.equal(questionHash_TEST);
+        expect(allQuestions[0].totalVoters).to.equal(0);
+        expect(allQuestions[0].hasVoted).to.equal(false);
       });
 
-      it("Registered users can vote their own questions", async function(){
-        // register signer1 and create a question
-        await registerUser(signer1);
-        const qID = await createTestQuestion(signer1);
-        expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
+      it("Registered user can add question", async function() {
+        const user1 = await getSigner(1);
+        await registerUser(user1);
 
-        // perform voting for own question
-        await platformContract.connect(signer1).vote(qID, 0);
+        // add question as user 1
+        await platformContract.connect(user1).addQuestion(testTitle, testLabels);
+        // console.log(resp);
 
-        // get scores for first option
-        const qInfo = await platformContract.connect(signer1).getQuestionInfo(qID);
+        // check owner after addition
+        expect(await platformContract.totalQuestions()).to.equal(1);
         //
-        expect(qInfo.question.owner).to.equal(signer1.address);
-        expect(qInfo.question.scores[0]).to.equal(1);
-        expect(qInfo.question.scores[1]).to.equal(0);
-        expect(qInfo.question.scores[2]).to.equal(0);
-        expect(qInfo.totalVoters).to.equal(1);
-        expect(qInfo.hasVoted).to.equal(true);
-      });
-
-      it("Registered user can provide extra:none", async function() {
-        // register signer1 and create a question
-        await registerUser(signer1);
-        const qID = await createTestQuestion(signer1);
-        expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
-
-        await platformContract.connect(signer1).voteExtra(qID, 0);
-        const qiResp = await platformContract.connect(signer1).getQuestionInfo(qID);
-
-        expect(qiResp.question.extras[0]).to.equal(1);
-      });
-
-      it("Registered user can provide extra:malformed", async function() {
-        // register signer1 and create a question
-        await registerUser(signer1);
-        const qID = await createTestQuestion(signer1);
-        expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
-
-        await platformContract.connect(signer1).voteExtra(qID, 1);
-        const qiResp = await platformContract.connect(signer1).getQuestionInfo(qID);
-
-        expect(qiResp.question.extras[1]).to.equal(1);
-      });
-
-      it("Registered user can provide extra:report", async function() {
-        // register signer1 and create a question
-        await registerUser(signer1);
-        const qID = await createTestQuestion(signer1);
-        expect(await platformContract.connect(signer1).totalQuestions()).to.equal(1);
-
-        await platformContract.connect(signer1).voteExtra(qID, 2);
-        const qiResp = await platformContract.connect(signer1).getQuestionInfo(qID);
-
-        expect(qiResp.question.extras[2]).to.equal(1);
-      });
-    });
-
-    context("Questions visibility and correctness", async function() {
-      it("Created question can be seen by owner", async function () {
-        // create question as owner and check integrity
-        const questionID = await createTestQuestion();
+        let newQuestion = (await platformContract.getAllQuestions())[0];
         //
-        const qInfoResponse = (await platformContract.getQuestionInfo(questionID));
-        const totalUsers = await platformContract.totalUsers();
-        const totalQuestions = await platformContract.totalQuestions();
+        expect(newQuestion.questionHash).to.equal(questionHash_TEST);
+        expect(newQuestion.totalVoters).to.equal(0);
+        expect(newQuestion.hasVoted).to.equal(false);
+
+        // check user1 after addition
+        expect(await platformContract.connect(user1).totalQuestions()).to.equal(1);
         //
-        expect(totalUsers).to.equal(1);
-        expect(totalQuestions).to.equal(1);
-        expect(qInfoResponse.question.owner).to.equal(owner.address);
-        expect(qInfoResponse.question.title).to.equal("New Question");
-        expect(qInfoResponse.question.description).to.equal('');
-        expect(qInfoResponse.question.labels[0]).to.equal('one');
-        expect(qInfoResponse.question.labels[1]).to.equal('two');
-        expect(qInfoResponse.question.labels[2]).to.equal('three');
-        expect(qInfoResponse.question.scores[0]).to.equal(0);
-        expect(qInfoResponse.question.scores[1]).to.equal(0);
-        expect(qInfoResponse.question.scores[2]).to.equal(0);
-        expect(qInfoResponse.question.extras[0]).to.equal(0);
-        expect(qInfoResponse.question.extras[1]).to.equal(0);
-        expect(qInfoResponse.question.extras[2]).to.equal(0);
-        expect(qInfoResponse.totalVoters).to.equal(0);
-        expect(qInfoResponse.hasVoted).to.equal(false);
+        newQuestion = (await platformContract.getAllQuestions())[0];
+        //
+        expect(newQuestion.questionHash).to.equal(questionHash_TEST);
+        expect(newQuestion.totalVoters).to.equal(0);
+        expect(newQuestion.hasVoted).to.equal(false);
       });
 
-      it("Created question can be seen by their creators", async function () {
-        // create test question and perform vote as an owner
-        const questionID = await createTestQuestion();
+      it("Non-registered users cannot add questions", async function() {
+        const user1 = await getSigner(1);
 
-        await registerUser(signer1);
-        await registerUser(signer2);
+        // try to add question as user 1 which is not registered
+        try {
+          await platformContract.connect(user1).addQuestion(testTitle, testLabels);
+          assert.fail("Should have not allowed unregistred user to add questions.")
+        } catch {
+          // make sure no questions were added
+          const totalQuestions = await platformContract.totalQuestions();
+          const totalUsers = await platformContract.totalUsers();
 
-        for(const acc of [owner, signer1, signer2]) {
-          const totalUsers = await platformContract.connect(acc).totalUsers();
-          const totalQuestions = await platformContract.connect(acc).totalQuestions();
-          const questionInfo   = await platformContract.connect(acc).getQuestionInfo(questionID);
-
-          expect(totalUsers).to.equal(3);
-          expect(totalQuestions).to.equal(1);
-          //
-          expect(questionInfo.question.owner).to.equal(owner.address);
-          expect(questionInfo.question.scores[0]).to.equal(0);
-          expect(questionInfo.totalVoters).to.equal(0);
-          expect(questionInfo.hasVoted).to.equal(false);
+          expect(totalQuestions).to.equal(0);
+          expect(totalUsers).to.equal(1);  // owner as first user included
         }
-      });
-
-      it("Owner has proper 'hasVoted' dynamics", async function() {
-        const questionID = await createTestQuestion();
-
-        let qInfo = await platformContract.getQuestionInfo(questionID);
-        //
-        expect(qInfo.question.owner).to.equal(owner.address);
-        expect(qInfo.question.scores[0]).to.equal(0);
-        expect(qInfo.totalVoters).to.equal(0);
-        expect(qInfo.hasVoted).to.equal(false);
-
-        // perform vote
-        await platformContract.vote(questionID, 0);
-
-        // check results
-        qInfo = await platformContract.getQuestionInfo(questionID);
-        //
-        expect(qInfo.question.owner).to.equal(owner.address);
-        expect(qInfo.question.scores[0]).to.equal(1);
-        expect(qInfo.totalVoters).to.equal(1);
-        expect(qInfo.hasVoted).to.equal(true);
-      });
-
-      it("Registered users observe voting dynamics properly", async function() {
-        // register all users
-        await registerUser(signer1);
-        await registerUser(signer2);
-
-        // create question and vote as owner
-        const qID = await createTestQuestion();
-        //
-        await platformContract.vote(qID, 0);
-
-        // check states
-        let ownerResp = await platformContract.connect(owner).getQuestionInfo(qID);
-        let signer1Resp = await platformContract.connect(signer1).getQuestionInfo(qID);
-        let signer2Resp = await platformContract.connect(signer2).getQuestionInfo(qID);
-        // owner
-        expect(ownerResp.question.scores[0]).to.equal(1);
-        expect(ownerResp.question.scores[1]).to.equal(0);
-        expect(ownerResp.question.scores[2]).to.equal(0);
-        expect(ownerResp.totalVoters).to.equal(1);
-        expect(ownerResp.hasVoted).to.equal(true);
-        // signer1
-        expect(signer1Resp.question.scores[0]).to.equal(1);
-        expect(signer1Resp.question.scores[1]).to.equal(0);
-        expect(signer1Resp.question.scores[2]).to.equal(0);
-        expect(signer1Resp.totalVoters).to.equal(1);
-        expect(signer1Resp.hasVoted).to.equal(false);
-        // signer2
-        expect(signer2Resp.question.scores[0]).to.equal(1);
-        expect(signer2Resp.question.scores[1]).to.equal(0);
-        expect(signer2Resp.question.scores[2]).to.equal(0);
-        expect(signer2Resp.totalVoters).to.equal(1);
-        expect(signer2Resp.hasVoted).to.equal(false);
-      });
-
-      it("Users correctly see old and new voted questions dynamically", async function() {
-        // SCENARIO:
-        // 1. register all
-        // 2. create question as signer 2
-        // 3. vote as signer 1
-        //  - after check vote as owner and signer 2
-        // 4. create new question as owner
-        // 5. vote as signer 2 and owner
-        //   - check all resutls
-
-        // (1) register all users
-        await registerUser(signer1);
-        await registerUser(signer2);
-
-        // (2) create question and vote as signer 2
-        let qID = await createTestQuestion(signer2);
-        // (3)
-        await platformContract.connect(signer1).vote(0, 0); //ID should be 0
-
-        // (3-) check states
-        let ownerResp = await platformContract.connect(owner).getQuestionInfo(0);
-        let signer1Resp = await platformContract.connect(signer1).getQuestionInfo(0);
-        let signer2Resp = await platformContract.connect(signer2).getQuestionInfo(0);
-
-        // owner
-        expect(ownerResp.question.owner).to.equal(signer2.address);
-        expect(ownerResp.question.scores[0]).to.equal(1);
-        expect(ownerResp.question.scores[1]).to.equal(0);
-        expect(ownerResp.question.scores[2]).to.equal(0);
-        expect(ownerResp.totalVoters).to.equal(1);
-        expect(ownerResp.hasVoted).to.equal(false);
-        // signer1
-        expect(signer1Resp.question.owner).to.equal(signer2.address);
-        expect(signer1Resp.question.scores[0]).to.equal(1);
-        expect(signer1Resp.question.scores[1]).to.equal(0);
-        expect(signer1Resp.question.scores[2]).to.equal(0);
-        expect(signer1Resp.totalVoters).to.equal(1);
-        expect(signer1Resp.hasVoted).to.equal(true);
-        // signer2
-        expect(signer2Resp.question.owner).to.equal(signer2.address);
-        expect(signer2Resp.question.scores[0]).to.equal(1);
-        expect(signer2Resp.question.scores[1]).to.equal(0);
-        expect(signer2Resp.question.scores[2]).to.equal(0);
-        expect(signer2Resp.totalVoters).to.equal(1);
-        expect(signer2Resp.hasVoted).to.equal(false);
-
-        // (4) create new question as owner
-        qID = await createTestQuestion(owner);  //ID should be 1
-
-        // // (5) vote as singer 2 and owner (option 3)
-        await platformContract.vote(1, 2);
-        await platformContract.connect(signer2).vote(1, 2);
-
-        // (5-) check results
-        ownerResp = await platformContract.connect(owner).getQuestionInfo(1);
-        signer1Resp = await platformContract.connect(signer1).getQuestionInfo(1);
-        signer2Resp = await platformContract.connect(signer2).getQuestionInfo(1);
-
-        // // owner
-        expect(ownerResp.question.owner).to.equal(owner.address);
-        expect(ownerResp.question.scores[0]).to.equal(0);
-        expect(ownerResp.question.scores[1]).to.equal(0);
-        expect(ownerResp.question.scores[2]).to.equal(2);
-        expect(ownerResp.totalVoters).to.equal(2);
-        expect(ownerResp.hasVoted).to.equal(true);
-        // // signer1
-        expect(signer1Resp.question.owner).to.equal(owner.address);
-        expect(signer1Resp.question.scores[0]).to.equal(0);
-        expect(signer1Resp.question.scores[1]).to.equal(0);
-        expect(signer1Resp.question.scores[2]).to.equal(2);
-        expect(signer1Resp.totalVoters).to.equal(2);
-        expect(signer1Resp.hasVoted).to.equal(false);
-        // // signer2
-        expect(signer2Resp.question.owner).to.equal(owner.address);
-        expect(signer2Resp.question.scores[0]).to.equal(0);
-        expect(signer2Resp.question.scores[1]).to.equal(0);
-        expect(signer2Resp.question.scores[2]).to.equal(2);
-        expect(signer2Resp.totalVoters).to.equal(2);
-        expect(signer2Resp.hasVoted).to.equal(true);
       });
     });
 
     context("# Anti-Churchil check", async function() {
-      it("Cannot score same question more than once", async function(){
-          const qID = await createTestQuestion();
-          let resp = await platformContract.getQuestionInfo(qID);
+      it("Cannot score same option more than once - [aka \"NO DOUBLE VOTES\"]", async function(){
+          const newQuestion = await getAddedQuestion();
           //
           // check initial state
-          expect(resp.question.owner).to.equal(owner.address);
-          expect(resp.question.scores[0]).to.equal(0);
-          expect(resp.question.scores[1]).to.equal(0);
-          expect(resp.question.scores[2]).to.equal(0);
-          expect(resp.totalVoters).to.equal(0);
-          expect(resp.hasVoted).to.equal(false);
+          expect(newQuestion.questionHash).to.equal(questionHash_TEST);
+          expect(newQuestion.question.scores[0]).to.equal(0);
+          expect(newQuestion.question.scores[1]).to.equal(0);
+          expect(newQuestion.question.scores[2]).to.equal(0);
+          expect(newQuestion.totalVoters).to.equal(0);
+          expect(newQuestion.hasVoted).to.equal(false);
 
           // now perform vote and check state
-          await platformContract.vote(qID, 0);
+          await platformContract.vote(questionHash_TEST, 0);
           //
-          resp = await platformContract.getQuestionInfo(qID);
-          expect(resp.question.owner).to.equal(owner.address);
+          let resp = await platformContract.getQuestionInfo(questionHash_TEST);
           expect(resp.question.scores[0]).to.equal(1);
           expect(resp.question.scores[1]).to.equal(0);
           expect(resp.question.scores[2]).to.equal(0);
@@ -536,14 +194,13 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
           // now perform vote and expect failure
           try {
-              await platformContract.vote(qID, 0);
+              await platformContract.vote(questionHash_TEST, 0);
               // this is where it should fail
               assert.fail("Shouldn't accept another vote.");
           } catch {
             // make sure score isn't changed
             //
-            resp = await platformContract.getQuestionInfo(qID);
-            expect(resp.question.owner).to.equal(owner.address);
+            resp = await platformContract.getQuestionInfo(questionHash_TEST);
             expect(resp.question.scores[0]).to.equal(1);
             expect(resp.question.scores[1]).to.equal(0);
             expect(resp.question.scores[2]).to.equal(0);
@@ -552,43 +209,75 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
           }
       });
 
-      it("Cannot provide another vote after vote", async function(){
-          const qID = await createTestQuestion();
+      it("Cannot score different option after a vote", async function(){
+        // create question and check initial state
+        const newQuestion = await getAddedQuestion();
+        //
+        expect(newQuestion.questionHash).to.equal(questionHash_TEST);
+        expect(newQuestion.question.scores[0]).to.equal(0);
+        expect(newQuestion.question.scores[1]).to.equal(0);
+        expect(newQuestion.question.scores[2]).to.equal(0);
+        expect(newQuestion.totalVoters).to.equal(0);
+        expect(newQuestion.hasVoted).to.equal(false);
 
-          // perform vote and check initial state
-          await platformContract.vote(qID, 0);
-          //
-          let resp = await platformContract.getQuestionInfo(qID);
-          expect(resp.question.owner).to.equal(owner.address);
+        // perform vote and check initial state
+        await platformContract.vote(questionHash_TEST, 0);
+        //
+        let resp = await platformContract.getQuestionInfo(questionHash_TEST);
+        expect(resp.questionHash).to.equal(questionHash_TEST);
+        expect(resp.question.scores[0]).to.equal(1);
+        expect(resp.question.scores[1]).to.equal(0);
+        expect(resp.question.scores[2]).to.equal(0);
+        expect(resp.totalVoters).to.equal(1);
+        expect(resp.hasVoted).to.equal(true);
+
+        // try scoring different option now
+        try {
+            await platformContract.vote(questionHash_TEST, 1);
+            assert.fail("Should not accept different vote after a vote.");
+        } catch (err) {
+          resp = await platformContract.getQuestionInfo(questionHash_TEST);
+          expect(resp.questionHash).to.equal(questionHash_TEST);
           expect(resp.question.scores[0]).to.equal(1);
           expect(resp.question.scores[1]).to.equal(0);
           expect(resp.question.scores[2]).to.equal(0);
           expect(resp.totalVoters).to.equal(1);
           expect(resp.hasVoted).to.equal(true);
-
-          // try scoring different option now
-          try {
-              await platformContract.accept(1);
-              assert.fail("Should not accept different vote after a vote.");
-          } catch (err) {
-            resp = await platformContract.getQuestionInfo(qID);
-            expect(resp.question.owner).to.equal(owner.address);
-            expect(resp.question.scores[0]).to.equal(1);
-            expect(resp.question.scores[1]).to.equal(0);
-            expect(resp.question.scores[2]).to.equal(0);
-            expect(resp.totalVoters).to.equal(1);
-            expect(resp.hasVoted).to.equal(true);
-          }
+        }
       });
 
-      it("Cannot provide extra::none after a vote", async function(){
-          const qID = await createTestQuestion();
+      it("Cannot score extra::none_option after a vote", async function(){
+        // create question and check initial state
+        const newQuestion = await getAddedQuestion();
+        //
+        expect(newQuestion.questionHash).to.equal(questionHash_TEST);
+        expect(newQuestion.question.scores[0]).to.equal(0);
+        expect(newQuestion.question.scores[1]).to.equal(0);
+        expect(newQuestion.question.scores[2]).to.equal(0);
+        expect(newQuestion.totalVoters).to.equal(0);
+        expect(newQuestion.hasVoted).to.equal(false);
 
-          // perform vote and check initial state
-          await platformContract.vote(qID, 0);
-          //
-          let resp = await platformContract.getQuestionInfo(qID);
-          expect(resp.question.owner).to.equal(owner.address);
+        // perform vote and check initial state
+        await platformContract.vote(questionHash_TEST, 0);
+        //
+        let resp = await platformContract.getQuestionInfo(questionHash_TEST);
+        expect(resp.questionHash).to.equal(questionHash_TEST);
+        expect(resp.question.scores[0]).to.equal(1);
+        expect(resp.question.scores[1]).to.equal(0);
+        expect(resp.question.scores[2]).to.equal(0);
+        expect(resp.question.extras[0]).to.equal(0);
+        expect(resp.question.extras[1]).to.equal(0);
+        expect(resp.question.extras[2]).to.equal(0);
+        expect(resp.totalVoters).to.equal(1);
+        expect(resp.hasVoted).to.equal(true);
+
+        // try scoring extra option now
+        try {
+            await platformContract.voteExtra(questionHash_TEST, 0);
+            assert.fail("Should not accept extra vote after regular vote.");
+        } catch (err) {
+          resp = await platformContract.getQuestionInfo(questionHash_TEST);
+          expect(resp.questionHash).to.equal(questionHash_TEST);
           expect(resp.question.scores[0]).to.equal(1);
           expect(resp.question.scores[1]).to.equal(0);
           expect(resp.question.scores[2]).to.equal(0);
@@ -597,33 +286,25 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
           expect(resp.question.extras[2]).to.equal(0);
           expect(resp.totalVoters).to.equal(1);
           expect(resp.hasVoted).to.equal(true);
-
-          // try scoring different option now
-          try {
-              await platformContract.voteExtra(0);
-              assert.fail("Should not accept different vote after a vote.");
-          } catch (err) {
-            resp = await platformContract.getQuestionInfo(qID);
-            expect(resp.question.owner).to.equal(owner.address);
-            expect(resp.question.scores[0]).to.equal(1);
-            expect(resp.question.scores[1]).to.equal(0);
-            expect(resp.question.scores[2]).to.equal(0);
-            expect(resp.question.extras[0]).to.equal(0);
-            expect(resp.question.extras[1]).to.equal(0);
-            expect(resp.question.extras[2]).to.equal(0);
-            expect(resp.totalVoters).to.equal(1);
-            expect(resp.hasVoted).to.equal(true);
-          }
+        }
       });
 
       it("Cannot provide extra::malformed after a vote", async function(){
-        const qID = await createTestQuestion();
+        // create question and check initial state
+        const newQuestion = await getAddedQuestion();
+        //
+        expect(newQuestion.questionHash).to.equal(questionHash_TEST);
+        expect(newQuestion.question.scores[0]).to.equal(0);
+        expect(newQuestion.question.scores[1]).to.equal(0);
+        expect(newQuestion.question.scores[2]).to.equal(0);
+        expect(newQuestion.totalVoters).to.equal(0);
+        expect(newQuestion.hasVoted).to.equal(false);
 
         // perform vote and check initial state
-        await platformContract.vote(qID, 0);
+        await platformContract.vote(questionHash_TEST, 0);
         //
-        let resp = await platformContract.getQuestionInfo(qID);
-        expect(resp.question.owner).to.equal(owner.address);
+        let resp = await platformContract.getQuestionInfo(questionHash_TEST);
+        expect(resp.questionHash).to.equal(questionHash_TEST);
         expect(resp.question.scores[0]).to.equal(1);
         expect(resp.question.scores[1]).to.equal(0);
         expect(resp.question.scores[2]).to.equal(0);
@@ -635,11 +316,11 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
 
         // try scoring different option now
         try {
-            await platformContract.voteExtra(1);
+            await platformContract.voteExtra(questionHash_TEST, 2);
             assert.fail("Should not accept different vote after a vote.");
         } catch (err) {
-          resp = await platformContract.getQuestionInfo(qID);
-          expect(resp.question.owner).to.equal(owner.address);
+          resp = await platformContract.getQuestionInfo(questionHash_TEST);
+          expect(resp.questionHash).to.equal(questionHash_TEST);
           expect(resp.question.scores[0]).to.equal(1);
           expect(resp.question.scores[1]).to.equal(0);
           expect(resp.question.scores[2]).to.equal(0);
@@ -652,13 +333,37 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
       });
 
       it("Cannot provide extra::report after a vote", async function() {
-        const qID = await createTestQuestion();
+        // create question and check initial state
+        const newQuestion = await getAddedQuestion();
+        //
+        expect(newQuestion.questionHash).to.equal(questionHash_TEST);
+        expect(newQuestion.question.scores[0]).to.equal(0);
+        expect(newQuestion.question.scores[1]).to.equal(0);
+        expect(newQuestion.question.scores[2]).to.equal(0);
+        expect(newQuestion.totalVoters).to.equal(0);
+        expect(newQuestion.hasVoted).to.equal(false);
 
-          // perform vote and check initial state
-          await platformContract.vote(qID, 0);
-          //
-          let resp = await platformContract.getQuestionInfo(qID);
-          expect(resp.question.owner).to.equal(owner.address);
+        // perform vote and check initial state
+        await platformContract.vote(questionHash_TEST, 0);
+        //
+        let resp = await platformContract.getQuestionInfo(questionHash_TEST);
+        expect(resp.questionHash).to.equal(questionHash_TEST);
+        expect(resp.question.scores[0]).to.equal(1);
+        expect(resp.question.scores[1]).to.equal(0);
+        expect(resp.question.scores[2]).to.equal(0);
+        expect(resp.question.extras[0]).to.equal(0);
+        expect(resp.question.extras[1]).to.equal(0);
+        expect(resp.question.extras[2]).to.equal(0);
+        expect(resp.totalVoters).to.equal(1);
+        expect(resp.hasVoted).to.equal(true);
+
+        // try scoring different option now
+        try {
+            await platformContract.voteExtra(questionHash_TEST, 0);
+            assert.fail("Should not accept different vote after a vote.");
+        } catch (err) {
+          resp = await platformContract.getQuestionInfo(questionHash_TEST);
+          expect(resp.questionHash).to.equal(questionHash_TEST);
           expect(resp.question.scores[0]).to.equal(1);
           expect(resp.question.scores[1]).to.equal(0);
           expect(resp.question.scores[2]).to.equal(0);
@@ -667,23 +372,7 @@ describe("Testing Suite :: [MainPlatform contract]", async function () {
           expect(resp.question.extras[2]).to.equal(0);
           expect(resp.totalVoters).to.equal(1);
           expect(resp.hasVoted).to.equal(true);
-
-          // try scoring different option now
-          try {
-              await platformContract.voteExtra(0);
-              assert.fail("Should not accept different vote after a vote.");
-          } catch (err) {
-            resp = await platformContract.getQuestionInfo(qID);
-            expect(resp.question.owner).to.equal(owner.address);
-            expect(resp.question.scores[0]).to.equal(1);
-            expect(resp.question.scores[1]).to.equal(0);
-            expect(resp.question.scores[2]).to.equal(0);
-            expect(resp.question.extras[0]).to.equal(0);
-            expect(resp.question.extras[1]).to.equal(0);
-            expect(resp.question.extras[2]).to.equal(0);
-            expect(resp.totalVoters).to.equal(1);
-            expect(resp.hasVoted).to.equal(true);
-          }
+        }
       });
-  });
+    });
 });

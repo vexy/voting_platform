@@ -4,9 +4,11 @@ import type { QuestionFrame } from "../typechain-types";
 
 describe("Testing Suite :: [QuestionFrame contract]", async function () {
     let frame: QuestionFrame;
+
+    // create dummy question and setup base contract
     beforeEach(async function () {
         const [ baseSigner ] = await ethers.getSigners();
-        const dummyQuestion = [0, "New title", ["Yes", "No", "Maybe"]];
+        const dummyQuestion = ["New title", ["Yes", "No", "Maybe"]];
         frame = await ethers.deployContract("QuestionFrame", dummyQuestion, baseSigner);
     });
 
@@ -16,9 +18,19 @@ describe("Testing Suite :: [QuestionFrame contract]", async function () {
 
     context("Initialization", async function() {
         it("Can initialize properly", async function () {
+            const hash = await frame.questionHash();
+            const votersCount = await frame.votersCount();
+            const hasVoted = await frame.hasVoted();
+
+            expect(hash).to.equal("0x2b4e0243f84b0f82ddfd77fd25a6d1dcb2dbe05cafa154877e1b34fc145be8a0");
+            expect(votersCount).to.equal(0);
+            expect(hasVoted).to.equal(false);
+        });
+
+        it("Can produce PlatformQuestion", async function() {
             const platformQuestion = await frame.constructPlatformQuestion();
     
-            expect(platformQuestion.id).to.equal(0);
+            expect(platformQuestion.questionHash).to.equal(await frame.questionHash());
             expect(platformQuestion.question.title).to.equal("New title");
             expect(platformQuestion.question.options[0]).to.equal("Yes");
             expect(platformQuestion.question.options[1]).to.equal("No");
@@ -182,6 +194,18 @@ describe("Testing Suite :: [QuestionFrame contract]", async function () {
         });
 
         it("User 'hasVoted' stays 'false' after someone's vote", async function() {
+            const user1 = await getSigner(1);
+            let user1Resp = await frame.connect(user1).constructPlatformQuestion();
+
+            expect(user1Resp.question.scores[0]).to.equal(0);
+            expect(user1Resp.question.scores[1]).to.equal(0);
+            expect(user1Resp.question.scores[2]).to.equal(0);
+            expect(user1Resp.question.extras[0]).to.equal(0);
+            expect(user1Resp.question.extras[1]).to.equal(0);
+            expect(user1Resp.question.extras[2]).to.equal(0);
+            expect(user1Resp.totalVoters).to.equal(0);
+            expect(user1Resp.hasVoted).to.equal(false);
+
             // perform scoring and observe change (as owner)
             await frame.score(0);
             const response = await frame.constructPlatformQuestion();
@@ -196,8 +220,7 @@ describe("Testing Suite :: [QuestionFrame contract]", async function () {
             expect(response.hasVoted).to.equal(true);
 
             // now connect as user1 and observe status
-            const user1 = await getSigner(1);
-            const user1Resp = await frame.connect(user1).constructPlatformQuestion();
+            user1Resp = await frame.connect(user1).constructPlatformQuestion();
 
             expect(user1Resp.question.scores[0]).to.equal(1);
             expect(user1Resp.question.scores[1]).to.equal(0);
@@ -288,6 +311,87 @@ describe("Testing Suite :: [QuestionFrame contract]", async function () {
             expect(user1Resp.question.extras[2]).to.equal(0);
             expect(user1Resp.totalVoters).to.equal(2);
             expect(user1Resp.hasVoted).to.equal(true);
+        });
+
+        it("Three users 'hasVoted' test", async function() {
+            const user1 = await getSigner(1);
+            const user2 = await getSigner(2);
+            const user3 = await getSigner(3);
+
+            let user1Resp = await frame.connect(user1).constructPlatformQuestion();
+            let user2Resp = await frame.connect(user2).constructPlatformQuestion();
+            let user3Resp = await frame.connect(user3).constructPlatformQuestion();
+            //
+            expect(user1Resp.question.scores[0]).to.equal(0);
+            expect(user1Resp.question.scores[1]).to.equal(0);
+            expect(user1Resp.question.scores[2]).to.equal(0);
+            expect(user1Resp.question.extras[0]).to.equal(0);
+            expect(user1Resp.question.extras[1]).to.equal(0);
+            expect(user1Resp.question.extras[2]).to.equal(0);
+            expect(user1Resp.totalVoters).to.equal(0);
+            expect(user1Resp.hasVoted).to.equal(false);
+            //
+            expect(user2Resp.question.scores[0]).to.equal(0);
+            expect(user2Resp.question.scores[1]).to.equal(0);
+            expect(user2Resp.question.scores[2]).to.equal(0);
+            expect(user2Resp.question.extras[0]).to.equal(0);
+            expect(user2Resp.question.extras[1]).to.equal(0);
+            expect(user2Resp.question.extras[2]).to.equal(0);
+            expect(user2Resp.totalVoters).to.equal(0);
+            expect(user2Resp.hasVoted).to.equal(false);
+            //
+            expect(user3Resp.question.scores[1]).to.equal(0);
+            expect(user3Resp.question.scores[2]).to.equal(0);
+            expect(user3Resp.question.extras[0]).to.equal(0);
+            expect(user3Resp.question.extras[1]).to.equal(0);
+            expect(user3Resp.question.extras[2]).to.equal(0);
+            expect(user3Resp.totalVoters).to.equal(0);
+            expect(user3Resp.hasVoted).to.equal(false);
+
+            // now vote as owner and repeat tests
+            await frame.score(0);
+            const response = await frame.constructPlatformQuestion();
+            //
+            expect(response.question.scores[0]).to.equal(1);
+            expect(response.question.scores[1]).to.equal(0);
+            expect(response.question.scores[2]).to.equal(0);
+            expect(response.question.extras[0]).to.equal(0);
+            expect(response.question.extras[1]).to.equal(0);
+            expect(response.question.extras[2]).to.equal(0);
+            expect(response.totalVoters).to.equal(1);
+            expect(response.hasVoted).to.equal(true);
+
+            // now check all three users once again
+            user1Resp = await frame.connect(user1).constructPlatformQuestion();
+            user2Resp = await frame.connect(user2).constructPlatformQuestion();
+            user3Resp = await frame.connect(user3).constructPlatformQuestion();
+            //
+            expect(user1Resp.question.scores[0]).to.equal(1);
+            expect(user1Resp.question.scores[1]).to.equal(0);
+            expect(user1Resp.question.scores[2]).to.equal(0);
+            expect(user1Resp.question.extras[0]).to.equal(0);
+            expect(user1Resp.question.extras[1]).to.equal(0);
+            expect(user1Resp.question.extras[2]).to.equal(0);
+            expect(user1Resp.totalVoters).to.equal(1);
+            expect(user1Resp.hasVoted).to.equal(false);
+            //
+            expect(user2Resp.question.scores[0]).to.equal(1);
+            expect(user2Resp.question.scores[1]).to.equal(0);
+            expect(user2Resp.question.scores[2]).to.equal(0);
+            expect(user2Resp.question.extras[0]).to.equal(0);
+            expect(user2Resp.question.extras[1]).to.equal(0);
+            expect(user2Resp.question.extras[2]).to.equal(0);
+            expect(user2Resp.totalVoters).to.equal(1);
+            expect(user2Resp.hasVoted).to.equal(false);
+            //
+            expect(user3Resp.question.scores[0]).to.equal(1);
+            expect(user3Resp.question.scores[1]).to.equal(0);
+            expect(user3Resp.question.scores[2]).to.equal(0);
+            expect(user3Resp.question.extras[0]).to.equal(0);
+            expect(user3Resp.question.extras[1]).to.equal(0);
+            expect(user3Resp.question.extras[2]).to.equal(0);
+            expect(user3Resp.totalVoters).to.equal(1);
+            expect(user3Resp.hasVoted).to.equal(false);
         });
     });
 
