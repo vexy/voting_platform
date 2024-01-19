@@ -7,12 +7,20 @@ import "./Helpers.sol";
 contract Question {
     string title;
     string[] options;
-
     // score table mapping containing scores (votes) for certain label content
     mapping(uint => uint) scores;
-
     // extra options available to every question
     uint[3] extras;
+
+    /// Creates a new Question with given parameters
+    /// @param _title Title of the question
+    /// @param _options Array of possible voting options 
+    constructor(string memory _title, string[] memory _options) {
+        title = _title;
+        options = _options;
+    }
+
+//@@ ---    Modifiers   ---
 
     modifier legitOption(uint _option) {
         require(_option >= 0 && _option < options.length, "Non existing vote option. Try with different value");
@@ -24,11 +32,7 @@ contract Question {
         _;
     }
 
-    constructor(string memory _title, string[] memory _options) {
-        //copy question title and options
-        title = _title;
-        options = _options;
-    }
+//@@  ====================
 
     function score(uint vote_option) legitOption(vote_option) public virtual {
         scores[vote_option] += 1;

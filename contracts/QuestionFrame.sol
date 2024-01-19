@@ -5,9 +5,27 @@ import "./Helpers.sol";
 import "./Question.sol";
 
 contract QuestionFrame is Question {
-    uint questionID;
-    uint totalVoters;
+    bytes32 internal _questionHash;
+    
     mapping (address => bool) votersList;
+    uint totalVoters;
+
+    constructor(string memory _title, string[] memory _options) Question(_title, _options) {
+        _questionHash = computeMessageHash(_title, _options);
+        totalVoters = 0;
+    }
+
+    function computeMessageHash(string memory _t, string[] memory _opt) private pure returns (bytes32) {
+        // flatten all question options into single string
+        string memory allOptions;
+        for(uint i = 0; i < _opt.length; i++) {
+            allOptions = string(abi.encode(allOptions, "#", _opt[i]));
+        }
+        // computed hash of given parameters
+        bytes memory hashedInput = abi.encode(_t, allOptions);
+
+        return keccak256(hashedInput);
+    }
 
     modifier updatesVoters() {
         _;
@@ -18,24 +36,23 @@ contract QuestionFrame is Question {
     }
 
     modifier noDoubleVotes() {
-        require(votersList[msg.sender] == false, "Already voted. No dobule votes allowed.");
+        require(votersList[msg.sender] == false, "Already voted. No double votes allowed.");
         _;
-    }
-
-    constructor(uint _questionID, string memory _title, string[] memory _options) Question(_title, _options) {
-        questionID = _questionID;
-        totalVoters = 0;
     }
 
     function score(uint vote_option) noDoubleVotes updatesVoters public override {
         super.score(vote_option);
     }
 
-    function extra(EXTRAS extra_option) updatesVoters public override {
+    function extra(EXTRAS extra_option) noDoubleVotes updatesVoters public override {
         super.extra(extra_option);
     }
 
 //@@ ---    Getters     ---
+
+    function questionHash() public view returns (bytes32) {
+        return _questionHash;
+    }
 
     function votersCount() public view returns (uint) {
         return totalVoters;
@@ -47,7 +64,7 @@ contract QuestionFrame is Question {
 
     function constructPlatformQuestion() public view returns(PlatformQuestion memory) {
         return PlatformQuestion(
-            questionID,
+            questionHash(),
             constructMetaModel(),
             votersCount(),
             hasVoted()

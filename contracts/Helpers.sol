@@ -21,7 +21,7 @@ struct QuestionModel {
 }
 
 struct PlatformQuestion {
-    uint id;
+    bytes32 questionHash;
     QuestionModel question;
     uint totalVoters;
     bool hasVoted;
